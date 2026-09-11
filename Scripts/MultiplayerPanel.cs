@@ -1,8 +1,10 @@
+using System.Linq;
 using Godot;
 
 // Host/join bench for the ENet transport and the roster in NetworkManager.
 public partial class MultiplayerPanel : Control
 {
+	private LineEdit _name;
 	private LineEdit _address;
 	private Label _status;
 	private Button _host;
@@ -12,6 +14,11 @@ public partial class MultiplayerPanel : Control
 	public override void _Ready()
 	{
 		MenuUtils.AttachButtonSounds(this);
+
+		_name = (LineEdit)FindChild("NameEdit");
+		_name.Text = ConfigFileHandler.Instance.LoadPlayerName();
+		// Saved as it is typed: the name has to be on disk before Host or Join reads it.
+		_name.TextChanged += ConfigFileHandler.Instance.SavePlayerName;
 
 		_address = (LineEdit)FindChild("AddressEdit");
 		_status = (Label)FindChild("StatusLabel");
@@ -85,6 +92,7 @@ public partial class MultiplayerPanel : Control
 		if (!net.IsActive)
 		{
 			_status.Text = "offline";
+			_name.Editable = true;
 			_start.Disabled = true;
 			_host.Disabled = false;
 			_join.Disabled = false;
@@ -92,7 +100,9 @@ public partial class MultiplayerPanel : Control
 		}
 
 		string role = net.IsServer ? "hosting" : "client";
-		_status.Text = $"{role} · id {net.LocalPeerId} · {net.Peers.Count} peer(s)";
+		_status.Text = $"{role} · {string.Join(", ", net.Peers.Select(net.NameOf))}";
+		// Locked once connected: the roster already carries this name to everyone else.
+		_name.Editable = false;
 
 		// Only the host starts the match; clients are taken along by its RPC.
 		_start.Disabled = !net.IsServer;

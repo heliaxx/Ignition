@@ -8,8 +8,18 @@ public partial class LevelDeathmatch : BaseLevel
 	private const string ShipScene = "res://Scenes/Kaito.tscn";
 
 	protected override int LocalParticipantId => NetworkManager.Instance.LocalPeerId;
+	protected override string LocalParticipantName =>
+		NetworkManager.Instance.NameOf(NetworkManager.Instance.LocalPeerId);
 
 	private Node3D _spawnPoints;
+
+	// Before _Ready: the field generates its chunks there, and children run first, so a seed
+	// set any later would arrive after the arena had already been built.
+	public override void _EnterTree()
+	{
+		var asteroids = GetNodeOrNull<ChunkedAsteroidField>("ChunkedAsteroidField");
+		if (asteroids != null) asteroids.WorldSeed = MatchManager.Instance.WorldSeed;
+	}
 
 	public override void _Ready()
 	{
@@ -45,7 +55,7 @@ public partial class LevelDeathmatch : BaseLevel
 			AddChild(ship);
 
 			ship.GlobalTransform = SpawnTransform(i);
-			Participants.Register(ship, peerId);
+			Participants.Register(ship, peerId, NetworkManager.Instance.NameOf(peerId));
 			MatchStats.Register(ship);
 			ShipSync.Instance.AddRemoteShip(peerId, ship);
 		}

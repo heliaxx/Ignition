@@ -11,11 +11,30 @@ public partial class DamageManager : Node
 
 	public void Report(Node3D target, float amount, CollisionShape3D hitShape, Node3D source)
 	{
+		if (!NetworkManager.Instance.IsActive)
+		{
+			ApplyLocal(target, amount, hitShape, source);
+			return;
+		}
+
+		// Rocks are shared world state, not participants: every machine builds the same field
+		// from the match seed, so a hit only has to name which rock and how hard.
+		if (target is AsteroidBody)
+		{
+			ulong asteroidId = AsteroidBody.IdOf(hitShape);
+			if (asteroidId == 0UL) return;
+
+			if (NetworkManager.Instance.IsServer)
+				ServerAsteroidHit(asteroidId, (int)amount);
+			else
+				RpcId(1, MethodName.RequestAsteroidHit, asteroidId, (int)amount);
+			return;
+		}
+
 		int targetId = Participants.IdOf(target);
 
-		// Offline, or a target that is not a replicated ship — asteroids and hazards are
-		// simulated per machine anyway, so routing their damage would buy nothing.
-		if (targetId == Participants.None || !NetworkManager.Instance.IsActive)
+		// Level hazards and anything else off the roster stay local; nothing replicates them.
+		if (targetId == Participants.None)
 		{
 			ApplyLocal(target, amount, hitShape, source);
 			return;
@@ -40,6 +59,28 @@ public partial class DamageManager : Node
 	private void ApplyDamage(int targetId, float amount, int sourceId)
 	{
 		ApplyLocal(Participants.NodeOf(targetId), amount, null, Participants.NodeOf(sourceId));
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void RequestAsteroidHit(ulong asteroidId, int damage) =>
+		ServerAsteroidHit(asteroidId, damage);
+
+	// Server only. One HP ledger decides the moment a rock dies and the others are told the
+	// result; replicating the damage would let an unevenly landed hit desync which rocks exist.
+	private void ServerAsteroidHit(ulong asteroidId, int damage)
+	{
+		if (GetTree().GetFirstNodeInGroup("asteroid_field") is not ChunkedAsteroidField field)
+			return;
+
+		if (field.DamageAsteroid(asteroidId, damage))
+			Rpc(MethodName.ApplyAsteroidDestroyed, asteroidId);
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void ApplyAsteroidDestroyed(ulong asteroidId)
+	{
+		if (GetTree().GetFirstNodeInGroup("asteroid_field") is ChunkedAsteroidField field)
+			field.DestroyAsteroid(asteroidId);
 	}
 
 	private static void ApplyLocal(Node3D target, float amount, CollisionShape3D hitShape, Node3D source)

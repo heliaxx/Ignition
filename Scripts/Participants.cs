@@ -27,10 +27,12 @@ public static class Participants
 		_nextId = 1;
 	}
 
-	// Puts a ship on the roster. Safe to call twice; returns the existing id.
-	// Pass an explicit id for a networked match, where the server decides who is who;
-	// omit it offline and the local counter assigns one.
-	public static int Register(Node3D ship, int id = None)
+	// Offline and AI ships: the local counter names them and the node supplies the label.
+	public static int Register(Node3D ship) => Register(ship, None, null);
+
+	// A networked match knows both up front: the server decides the id, and the player chose
+	// the name before any ship existed. Safe to call twice; returns the existing id.
+	public static int Register(Node3D ship, int id, string name)
 	{
 		if (ship == null) return None;
 		if (_ids.TryGetValue(ship, out int existing)) return existing;
@@ -46,7 +48,11 @@ public static class Participants
 		_ids[ship] = id;
 		// Name captured now so it outlives the node: a freed ship must still be nameable
 		// on the scoreboard.
-		_byId[id] = new Entry { Ship = ship, Name = NameFor(ship) };
+		_byId[id] = new Entry
+		{
+			Ship = ship,
+			Name = string.IsNullOrWhiteSpace(name) ? NameFor(ship) : name,
+		};
 		return id;
 	}
 

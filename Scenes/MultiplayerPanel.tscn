@@ -30,6 +30,11 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 text = "MULTIPLAYER"
 
+[node name="NameEdit" type="LineEdit" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+placeholder_text = "callsign"
+
 [node name="HostButton" type="Button" parent="CenterContainer/VBoxContainer"]
 layout_mode = 2
 mouse_default_cursor_shape = 2

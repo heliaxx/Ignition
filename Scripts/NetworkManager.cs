@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 
 public partial class NetworkManager : Node
@@ -19,7 +20,9 @@ public partial class NetworkManager : Node
 	[Signal] public delegate void JoinedServerEventHandler();
 	[Signal] public delegate void LeftServerEventHandler(string reason);
 
-	private readonly HashSet<int> _peers = new();
+	// Who is connected and what they call themselves. The server owns this map and mirrors
+	// it to everyone, so a name is known before the ship carrying it exists.
+	private readonly Dictionary<int, string> _peers = new();
 
 	private SceneMultiplayer _scene;
 
@@ -31,7 +34,9 @@ public partial class NetworkManager : Node
 
 	public int LocalPeerId => IsActive ? Multiplayer.GetUniqueId() : 1;
 
-	public IReadOnlyCollection<int> Peers => _peers;
+	public IReadOnlyCollection<int> Peers => _peers.Keys;
+
+	public string NameOf(int peerId) => _peers.TryGetValue(peerId, out string name) ? name : "?";
 
 	public override void _Ready()
 	{
@@ -70,7 +75,7 @@ public partial class NetworkManager : Node
 		Multiplayer.MultiplayerPeer = peer;
 		_sessionOpen = true;
 		_peers.Clear();
-		_peers.Add(LocalPeerId);
+		_peers[LocalPeerId] = LocalName();
 		return true;
 	}
 
@@ -130,20 +135,51 @@ public partial class NetworkManager : Node
 
 	private void OnPeerConnected(long id)
 	{
-		_peers.Add((int)id);
+		// Placeholder until the peer says who it is; the roster sync replaces it.
+		_peers[(int)id] = "…";
 		EmitSignal(SignalName.PeerJoined, (int)id);
 	}
 
 	private void OnPeerDisconnected(long id)
 	{
 		_peers.Remove((int)id);
+		if (Multiplayer.IsServer()) BroadcastRoster();
 		EmitSignal(SignalName.PeerLeft, (int)id);
 	}
 
 	private void OnConnectedToServer()
 	{
-		_peers.Add(LocalPeerId);
+		_peers[LocalPeerId] = LocalName();
+		RpcId(1, MethodName.SubmitName, LocalName());
 		EmitSignal(SignalName.JoinedServer);
+	}
+
+	private static string LocalName() => ConfigFileHandler.Instance.LoadPlayerName();
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void SubmitName(string name)
+	{
+		_peers[Multiplayer.GetRemoteSenderId()] = name;
+		BroadcastRoster();
+	}
+
+	// The whole map every time: at a dozen peers that is cheaper than tracking deltas, and
+	// it also brings a new arrival up to date on everyone already here.
+	private void BroadcastRoster()
+	{
+		int[] ids = _peers.Keys.ToArray();
+		string[] names = ids.Select(id => _peers[id]).ToArray();
+		Rpc(MethodName.SyncRoster, ids, names);
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void SyncRoster(int[] ids, string[] names)
+	{
+		_peers.Clear();
+		for (int i = 0; i < ids.Length; i++)
+			_peers[ids[i]] = names[i];
+
+		EmitSignal(SignalName.PeerJoined, LocalPeerId);
 	}
 
 	private void OnConnectionFailed()

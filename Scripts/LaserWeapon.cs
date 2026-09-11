@@ -83,15 +83,15 @@ public partial class LaserWeapon : WeaponBase
             beamLen = GlobalPosition.DistanceTo(hit);
             _lastHitDist = beamLen;
 
-            if (_ray.GetCollider() is IDamageable dmg)
+            if (_ray.GetCollider() is IDamageable && _ray.GetCollider() is Node3D target)
             {
                 CollisionShape3D shape = null;
-                if (_ray.GetCollider() is StaticBody3D body)
+                if (target is StaticBody3D body)
                 {
                     uint owner = body.ShapeFindOwner(_ray.GetColliderShape());
                     shape = body.ShapeOwnerGetOwner(owner) as CollisionShape3D;
                 }
-                dmg.TakeDamage(DPS * (float)delta, shape, Shooter);
+                DamageManager.Instance.Report(target, DPS * (float)delta, shape, Shooter);
             }
         }
 

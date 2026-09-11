@@ -99,10 +99,24 @@ public partial class ChunkedAsteroidField : Node3D
 
     // Current HP per asteroid (only tracked while above 0 and below max)
     private Dictionary<ulong, int> _asteroidHealth = new();
+    // Where a rock sits in the chunk this machine built for it. Per-machine: a chunk drops
+    // rocks already destroyed when it was built, so the index differs between machines.
+    private sealed class AsteroidSlot
+    {
+        public Vector3I Chunk;
+        public int MeshVariant;
+        public int VariantIndex;
+    }
+
+    private readonly Dictionary<ulong, AsteroidSlot> _slots = new();
 
     // Player reference
     private Node3D _player;
     private Vector3I _lastPlayerChunk;
+
+    // Field-local points kept clear of asteroids, captured once in _Ready: a clearance point
+    // that moved would re-roll a chunk every time it reloaded.
+    private Vector3[] _clearancePoints = Array.Empty<Vector3>();
 
     // Forward look-ahead: smoothed travel direction tracked from per-frame position delta
     private Vector3 _playerTravelDir = Vector3.Zero;
@@ -164,6 +178,7 @@ public partial class ChunkedAsteroidField : Node3D
 
         _lastPlayerChunk = WorldToChunk(_player.GlobalPosition);
         _playerPrevPos = _player.GlobalPosition;
+        SnapshotClearancePoints();
         UpdateChunks();
 
         // Pre-load all initial chunks synchronously so the level starts fully populated
@@ -371,25 +386,12 @@ public partial class ChunkedAsteroidField : Node3D
     // Synchronous entry point used by _Ready for initial population.
     private void LoadChunk(Vector3I coord)
     {
-        var result = ComputeChunkData(
-            coord,
-            new HashSet<ulong>(_destroyedAsteroids),
-            GlobalPosition,
-            _player?.GlobalPosition ?? Vector3.Zero,
-            SnapshotExclusionPositions()
-        );
-        ApplyChunkData(result);
+        ApplyChunkData(ComputeChunkData(coord, new HashSet<ulong>(_destroyedAsteroids)));
     }
 
-    // Pure computation — safe to call from a worker thread.
-    // All Godot types used here (Vector3, Transform3D, Basis) are C# value-type structs.
-    // _asteroidMeshes is set once in _Ready and never mutated; reading .Length is safe.
-    private ChunkBuildResult ComputeChunkData(
-        Vector3I coord,
-        HashSet<ulong> destroyedSnapshot,
-        Vector3 fieldGlobalPos,
-        Vector3 playerPosSnapshot,
-        Vector3[] exclusionPosSnapshot)
+    // Pure computation — safe on a worker thread: the Godot types used here are value-type
+    // structs, and _asteroidMeshes and _clearancePoints are set once in _Ready.
+    private ChunkBuildResult ComputeChunkData(Vector3I coord, HashSet<ulong> destroyedSnapshot)
     {
         ulong chunkSeed = GenerateChunkSeed(coord);
         Vector3 regionSize = new Vector3(ChunkSize, ChunkSize, ChunkSize);
@@ -405,31 +407,34 @@ public partial class ChunkedAsteroidField : Node3D
 
         foreach (var localPos in points)
         {
+            // Drawn for every point, kept or not, so skipping one cannot shift the rest.
+            var rotation = new Vector3(
+                (float)(rng.NextDouble() * Mathf.Tau),
+                (float)(rng.NextDouble() * Mathf.Tau),
+                (float)(rng.NextDouble() * Mathf.Tau)
+            );
+            float scale = MinScale + (float)(rng.NextDouble() * (MaxScale - MinScale));
+            int meshVariant = meshCount > 0 ? rng.Next(0, meshCount) : 0;
+
             ulong asteroidId = GenerateAsteroidId(coord, localPos);
             if (destroyedSnapshot.Contains(asteroidId)) continue;
 
-            Vector3 worldPos = fieldGlobalPos + chunkOrigin + localPos - regionSize * 0.5f;
+            Vector3 pos = chunkOrigin + localPos - regionSize * 0.5f; // field-local
 
-            if (worldPos.DistanceSquaredTo(playerPosSnapshot) < radiusSq) continue;
-
-            bool excluded = false;
-            foreach (var ep in exclusionPosSnapshot)
+            bool cleared = false;
+            foreach (var cp in _clearancePoints)
             {
-                if (worldPos.DistanceSquaredTo(ep) < radiusSq) { excluded = true; break; }
+                if (pos.DistanceSquaredTo(cp) < radiusSq) { cleared = true; break; }
             }
-            if (excluded) continue;
+            if (cleared) continue;
 
             asteroids.Add(new AsteroidInstance
             {
-                Id       = asteroidId,
-                Position = chunkOrigin + localPos - regionSize * 0.5f, // field-local
-                Rotation = new Vector3(
-                    (float)(rng.NextDouble() * Mathf.Tau),
-                    (float)(rng.NextDouble() * Mathf.Tau),
-                    (float)(rng.NextDouble() * Mathf.Tau)
-                ),
-                Scale       = MinScale + (float)(rng.NextDouble() * (MaxScale - MinScale)),
-                MeshVariant = meshCount > 0 ? rng.Next(0, meshCount) : 0
+                Id          = asteroidId,
+                Position    = pos,
+                Rotation    = rotation,
+                Scale       = scale,
+                MeshVariant = meshVariant
             });
         }
 
@@ -527,22 +532,42 @@ public partial class ChunkedAsteroidField : Node3D
             CollisionBody      = null
         };
 
+        var variantCounts = new int[Mathf.Max(_asteroidMeshes.Length, 1)];
+        foreach (var a in asteroids)
+        {
+            int variantIndex = (a.MeshVariant >= 0 && a.MeshVariant < variantCounts.Length)
+                ? variantCounts[a.MeshVariant]++
+                : 0;
+            _slots[a.Id] = new AsteroidSlot
+            {
+                Chunk = coord,
+                MeshVariant = a.MeshVariant,
+                VariantIndex = variantIndex,
+            };
+        }
+
         _loadedChunks[coord] = chunkData;
+
+        // Destroyed since the build was dispatched, so the worker's snapshot missed it and it
+        // is still in the mesh. CreateCollisionBody below skips it either way.
+        foreach (var a in asteroids)
+            if (_destroyedAsteroids.Contains(a.Id))
+                HideAsteroid(a.Id);
 
         if (IsWithinCollisionRadius(coord))
             CreateCollisionBody(chunkData);
     }
 
-    // Returns world-space positions of all exclusion-zone nodes (snapshot for thread safety).
-    private Vector3[] SnapshotExclusionPositions()
+    // Field-local, so an origin shift moves the field and the points together.
+    private void SnapshotClearancePoints()
     {
-        if (SpawnExclusionZones == null || SpawnExclusionZones.Length == 0)
-            return Array.Empty<Vector3>();
+        var points = new List<Vector3> { ToLocal(_player.GlobalPosition) };
 
-        var positions = new Vector3[SpawnExclusionZones.Length];
-        for (int i = 0; i < SpawnExclusionZones.Length; i++)
-            positions[i] = SpawnExclusionZones[i]?.GlobalPosition ?? Vector3.Zero;
-        return positions;
+        if (SpawnExclusionZones != null)
+            foreach (var zone in SpawnExclusionZones)
+                if (zone != null) points.Add(ToLocal(zone.GlobalPosition));
+
+        _clearancePoints = points.ToArray();
     }
 
     // Load center, shifted ahead in the direction of travel (helps fast scenarios
@@ -581,6 +606,9 @@ public partial class ChunkedAsteroidField : Node3D
                 mi?.QueueFree();
 
             chunk.CollisionBody?.QueueFree();
+            if (chunk.Asteroids != null)
+                foreach (var a in chunk.Asteroids)
+                    _slots.Remove(a.Id);
 
             _loadedChunks.Remove(coord);
         }
@@ -610,15 +638,25 @@ public partial class ChunkedAsteroidField : Node3D
         return scale == 1f ? basis : basis.Scaled(new Vector3(scale, scale, scale));
     }
 
+    // 21 bits per axis: ±1M chunks, far past anything reachable.
+    private const ulong AxisMask = 0x1FFFFF;
+
     private ulong GenerateChunkSeed(Vector3I coord)
     {
-        // Combine world seed with chunk coordinates for deterministic generation
+        // Axes occupy disjoint bit ranges: two chunks sharing a seed would hold identical
+        // rocks under identical ids.
         unchecked
         {
             ulong hash = (ulong)WorldSeed;
-            hash ^= (ulong)(coord.X * 73856093) ^ ((ulong)coord.Y * 19349663) ^ ((ulong)coord.Z * 83492791);
+            hash ^= ((ulong)coord.X & AxisMask)
+                  | (((ulong)coord.Y & AxisMask) << 21)
+                  | (((ulong)coord.Z & AxisMask) << 42);
+
+            // MurmurHash3 finalizer: avalanches the packed axes across all 64 bits.
             hash ^= hash >> 33;
             hash *= 0xff51afd7ed558ccdUL;
+            hash ^= hash >> 33;
+            hash *= 0xc4ceb9fe1a85ec53UL;
             hash ^= hash >> 33;
             return hash;
         }
@@ -643,55 +681,65 @@ public partial class ChunkedAsteroidField : Node3D
         _destroyedAsteroids.Add(asteroidId);
     }
 
-    // Applies damage to an asteroid; destroys it when HP hits 0. Called by bullets.
-    public void HitAsteroid(ulong asteroidId, int meshVariant, int variantIndex, CollisionShape3D hitShape, int damage = 1)
+    // Reports whether the damage killed the rock; the caller owns the destruction, so only
+    // one machine decides it. Networked, that is the server.
+    public bool DamageAsteroid(ulong asteroidId, int damage)
     {
-        if (!AsteroidsDestroyable) return;
-        if (_destroyedAsteroids.Contains(asteroidId)) return;
+        if (!AsteroidsDestroyable) return false;
+        if (_destroyedAsteroids.Contains(asteroidId)) return false;
 
         if (!_asteroidHealth.TryGetValue(asteroidId, out int hp))
             hp = AsteroidHP;
 
         hp -= damage;
 
-        if (hp <= 0)
-        {
-            _asteroidHealth.Remove(asteroidId);
-            DestroyAsteroid(asteroidId, meshVariant, variantIndex, hitShape);
-        }
-        else
+        if (hp > 0)
         {
             _asteroidHealth[asteroidId] = hp;
+            return false;
         }
+
+        _asteroidHealth.Remove(asteroidId);
+        return true;
     }
 
-    // Disables the hit shape, hides its mesh instance, and persists the destruction.
-    private void DestroyAsteroid(ulong asteroidId, int meshVariant, int variantIndex, CollisionShape3D hitShape)
+    // Collision is rebuilt rather than switched off shape by shape: CreateCollisionBody skips
+    // everything in _destroyedAsteroids, so the body cannot drift out of step with the record.
+    // Safe to call for a rock whose chunk this machine has not built.
+    public void DestroyAsteroid(ulong asteroidId)
     {
         MarkAsteroidDestroyed(asteroidId);
 
-        hitShape.Disabled = true;
-
-        var chunkBody = hitShape.GetParent() as StaticBody3D;
-        foreach (var kvp in _loadedChunks)
+        if (_slots.TryGetValue(asteroidId, out AsteroidSlot slot)
+            && _loadedChunks.TryGetValue(slot.Chunk, out ChunkData chunk)
+            && chunk.CollisionBody != null)
         {
-            if (kvp.Value.CollisionBody != chunkBody) continue;
+            chunk.CollisionBody.QueueFree();
+            chunk.CollisionBody = null;
+            CreateCollisionBody(chunk);
+        }
 
-            if (UseMultiMesh)
+        HideAsteroid(asteroidId);
+    }
+
+    // Collapses the rock's instance in whichever chunk this machine built it into.
+    private void HideAsteroid(ulong asteroidId)
+    {
+        if (!_slots.TryGetValue(asteroidId, out AsteroidSlot slot)) return;
+        if (!_loadedChunks.TryGetValue(slot.Chunk, out ChunkData chunk)) return;
+
+        if (UseMultiMesh)
+        {
+            if (chunk.MmiByVariant.TryGetValue(slot.MeshVariant, out var mmi))
             {
-                if (kvp.Value.MmiByVariant.TryGetValue(meshVariant, out var mmi))
-                {
-                    var t = mmi.Multimesh.GetInstanceTransform(variantIndex);
-                    t.Basis = Basis.Identity.Scaled(Vector3.Zero);
-                    mmi.Multimesh.SetInstanceTransform(variantIndex, t);
-                }
+                var t = mmi.Multimesh.GetInstanceTransform(slot.VariantIndex);
+                t.Basis = Basis.Identity.Scaled(Vector3.Zero);
+                mmi.Multimesh.SetInstanceTransform(slot.VariantIndex, t);
             }
-            else
-            {
-                if (kvp.Value.MeshInstanceById.TryGetValue(asteroidId, out var mi))
-                    mi.Visible = false;
-            }
-            break;
+        }
+        else if (chunk.MeshInstanceById.TryGetValue(asteroidId, out var mi))
+        {
+            mi.Visible = false;
         }
     }
 
@@ -713,14 +761,8 @@ public partial class ChunkedAsteroidField : Node3D
         var collisionBody = new AsteroidBody { Field = this };
         collisionBody.AddToGroup("asteroids");
 
-        var variantCounts = new int[_asteroidMeshes.Length];
         foreach (var a in chunk.Asteroids)
         {
-            // Always advance the counter so variantIndex stays in sync with the MultiMesh
-            int variantIndex = (a.MeshVariant >= 0 && a.MeshVariant < variantCounts.Length)
-                ? variantCounts[a.MeshVariant]++
-                : 0;
-
             // No collision shape needed for already-destroyed asteroids
             if (_destroyedAsteroids.Contains(a.Id))
                 continue;
@@ -739,9 +781,6 @@ public partial class ChunkedAsteroidField : Node3D
             collisionShape.Basis = MakeBasis(a.Rotation, 1f);
             collisionShape.Scale = new Vector3(a.Scale, a.Scale, a.Scale);
             collisionShape.SetMeta("asteroid_id", (long)a.Id);
-            collisionShape.SetMeta("mesh_variant", a.MeshVariant);
-            collisionShape.SetMeta("variant_index", variantIndex);
-
             collisionBody.AddChild(collisionShape);
         }
 
@@ -830,15 +869,12 @@ public partial class ChunkedAsteroidField : Node3D
 
             _chunksBeingBuilt.Add(coord);
 
-            // Snapshot all main-thread-only data before entering the lambda
-            var destroyedSnap    = new HashSet<ulong>(_destroyedAsteroids);
-            var exclusionSnap    = SnapshotExclusionPositions();
-            var fieldPos         = GlobalPosition;
-            var playerPos        = _player?.GlobalPosition ?? Vector3.Zero;
+            // Snapshot main-thread-only data before entering the lambda
+            var destroyedSnap = new HashSet<ulong>(_destroyedAsteroids);
 
             Task.Run(() =>
             {
-                var built = ComputeChunkData(coord, destroyedSnap, fieldPos, playerPos, exclusionSnap);
+                var built = ComputeChunkData(coord, destroyedSnap);
                 _builtChunks.Enqueue(built);
             });
         }

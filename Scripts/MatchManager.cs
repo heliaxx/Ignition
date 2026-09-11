@@ -21,27 +21,34 @@ public partial class MatchManager : Node
 	// agreement.
 	private int[] _spawnOrder = Array.Empty<int>();
 
+	// Picked by the server and handed to everyone: the asteroid field derives every rock's
+	// position and id from it, so without a shared seed no two machines see the same arena.
+	public long WorldSeed { get; private set; } = 1;
+
 	public override void _Ready() => Instance = this;
 
 	public void StartMatch(string levelPath = DeathmatchLevel)
 	{
 		if (!NetworkManager.Instance.IsServer) return;
 
+		long seed = (long)GD.Randi() << 32 | GD.Randi();
+
 		// Offline the same path runs without a peer to send to.
 		if (!NetworkManager.Instance.IsActive)
 		{
-			BeginMatch(levelPath, new[] { NetworkManager.Instance.LocalPeerId });
+			BeginMatch(levelPath, new[] { NetworkManager.Instance.LocalPeerId }, seed);
 			return;
 		}
 
 		int[] order = NetworkManager.Instance.Peers.OrderBy(id => id).ToArray();
-		Rpc(MethodName.BeginMatch, levelPath, order);
+		Rpc(MethodName.BeginMatch, levelPath, order, seed);
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	private void BeginMatch(string levelPath, int[] spawnOrder)
+	private void BeginMatch(string levelPath, int[] spawnOrder, long worldSeed)
 	{
 		_spawnOrder = spawnOrder;
+		WorldSeed = worldSeed;
 		_matchOver = false;
 		_timeLeft = MatchDuration;
 		GetTree().ChangeSceneToFile(levelPath);

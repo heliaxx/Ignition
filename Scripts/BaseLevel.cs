@@ -20,6 +20,9 @@ public partial class BaseLevel : Node3D
 	// both machines name the same ship the same way.
 	protected virtual int LocalParticipantId => Participants.None;
 
+	// Null offline, where the node name will do.
+	protected virtual string LocalParticipantName => null;
+
 	private static readonly string[] PrewarmScenes =
 	{
 		"res://Scenes/Bullet.tscn",
@@ -37,7 +40,7 @@ public partial class BaseLevel : Node3D
 		// Ships register themselves in _Ready, but children run before the level does,
 		// so the player would have been wiped by the reset above. Registering the id first
 		// means the MatchStats call below finds it rather than assigning a local one.
-		Participants.Register(PlayerKaito, LocalParticipantId);
+		Participants.Register(PlayerKaito, LocalParticipantId, LocalParticipantName);
 		MatchStats.Register(PlayerKaito);
 		NavigationRegion = this;
 		MusicManager = GetNode<MusicManager>("/root/MusicManager");

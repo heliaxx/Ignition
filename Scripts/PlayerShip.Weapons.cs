@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Godot;
 
-public partial class Kaito
+public partial class PlayerShip
 {
     [ExportGroup("Missiles")]
     [Export] public bool UnlimitedMissiles = false;

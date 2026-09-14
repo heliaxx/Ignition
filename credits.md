@@ -30,8 +30,8 @@ License: [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
 **Enemy/Player Fighter Ship (Fighter_01)**
 by brycejellybean1 — [CGTrader](https://www.cgtrader.com/designers/brycejellybean1)
 
-**Kaito Spaceship (player ship)**
-by Frosnix — [GitHub](https://github.com/Frosnix-8)
+**RECOZU Bengal (player ship)**
+by Beiratet
 
 **Geroteng G1 Missile (model & flight-model prototype)**
 by Frosnix — [Missile-flight-model](https://github.com/Frosnix-8/Missile-flight-model)

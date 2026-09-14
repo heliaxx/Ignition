@@ -4,7 +4,7 @@ using Godot;
 
 public partial class NetworkManager : Node
 {
-	private const string ProtocolVersion = "1";
+	private const string ProtocolVersion = "2";
 
 	private const double AuthTimeoutSeconds = 5.0;
 

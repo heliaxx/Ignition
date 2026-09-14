@@ -3,7 +3,7 @@ using Godot;
 public partial class BaseLevel : Node3D
 {
 	protected Node3D Player;
-	protected Kaito PlayerKaito;
+	protected PlayerShip PlayerShip;
 	protected MusicManager MusicManager;
 	protected Node3D NavigationRegion;
 
@@ -36,12 +36,12 @@ public partial class BaseLevel : Node3D
 		Participants.Reset();
 		MatchStats.Reset();
 		Player = GetNode<Node3D>("Player");
-		PlayerKaito = Player as Kaito;
+		PlayerShip = Player as PlayerShip;
 		// Ships register themselves in _Ready, but children run before the level does,
 		// so the player would have been wiped by the reset above. Registering the id first
 		// means the MatchStats call below finds it rather than assigning a local one.
-		Participants.Register(PlayerKaito, LocalParticipantId, LocalParticipantName);
-		MatchStats.Register(PlayerKaito);
+		Participants.Register(PlayerShip, LocalParticipantId, LocalParticipantName);
+		MatchStats.Register(PlayerShip);
 		NavigationRegion = this;
 		MusicManager = GetNode<MusicManager>("/root/MusicManager");
 		MusicManager.StopMusic();
@@ -143,9 +143,9 @@ public partial class BaseLevel : Node3D
 
 	protected void WirePlayerDeath(System.Action onDied)
 	{
-		if (PlayerKaito != null)
+		if (PlayerShip != null)
 		{
-			var health = PlayerKaito.GetNode<HealthComponent>("HealthComponent");
+			var health = PlayerShip.GetNode<HealthComponent>("HealthComponent");
 			health.Died += () => onDied();
 		}
 	}

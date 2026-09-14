@@ -35,7 +35,7 @@ public partial class WeaponSync : Node
 		// The shooter already spawned this one the moment the trigger went down.
 		if (shooterId == NetworkManager.Instance.LocalPeerId) return;
 
-		if (Participants.NodeOf(shooterId) is Kaito ship)
+		if (Participants.NodeOf(shooterId) is PlayerShip ship)
 			ship.SpawnRelayedShot(muzzle, inheritedVelocity);
 	}
 }

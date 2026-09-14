@@ -1,7 +1,7 @@
 using Godot;
 using System.Collections.Generic;
 
-public partial class Kaito
+public partial class PlayerShip
 {
 	// Targeting
 	private GimbalTarget _lockedTarget;

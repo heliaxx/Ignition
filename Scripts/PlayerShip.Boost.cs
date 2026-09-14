@@ -1,6 +1,6 @@
 using Godot;
 
-public partial class Kaito
+public partial class PlayerShip
 {
 	[ExportGroup("Boost")]
 	[Export] public float BoostSpeedMultiplier = 1.5f;

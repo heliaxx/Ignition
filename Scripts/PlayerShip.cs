@@ -2,7 +2,7 @@ using Godot;
 using System.Collections.Generic;
 using System.Linq;
 
-public partial class Kaito : CharacterBody3D, IDamageable
+public partial class PlayerShip : CharacterBody3D, IDamageable
 {
 	private const float MAX_SPEED = 200.0f;
 	private const float MAX_ROLL_SPEED = 2.0f;

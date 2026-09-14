@@ -41,7 +41,7 @@ public partial class LevelRush : BaseLevel
 
 		_highScore = ConfigFileHandler.Instance?.LoadRushHighScore() ?? 0;
 
-		_playerHealth = PlayerKaito.GetNode<HealthComponent>("HealthComponent");
+		_playerHealth = PlayerShip.GetNode<HealthComponent>("HealthComponent");
 
 		_ringScene = GD.Load<PackedScene>("res://Scenes/Ring.tscn");
 		SpawnRing();
@@ -52,7 +52,7 @@ public partial class LevelRush : BaseLevel
 	{
 		base._Process(delta);
 
-		if (PlayerKaito == null || _playerHealth == null || _playerHealth.IsDead)
+		if (PlayerShip == null || _playerHealth == null || _playerHealth.IsDead)
 			return;
 
 		float dt = (float)delta;
@@ -74,8 +74,8 @@ public partial class LevelRush : BaseLevel
 		}
 
 		// Scoring
-		float speed = PlayerKaito.CurrentSpeed;
-		float maxSpeed = Kaito.BaseMaxSpeed;
+		float speed = PlayerShip.CurrentSpeed;
+		float maxSpeed = PlayerShip.BaseMaxSpeed;
 
 		if (speed >= maxSpeed)
 		{
@@ -103,20 +103,20 @@ public partial class LevelRush : BaseLevel
 
 	private void SpawnRing()
 	{
-		if (PlayerKaito == null) return;
+		if (PlayerShip == null) return;
 
-		Vector3 trajectory = PlayerKaito.Velocity.Length() > 5f
-			? PlayerKaito.Velocity.Normalized()
-			: -PlayerKaito.GlobalTransform.Basis.Z;
+		Vector3 trajectory = PlayerShip.Velocity.Length() > 5f
+			? PlayerShip.Velocity.Normalized()
+			: -PlayerShip.GlobalTransform.Basis.Z;
 
-		Vector3 spawnPos = PlayerKaito.GlobalPosition + trajectory * RingSpawnDistance;
+		Vector3 spawnPos = PlayerShip.GlobalPosition + trajectory * RingSpawnDistance;
 
 		if (_ring == null)
 		{
 			_ring = _ringScene.Instantiate<Ring>();
 			_ring.Collected += (body) =>
 			{
-				if (body != PlayerKaito) return;
+				if (body != PlayerShip) return;
 				_playerHealth.Heal(RingHealAmount);
 				_scoreMultiplier = RingScoreMultiplier;
 				_scoreMultiplierTimer = RingScoreMultiplierDuration;

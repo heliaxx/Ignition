@@ -40,7 +40,7 @@ public partial class LevelDeathmatch : BaseLevel
 	private void SpawnRemoteShips()
 	{
 		ShipSync.Instance.Clear();
-		ShipSync.Instance.SetLocalShip(PlayerKaito);
+		ShipSync.Instance.SetLocalShip(PlayerShip);
 		MissileSync.Instance.Clear();
 
 		var scene = GD.Load<PackedScene>(ShipScene);
@@ -52,7 +52,7 @@ public partial class LevelDeathmatch : BaseLevel
 			int peerId = roster[i];
 			if (peerId == localId) continue;
 
-			var ship = scene.Instantiate<Kaito>();
+			var ship = scene.Instantiate<PlayerShip>();
 			// Before AddChild: _Ready would otherwise hand this ship the viewport camera.
 			ship.MakeRemote();
 			AddChild(ship);
@@ -67,7 +67,7 @@ public partial class LevelDeathmatch : BaseLevel
 	// Puts a participant back in the arena. The level owns which ship a participant flies
 	public void Respawn(int participantId, int spawnRoll)
 	{
-		if (Participants.NodeOf(participantId) is Kaito ship)
+		if (Participants.NodeOf(participantId) is PlayerShip ship)
 			ship.Respawn(SpawnTransform(spawnRoll));
 	}
 

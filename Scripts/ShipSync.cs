@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Godot;
 
 // Replicates ship transforms between peers. The only class that puts ship state on the
-// wire: Kaito exposes MakeRemote() and its transform and knows nothing about the network.
+// wire: PlayerShip exposes MakeRemote() and its transform and knows nothing about the network.
 //
 // Client state always goes through the server, which relays it. A client can therefore
 // only ever describe its own ship, never move somebody else's.
@@ -18,7 +18,7 @@ public partial class ShipSync : Node
 
 	private sealed class Remote
 	{
-		public Kaito Ship;
+		public PlayerShip Ship;
 		public Vector3 Position;
 		public Quaternion Rotation;
 		public Vector3 Velocity;
@@ -28,7 +28,7 @@ public partial class ShipSync : Node
 	// stand-in's engines would sit dark however hard its pilot is burning. Headlights ride
 	// along too; sent with every state, a lost toggle corrects itself on the next packet.
 
-	private Kaito _local;
+	private PlayerShip _local;
 	private readonly Dictionary<int, Remote> _remotes = new();
 	private double _sendTimer;
 
@@ -41,9 +41,9 @@ public partial class ShipSync : Node
 		_remotes.Clear();
 	}
 
-	public void SetLocalShip(Kaito ship) => _local = ship;
+	public void SetLocalShip(PlayerShip ship) => _local = ship;
 
-	public void AddRemoteShip(int peerId, Kaito ship)
+	public void AddRemoteShip(int peerId, PlayerShip ship)
 	{
 		_remotes[peerId] = new Remote
 		{

@@ -4,7 +4,7 @@ using System;
 // Draws the HUD aiming widget: cursor, reticles, and gimbal indicator.
 public partial class AimWidgetVisualizer : Control
 {
-	private Kaito playerShip;
+	private PlayerShip playerShip;
 
 	[Export] public Color RadiusColor = new Color(0f, 0.7f, 1.0f, 0.4f); // light blue, semi-transparent
 	[Export] public Color DeadzoneColor = new Color(0.894f, 0.718f, 0.337f, 0.6f); // orange, more transparent
@@ -28,10 +28,10 @@ public partial class AimWidgetVisualizer : Control
 
 	public override void _Ready()
 	{
-		playerShip = GetNode<Kaito>("../.."); // Navigate up to Kaito (CanvasLayer -> Kaito)
+		playerShip = GetNode<PlayerShip>("../.."); // Navigate up to PlayerShip (CanvasLayer -> PlayerShip)
 		if (playerShip == null)
 		{
-			GD.PrintErr("AimWidgetVisualizer: Could not find Kaito node");
+			GD.PrintErr("AimWidgetVisualizer: Could not find PlayerShip node");
 		}
 		SetAnchorsPreset(LayoutPreset.Center);
 		SetSize(GetViewportRect().Size);

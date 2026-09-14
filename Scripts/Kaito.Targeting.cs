@@ -16,8 +16,8 @@ public partial class Kaito
 	// Target HUD elements
 	private Control _targetPanel;
 	private ProgressBar _targetHealthBar;
-	private Label3D _targetNameDisplay3D;
-	private Label3D _targetDistDisplay3D;
+	private CockpitReadout _targetNameReadout;
+	private CockpitReadout _targetDistReadout;
 
 	private void InitTargeting()
 	{
@@ -27,8 +27,8 @@ public partial class Kaito
 			_targetHealthBar = _targetPanel.GetNode<ProgressBar>("MarginContainer/VBoxContainer/TargetHealthBar");
 			_targetPanel.Visible = false;
 		}
-		_targetNameDisplay3D = GetNodeOrNull<Label3D>("TargetNameDisplay");
-		_targetDistDisplay3D = GetNodeOrNull<Label3D>("TargetDistDisplay");
+		_targetNameReadout = GetNodeOrNull<CockpitReadout>("TargetNameReadout");
+		_targetDistReadout = GetNodeOrNull<CockpitReadout>("TargetDistReadout");
 	}
 
 	private void CycleTarget()
@@ -141,8 +141,8 @@ public partial class Kaito
 		if (_lockedTarget == null)
 		{
 			_targetPanel.Visible = false;
-			if (_targetNameDisplay3D != null) _targetNameDisplay3D.Text = "---";
-			if (_targetDistDisplay3D != null) _targetDistDisplay3D.Text = "---";
+			if (_targetNameReadout != null) _targetNameReadout.Value = "---";
+			if (_targetDistReadout != null) _targetDistReadout.Value = "---";
 			return;
 		}
 
@@ -156,8 +156,8 @@ public partial class Kaito
 
 		_targetPanel.Visible = true;
 		float distance = GlobalPosition.DistanceTo(_lockedTarget.GlobalPosition);
-		if (_targetNameDisplay3D != null) _targetNameDisplay3D.Text = _lockedTarget.GetDisplayName();
-		if (_targetDistDisplay3D != null) _targetDistDisplay3D.Text = $"{distance:F0}m";
+		if (_targetNameReadout != null) _targetNameReadout.Value = _lockedTarget.GetDisplayName();
+		if (_targetDistReadout != null) _targetDistReadout.Value = $"{distance:F0}m";
 
 		_targetHealthBar.Visible = _lockedTarget.HasHealthData();
 		if (_lockedTarget.HasHealthData())

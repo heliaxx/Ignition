@@ -47,6 +47,7 @@ public partial class Kaito : CharacterBody3D, IDamageable
 	private bool widgetCursorInitialized = false;
 	private double timeSinceLastMouseInput = 0.0;
 	public Vector2 GetWidgetCursorPos() => widgetCursor;
+	public bool IsViewTurned => _cockpitCamera is FreeLook look && look.IsTurned;
 
 	private Vector3 angularVelocity = Vector3.Zero;
 	private Vector3 thrust = Vector3.Zero;
@@ -71,8 +72,6 @@ public partial class Kaito : CharacterBody3D, IDamageable
 	private float _currentMaxPitchSpeed = MAX_PITCH_SPEED;
 	private float _currentMaxYawSpeed = MAX_YAW_SPEED;
 
-	private Light3D lightLeft;
-	private Light3D lightRight;
 	private Node3D dustParticles;
 	private GpuParticles3D dustParticlesGpu;
 	private CanvasLayer canvasLayer;
@@ -80,24 +79,17 @@ public partial class Kaito : CharacterBody3D, IDamageable
 	private Camera3D _cockpitCamera;
 	private Camera3D _externalCamera;
 	private bool _isExternalView = false;
-	private Label3D _healthDisplay;
-	private Label3D _speedDisplay;
+	private CockpitReadout _healthReadout;
+	private CockpitReadout _speedReadout;
 	private HealthComponent health;
 	private bool _isDead = false;
 	private uint _liveCollisionLayer;
 	private uint _liveCollisionMask;
 	private ColorRect _deathScreen;
 
-	private MeshInstance3D _hull;
+	private ShipModel _model;
+	private Node3D _headlights;
 	private bool _showShip = true;
-	private MeshInstance3D _thrusterFlame;
-	private ShaderMaterial _thrusterMaterial;
-	private float _thrusterIntensity = 0.0f;
-	private MeshInstance3D _reverseThruster1;
-	private MeshInstance3D _reverseThruster2;
-	private ShaderMaterial _reverseThrusterMaterial1;
-	private ShaderMaterial _reverseThrusterMaterial2;
-	private float _reverseThrusterIntensity = 0.0f;
 
 	public float CurrentHealth => health.CurrentHealth;
 	public float MaxHealth => health.MaxHealth;
@@ -106,8 +98,6 @@ public partial class Kaito : CharacterBody3D, IDamageable
 
 	public override void _Ready()
 	{
-		lightLeft = GetNode<Light3D>("LeftLight");
-		lightRight = GetNode<Light3D>("RightLight");
 		dustParticles = GetNode<Node3D>("dustParticles");
 		dustParticlesGpu = dustParticles.GetNodeOrNull<GpuParticles3D>("GPUParticles3D");
 		_cockpitCamera = GetNode<Camera3D>("ShakeableCamera");
@@ -121,27 +111,29 @@ public partial class Kaito : CharacterBody3D, IDamageable
 
 		canvasLayer = GetNode<CanvasLayer>("HUD");
 		_scoreHud = GetParent().GetParent().GetNodeOrNull<CanvasLayer>("ScoreHUD");
-		_healthDisplay = GetNodeOrNull<Label3D>("HealthDisplay");
-		_speedDisplay = GetNodeOrNull<Label3D>("SpeedDisplay");
+		_healthReadout = GetNodeOrNull<CockpitReadout>("HealthReadout");
+		_speedReadout = GetNodeOrNull<CockpitReadout>("SpeedReadout");
 		health = GetNode<HealthComponent>("HealthComponent");
 		health.HealthChanged += OnHealthChanged;
 		health.Died += OnDied;
-		if (_healthDisplay != null) _healthDisplay.Text = $"{health.CurrentHealth:F0}";
+		if (_healthReadout != null) _healthReadout.Value = $"{health.CurrentHealth:F0}";
 
-		_hull = GetNodeOrNull<MeshInstance3D>("hull");
+		_model = GetNodeOrNull<ShipModel>("Model");
+		_headlights = GetNodeOrNull<Node3D>("Headlights");
+		// A stand-in has no pilot to see it.
+		if (!IsLocallyControlled) _model?.SetInteriorVisible(false);
 		var cfg = GetTree().Root.GetNodeOrNull<ConfigFileHandler>("/root/ConfigFileHandler");
 		if (cfg != null)
 		{
-			_showShip = cfg.GetShowShipModel();
-			if (_hull != null)
-				_hull.Visible = _showShip;
+			// Photo mode clears this machine's own view; other players' ships stay visible.
+			_showShip = !IsLocallyControlled || cfg.GetShowShipModel();
+			_cockpitCamera.Fov = cfg.GetCockpitFov();
+			if (_model != null) _model.Visible = _showShip;
 
 			foreach (string nodeName in new[]
 			{
-				"HP", "HealthDisplay", "Speed", "SpeedDisplay",
-				"Ammo", "AmmoDisplay", "Missiles", "MissilesDisplay",
-				"TargetName", "TargetNameDisplay", "TargetDist", "TargetDistDisplay",
-				"ThrusterFlame", "ReverseThruster1", "ReverseThruster2"
+				"HealthReadout", "SpeedReadout", "AmmoReadout",
+				"MissilesReadout", "TargetNameReadout", "TargetDistReadout"
 			})
 				GetNodeOrNull<Node3D>(nodeName)?.SetVisible(_showShip);
 
@@ -155,7 +147,6 @@ public partial class Kaito : CharacterBody3D, IDamageable
 		InitWeapons();
 		InitBoost();
 		InitTargeting();
-		InitThrusters();
 		_liveCollisionLayer = CollisionLayer;
 		_liveCollisionMask = CollisionMask;
 
@@ -169,31 +160,6 @@ public partial class Kaito : CharacterBody3D, IDamageable
 		if (IsLocallyControlled) _cockpitCamera.MakeCurrent();
 
 		ApplyActivation();
-	}
-
-	private void InitThrusters()
-	{
-		_thrusterFlame = GetNodeOrNull<MeshInstance3D>("ThrusterFlame");
-		_thrusterMaterial = DuplicateThrusterMaterial(_thrusterFlame);
-
-		_reverseThruster1 = GetNodeOrNull<MeshInstance3D>("ReverseThruster1");
-		_reverseThruster2 = GetNodeOrNull<MeshInstance3D>("ReverseThruster2");
-		_reverseThrusterMaterial1 = DuplicateThrusterMaterial(_reverseThruster1);
-		_reverseThrusterMaterial2 = DuplicateThrusterMaterial(_reverseThruster2);
-	}
-
-	// Duplicates the mesh's shader material into a per-instance override so each
-	// thruster's intensity can be animated independently. Returns null if absent.
-	private static ShaderMaterial DuplicateThrusterMaterial(MeshInstance3D mesh)
-	{
-		if (mesh == null) return null;
-		var srcMat = mesh.GetSurfaceOverrideMaterial(0) as ShaderMaterial
-			?? mesh.Mesh?.SurfaceGetMaterial(0) as ShaderMaterial;
-		if (srcMat == null) return null;
-
-		var dup = (ShaderMaterial)srcMat.Duplicate();
-		mesh.SetSurfaceOverrideMaterial(0, dup);
-		return dup;
 	}
 
 	private void LoadControlSettings()
@@ -212,9 +178,7 @@ public partial class Kaito : CharacterBody3D, IDamageable
 
 	public override void _Notification(int what)
 	{
-		if (what == NotificationPaused)
-			shooting.Stop();
-		else if (what == NotificationUnpaused)
+		if (what == NotificationUnpaused)
 			_justUnpaused = true;
 	}
 
@@ -230,6 +194,8 @@ public partial class Kaito : CharacterBody3D, IDamageable
 
 		EventBus.EmitKilled(Participants.IdOf(this), Participants.IdOf(health.LastAttacker));
 		ClearTarget();
+		foreach (GatlingWeapon gun in _gatlings)
+			gun.Silence();
 		Explosion.SpawnAt(this, GlobalPosition);
 		ApplyActivation();
 
@@ -238,9 +204,6 @@ public partial class Kaito : CharacterBody3D, IDamageable
 		if (IsLocallyControlled)
 		{
 			Input.MouseMode = Input.MouseModeEnum.Visible;
-			shooting.Stop();
-			startShooting.Stop();
-			endShooting.Stop();
 		}
 
 		// Only a finished single run gets this ship's own screen; a finished match already has
@@ -283,6 +246,14 @@ public partial class Kaito : CharacterBody3D, IDamageable
 		_isBoosting = boosting;
 	}
 
+	// Read from the ship this machine flies and written onto a stand-in, like the engine state.
+	public bool HeadlightsOn => _headlights != null && _headlights.Visible;
+
+	public void SetHeadlights(bool on)
+	{
+		if (_headlights != null) _headlights.Visible = on;
+	}
+
 	public void ShowDeathScreen()
 	{
 		if (_deathScreen != null) _deathScreen.Visible = true;
@@ -311,12 +282,13 @@ public partial class Kaito : CharacterBody3D, IDamageable
 
 	private void OnHealthChanged(float current, float max)
 	{
-		if (_healthDisplay != null) _healthDisplay.Text = $"{current:F0}";
+		if (_healthReadout != null) _healthReadout.Value = $"{current:F0}";
 	}
 
 	public override void _Input(InputEvent @event)
 	{
-		if (@event is InputEventMouseMotion mouseEvent)
+		// While looking around, the mouse turns the view, not the ship.
+		if (@event is InputEventMouseMotion mouseEvent && !Input.IsActionPressed("free_look"))
 		{
 			if (!widgetCursorInitialized)
 			{
@@ -338,7 +310,7 @@ public partial class Kaito : CharacterBody3D, IDamageable
 	public override void _Process(double delta)
 	{
 		// Engines are what other players see of this ship, so they run on stand-ins too.
-		UpdateThrusterFlame((float)delta);
+		UpdateThrusterFlame();
 
 		// Everything below is for the pilot alone: dust is a cockpit effect, the rest is HUD.
 		if (!IsLocallyControlled) return;
@@ -346,8 +318,8 @@ public partial class Kaito : CharacterBody3D, IDamageable
 		UpdateDustSpawnBySpeed();
 		AlignDustSpawnToVelocity((float)delta);
 		UpdateAutoCenterCursor((float)delta);
-		if (_speedDisplay != null)
-			_speedDisplay.Text = $"{CurrentSpeed:F0}";
+		if (_speedReadout != null)
+			_speedReadout.Value = $"{CurrentSpeed:F0}";
 		UpdateTargetHUD((float)delta);
 	}
 
@@ -419,15 +391,9 @@ public partial class Kaito : CharacterBody3D, IDamageable
 			timeSinceLastShot = 0.0;
 		}
 
-		if (_input.PrimaryFire && !_prevInput.PrimaryFire && (UnlimitedAmmo || _currentAmmo > 0))
-			shooting.Play();
-
 		if (!_input.PrimaryFire && _prevInput.PrimaryFire)
-		{
-			shooting.Stop();
-			if (UnlimitedAmmo || _currentAmmo > 0)
-				endShooting.Play();
-		}
+			foreach (GatlingWeapon gun in _gatlings)
+				gun.StopFiring();
 
 		if (_input.Boost && !_prevInput.Boost && CanBoost && !_isBoosting)
 			ActivateBoost();
@@ -436,15 +402,12 @@ public partial class Kaito : CharacterBody3D, IDamageable
 			FireMissile();
 	}
 
-	// Cosmetic and UI actions that never leave this machine, so they read Input directly
-	// and stay out of the intent record.
+	// Cosmetic and UI actions outside the intent record, so they read Input directly. Other
+	// players see the headlights through the ship state.
 	private void UpdateLocalOnly()
 	{
 		if (Input.IsActionJustPressed("light"))
-		{
-			lightLeft.Visible = !lightLeft.Visible;
-			lightRight.Visible = !lightRight.Visible;
-		}
+			SetHeadlights(!HeadlightsOn);
 
 		if (Input.IsActionJustPressed("camera_switch"))
 			ToggleCameraView();
@@ -696,37 +659,21 @@ public partial class Kaito : CharacterBody3D, IDamageable
 		dustParticles.GlobalTransform = new Transform3D(new Basis(blendedRotation), dustParticles.GlobalTransform.Origin);
 	}
 
-	private void UpdateThrusterFlame(float delta)
+	private void UpdateThrusterFlame()
 	{
-		// Forward thruster flame
-		if (_thrusterMaterial != null)
-		{
-			float targetIntensity;
-			if (_isBoosting)
-				targetIntensity = 1.5f;
-			else if (_input.ThrustForward)
-				targetIntensity = 0.6f + _currentBoostPower * 0.4f;
-			else if (Velocity.LengthSquared() > 1f)
-				targetIntensity = 0.15f;
-			else
-				targetIntensity = 0.0f;
+		if (_model == null) return;
 
-			_thrusterIntensity = Mathf.Lerp(_thrusterIntensity, targetIntensity, 8.0f * delta);
-			_thrusterMaterial.SetShaderParameter("intensity", _thrusterIntensity);
-		}
+		float forward;
+		if (_isBoosting)
+			forward = 1.5f;
+		else if (_input.ThrustForward)
+			forward = 0.6f + _currentBoostPower * 0.4f;
+		else if (Velocity.LengthSquared() > 1f)
+			forward = 0.15f;
+		else
+			forward = 0.0f;
 
-		// Reverse thruster flame
-		if (_reverseThrusterMaterial1 != null || _reverseThrusterMaterial2 != null)
-		{
-			float reverseTarget;
-			if (_input.ThrustBackward && !_isBoosting)
-				reverseTarget = 0.6f;
-			else
-				reverseTarget = 0.0f;
-
-			_reverseThrusterIntensity = Mathf.Lerp(_reverseThrusterIntensity, reverseTarget, 8.0f * delta);
-			_reverseThrusterMaterial1?.SetShaderParameter("intensity", _reverseThrusterIntensity);
-			_reverseThrusterMaterial2?.SetShaderParameter("intensity", _reverseThrusterIntensity);
-		}
+		float reverse = _input.ThrustBackward && !_isBoosting ? 0.6f : 0.0f;
+		_model.SetThrottle(forward, reverse);
 	}
 }

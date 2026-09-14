@@ -28,6 +28,7 @@ public partial class ConfigFileHandler : Node
 		EnsureControlDefaults();
 		Instance = this;
 		ApplyVideoSettings();
+		ApplyKeybindings();
 	}
 
 	private void SetDefaultKeybindings()
@@ -49,6 +50,7 @@ public partial class ConfigFileHandler : Node
 		config.SetValue("video", "upscaler",        DefaultUpscaler);
 		config.SetValue("video", "show_fps_meter",  DefaultShowFpsMeter);
 		config.SetValue("video", "show_ship_model", DefaultShowShipModel);
+		config.SetValue("video", "cockpit_fov",     DefaultCockpitFov);
 	}
 
 	private void SetDefaultAudioSettings()

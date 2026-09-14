@@ -36,7 +36,8 @@ public partial class Controls : Control
 		{ "boost", "Boost" },
 		{ "stop", "Precise stop" },
 		{ "light", "Light" },
-		{ "camera_switch", "Switch camera" }
+		{ "camera_switch", "Switch camera" },
+		{ "free_look", "Look around" }
 	};
 
 	public override void _Ready()
@@ -50,7 +51,6 @@ public partial class Controls : Control
 		aimDeadzoneValue = GetNode<Label>("PanelContainer/MarginContainer/VBoxContainer/MouseSettings/AimDeadzoneRow/AimDeadzoneValue");
 		autoCenterSpeedValue = GetNode<Label>("PanelContainer/MarginContainer/VBoxContainer/MouseSettings/AutoCenterSpeedRow/AutoCenterSpeedValue");
 
-		LoadKeybindingsFromSettings();
 		LoadMouseSettings();
 		BindMouseSettingsSignals();
 		_menuClick = MenuUtils.AttachButtonSounds(this);
@@ -98,16 +98,6 @@ public partial class Controls : Control
 		aimSensitivityValue.Text = aimSensitivitySlider.Value.ToString("0.00");
 		aimDeadzoneValue.Text = aimDeadzoneSlider.Value.ToString("0.000");
 		autoCenterSpeedValue.Text = autoCenterSpeedSlider.Value.ToString("0.0");
-	}
-
-	private void LoadKeybindingsFromSettings()
-	{
-		var keybindings = ConfigFileHandler.Instance.LoadKeybindings();
-		foreach (var action in keybindings.Keys)
-		{
-			InputMap.ActionEraseEvents(action);
-			InputMap.ActionAddEvent(action, keybindings[action]);
-		}
 	}
 
 	private void CreateActionList()
@@ -222,7 +212,7 @@ public partial class Controls : Control
 	private void _on_apply_btn_pressed()
 	{
 		ConfigFileHandler.Instance.ResetControlSettings();
-		LoadKeybindingsFromSettings();
+		ConfigFileHandler.Instance.ApplyKeybindings();
 		LoadMouseSettings();
 		CreateActionList();
 	}

@@ -1,6 +1,21 @@
-[gd_scene load_steps=2 format=3 uid="uid://brlfy145vlmbn"]
+[gd_scene load_steps=5 format=3 uid="uid://brlfy145vlmbn"]
 
 [ext_resource type="Script" uid="uid://lonkha61aves" path="res://Scripts/GatlingWeapon.cs" id="1_gatling"]
+[ext_resource type="AudioStream" uid="uid://c3fd06dncbffa" path="res://Imports/Sounds/shooting_start.mp3" id="2_start"]
+[ext_resource type="AudioStream" uid="uid://csmb15gf7523j" path="res://Imports/Sounds/shooting.mp3" id="3_loop"]
+[ext_resource type="AudioStream" uid="uid://bmcmfve3xbpak" path="res://Imports/Sounds/shooting_end.mp3" id="4_end"]
 
 [node name="GatlingWeapon" type="Node3D"]
 script = ExtResource("1_gatling")
+
+[node name="ShootingStart" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("2_start")
+bus = &"SFX"
+
+[node name="Shooting" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("3_loop")
+bus = &"SFX"
+
+[node name="ShootingEnd" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("4_end")
+bus = &"SFX"

@@ -1,0 +1,7 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://n52vl41vppbq"]
+
+[resource]
+resource_name = "panel fenders"
+albedo_color = Color(0.17254905, 0.17254905, 0.20000006, 1)
+metallic = 0.828509
+roughness = 0.69998

@@ -1,0 +1,17 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://w6dsxgbviu4o"]
+
+[ext_resource type="Texture2D" uid="uid://cnyg6w17je2xr" path="res://Imports/Spaceships/Bengal/textures/Bengal_main_albedo.png" id="1_0hcc4"]
+[ext_resource type="Texture2D" uid="uid://bhjela6r8aqs1" path="res://Imports/Spaceships/Bengal/textures/Bengal_main_ORM.png" id="2_fh33b"]
+[ext_resource type="Texture2D" uid="uid://dsrq7qqu4two2" path="res://Imports/Spaceships/Bengal/textures/Bengal_Main_normals.png" id="3_0c3bo"]
+
+[resource]
+resource_name = "Bengal.006"
+albedo_texture = ExtResource("1_0hcc4")
+metallic = 1.0
+metallic_texture = ExtResource("2_fh33b")
+metallic_texture_channel = 2
+roughness_texture = ExtResource("2_fh33b")
+roughness_texture_channel = 1
+normal_enabled = true
+normal_texture = ExtResource("3_0c3bo")
+metadata/_gltf_primary_texture_coord = 0

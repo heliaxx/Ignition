@@ -1,0 +1,7 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://cex6cvdfcqr6s"]
+
+[resource]
+resource_name = "press surface"
+cull_mode = 2
+albedo_color = Color(0.021329924, 0.021329924, 0.021329924, 1)
+roughness = 0.8840909

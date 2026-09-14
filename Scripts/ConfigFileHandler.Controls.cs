@@ -1,4 +1,5 @@
 using Godot;
+using System;
 using System.Collections.Generic;
 
 public partial class ConfigFileHandler
@@ -24,6 +25,7 @@ public partial class ConfigFileHandler
 		{ "primary_fire",    "mouse_1" },
 		{ "secondary_fire",  "mouse_2" },
 		{ "light",           "L"       },
+		{ "free_look",       "mouse_3" },
 	};
 
 	public void ResetControlSettings()
@@ -65,6 +67,16 @@ public partial class ConfigFileHandler
 		return LoadSection("controls");
 	}
 
+	// The saved settings, not the project's input map, decide what each action is bound to.
+	public void ApplyKeybindings()
+	{
+		foreach (var (action, inputEvent) in LoadKeybindings())
+		{
+			InputMap.ActionEraseEvents(action);
+			InputMap.ActionAddEvent(action, inputEvent);
+		}
+	}
+
 	public void SaveKeybindings(StringName action, InputEvent inputEvent)
 	{
 		string eventStr = "";
@@ -72,7 +84,7 @@ public partial class ConfigFileHandler
 		if (inputEvent is InputEventKey keyEvent)
 			eventStr = OS.GetKeycodeString(keyEvent.PhysicalKeycode);
 		else if (inputEvent is InputEventMouseButton mouseEvent)
-			eventStr = $"mouse_{mouseEvent.ButtonIndex}";
+			eventStr = $"mouse_{(int)mouseEvent.ButtonIndex}";
 
 		SaveKey("keybinding", action, eventStr);
 	}
@@ -93,10 +105,13 @@ public partial class ConfigFileHandler
 
 			if (eventStr.Contains("mouse_"))
 			{
-				inputEvent = new InputEventMouseButton
+				// Saved as the button's number, but a name ("mouse_Middle") parses too.
+				if (!Enum.TryParse(eventStr.Split('_')[1], out MouseButton button))
 				{
-					ButtonIndex = (MouseButton)int.Parse(eventStr.Split('_')[1])
-				};
+					GD.PushWarning($"Ignoring unreadable keybinding {key}={eventStr}");
+					continue;
+				}
+				inputEvent = new InputEventMouseButton { ButtonIndex = button };
 			}
 			else
 			{

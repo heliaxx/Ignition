@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cncma7ah1d55k" path="res://Scripts/LevelSkirmish.cs" id="1_mrvn6"]
 [ext_resource type="Texture2D" uid="uid://bsvhlcw4w5oev" path="res://Imports/Skyboxes/2k_stars_milky_way.jpg" id="3_fqnir"]
-[ext_resource type="PackedScene" uid="uid://bkmrv7xhowrhy" path="res://Scenes/Kaito.tscn" id="5_6u5s5"]
+[ext_resource type="PackedScene" uid="uid://duno45em20nnq" path="res://Scenes/PlayerShip.tscn" id="5_6u5s5"]
 [ext_resource type="PackedScene" uid="uid://p8bmcn3ds03m" path="res://Scenes/FpsMeter.tscn" id="7_n8v0p"]
 [ext_resource type="PackedScene" uid="uid://dmy55noj8bktd" path="res://Scenes/PauseMenu.tscn" id="8_3dypt"]
 [ext_resource type="PackedScene" uid="uid://00enhsw64eas" path="res://Scenes/BigStation.tscn" id="9_dgv10"]

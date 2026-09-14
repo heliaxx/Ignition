@@ -1,0 +1,7 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://bcr27g3cm68ok"]
+
+[resource]
+resource_name = "panel seam.004"
+albedo_color = Color(0.5500034, 0.53836787, 0.5206862, 1)
+metallic = 0.800012
+roughness = 0.400014

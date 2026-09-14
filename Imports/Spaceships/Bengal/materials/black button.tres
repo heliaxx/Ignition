@@ -1,0 +1,8 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://drl4uiyxntle"]
+
+[resource]
+resource_name = "black button"
+cull_mode = 2
+albedo_color = Color(0.2213364, 0.2213364, 0.2213364, 1)
+metallic = 1.0
+roughness = 0.43636364

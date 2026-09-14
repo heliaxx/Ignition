@@ -54,6 +54,10 @@ public partial class FlightModelMissile : RigidBody3D
 	// Remaining engine burn time in seconds; with the fuel spent the missile can only coast.
 	private float _thrustTime = 10.0f;
 
+	// How long a spent missile stays in the tree: its impact effects and the smoke it already
+	// laid (3.3 s) are its children and would vanish with it.
+	private const float LingerTime = 3.5f;
+
 	private MissileThruster _thrustForward;
 	private MissileThruster _thrustRight;
 	private MissileThruster _thrustLeft;
@@ -148,6 +152,17 @@ public partial class FlightModelMissile : RigidBody3D
 		CollisionLayer = 0;
 		CollisionMask = 0;
 		if (_collisionCheck != null) _collisionCheck.Enabled = false;
+	}
+
+	// Ends a copy: gone at once, but kept until its trail has faded. A copy runs no physics
+	// tick, so a timer frees it.
+	public void Vanish()
+	{
+		HideBody();
+		GetTree().CreateTimer(LingerTime).Timeout += () =>
+		{
+			if (IsInstanceValid(this)) QueueFree();
+		};
 	}
 
 	private void SetSmokeTrail(bool emitting)
@@ -449,6 +464,16 @@ public partial class FlightModelMissile : RigidBody3D
 		GetNode<AudioStreamPlayer3D>("explosion").Play();
 		GetNode<GpuParticles3D>("impact").Emitting = true;
 		Explosion.SpawnAt(this, GlobalPosition); // big space explosion at the impact point
+		HideBody();
+		GetNode<ShapeCast3D>("impactcheck").QueueFree();
+		_thrustTime = -1;
+		_hitTarget = true;
+		_despawnAt = _lifeTimer + LingerTime;
+		EmitSignal(SignalName.Detonated, GlobalPosition);
+	}
+
+	private void HideBody()
+	{
 		SetSmokeTrail(false); // already-emitted smoke stays in the world
 		foreach (MissileThruster t in _allThrusters)
 		{
@@ -458,11 +483,6 @@ public partial class FlightModelMissile : RigidBody3D
 		GetNode<Node3D>("missile final_001").Hide();
 		GetNode<Node3D>("Text_008").Hide();
 		GetNodeOrNull<Node3D>("BurnGlow").Hide();
-		GetNode<ShapeCast3D>("impactcheck").QueueFree();
-		_thrustTime = -1;
-		_hitTarget = true;
-		_despawnAt = _lifeTimer + 3f; // explosion audio/particles linger
-		EmitSignal(SignalName.Detonated, GlobalPosition);
 	}
 
 	// Resolves which CollisionShape3D of a StaticBody3D was hit, from a physics

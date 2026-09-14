@@ -16,14 +16,18 @@ public partial class MatchManager : Node
 
 	public static MatchManager Instance { get; private set; }
 
-	// Peer order fixed by the server when the match starts; a peer's position in it is its
-	// spawn point. Every peer gets the same array, so spawn assignment needs no further
-	// agreement.
+	// Peer order fixed by the server when the match starts; a peer's position in it picks its
+	// start from the level's shuffled spawn points. Every peer gets the same array, so spawn
+	// assignment needs no further agreement.
 	private int[] _spawnOrder = Array.Empty<int>();
 
 	// Picked by the server and handed to everyone: the asteroid field derives every rock's
 	// position and id from it, so without a shared seed no two machines see the same arena.
 	public long WorldSeed { get; private set; } = 1;
+
+	// Also the server's pick: the level shuffles its spawn points with it, the same way on
+	// every machine.
+	public long SpawnSeed { get; private set; }
 
 	public override void _Ready() => Instance = this;
 
@@ -32,23 +36,25 @@ public partial class MatchManager : Node
 		if (!NetworkManager.Instance.IsServer) return;
 
 		long seed = (long)GD.Randi() << 32 | GD.Randi();
+		long spawnSeed = (long)GD.Randi() << 32 | GD.Randi();
 
 		// Offline the same path runs without a peer to send to.
 		if (!NetworkManager.Instance.IsActive)
 		{
-			BeginMatch(levelPath, new[] { NetworkManager.Instance.LocalPeerId }, seed);
+			BeginMatch(levelPath, new[] { NetworkManager.Instance.LocalPeerId }, seed, spawnSeed);
 			return;
 		}
 
 		int[] order = NetworkManager.Instance.Peers.OrderBy(id => id).ToArray();
-		Rpc(MethodName.BeginMatch, levelPath, order, seed);
+		Rpc(MethodName.BeginMatch, levelPath, order, seed, spawnSeed);
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	private void BeginMatch(string levelPath, int[] spawnOrder, long worldSeed)
+	private void BeginMatch(string levelPath, int[] spawnOrder, long worldSeed, long spawnSeed)
 	{
 		_spawnOrder = spawnOrder;
 		WorldSeed = worldSeed;
+		SpawnSeed = spawnSeed;
 		_matchOver = false;
 		_timeLeft = MatchDuration;
 		GetTree().ChangeSceneToFile(levelPath);
@@ -92,7 +98,7 @@ public partial class MatchManager : Node
 		{
 			// The match can end, or everyone can leave, while the timer runs.
 			if (NetworkManager.Instance.IsActive && !_matchOver)
-				Rpc(MethodName.RespawnShip, participantId);
+				Rpc(MethodName.RespawnShip, participantId, (int)(GD.Randi() >> 1));
 		};
 		return DeathOutcome.Respawning;
 	}
@@ -115,11 +121,12 @@ public partial class MatchManager : Node
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	private void RespawnShip(int participantId)
+	private void RespawnShip(int participantId, int spawnRoll)
 	{
-		// The level owns which ship a participant flies; this only says when.
+		// The level owns which ship a participant flies; this only says when, and carries the
+		// server's roll for where.
 		if (GetTree().CurrentScene is LevelDeathmatch level)
-			level.Respawn(participantId);
+			level.Respawn(participantId, spawnRoll);
 	}
 
 	public override void _Process(double delta)

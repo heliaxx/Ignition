@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using Godot;
 
 public partial class Kaito
@@ -17,52 +19,46 @@ public partial class Kaito
     [ExportGroup("Gatling")]
     [Export] public bool UnlimitedGatlingAmmo = false;
 
-    private GatlingWeapon _gatling;
+    private GatlingWeapon[] _gatlings = Array.Empty<GatlingWeapon>();
 
-    private bool UnlimitedAmmo => _gatling?.UnlimitedAmmo ?? false;
-    private int _currentAmmo  => _gatling?.CurrentAmmo    ?? 0;
+    private bool UnlimitedAmmo => _gatlings.Length > 0 && _gatlings[0].UnlimitedAmmo;
+    private int _currentAmmo  => _gatlings.Sum(gun => gun.CurrentAmmo);
 
     private double timeSinceLastShot = 0.0;
     private double fireCooldown;
 
-    private AudioStreamPlayer3D startShooting;
-    private AudioStreamPlayer3D shooting;
-    private AudioStreamPlayer3D endShooting;
+    private CockpitReadout _ammoReadout;
+    private CockpitReadout _missilesReadout;
 
-    private Label3D _ammoDisplay3D;
-    private Label3D _missilesDisplay3D;
-
-    // A shot this ship fired on the machine that owns it, replayed here for the tracer.
+    // A shot this ship fired on the machine that owns it, replayed here for the tracer and sound.
     // Visual only — the owner reports its own hits.
     public void SpawnRelayedShot(Transform3D muzzle, Vector3 inheritedVelocity)
     {
-        _gatling?.SpawnBullet(muzzle, inheritedVelocity, hasAuthority: false);
+        // Every gun relays its own shots, so the one the shot left from plays it.
+        GatlingWeapon gun = _gatlings.MinBy(g => g.GlobalPosition.DistanceSquaredTo(muzzle.Origin));
+        gun?.SpawnBullet(muzzle, inheritedVelocity, hasAuthority: false);
     }
 
     private void InitWeapons()
     {
-        startShooting = GetNode<AudioStreamPlayer3D>("ShootingStart");
-        shooting      = GetNode<AudioStreamPlayer3D>("Shooting");
-        endShooting   = GetNode<AudioStreamPlayer3D>("ShootingEnd");
-
         _missileScene = GD.Load<PackedScene>("res://Scenes/FlightModelMissile.tscn");
         _timeSinceLastMissile = MissileCooldown;
         _currentMissiles = MaxMissiles;
 
-        _ammoDisplay3D    = GetNodeOrNull<Label3D>("AmmoDisplay");
-        _missilesDisplay3D = GetNodeOrNull<Label3D>("MissilesDisplay");
+        _ammoReadout     = GetNodeOrNull<CockpitReadout>("AmmoReadout");
+        _missilesReadout = GetNodeOrNull<CockpitReadout>("MissilesReadout");
 
-        _gatling = GetNodeOrNull<GatlingWeapon>("GatlingWeapon");
-        if (_gatling != null)
+        _gatlings = GetChildren().OfType<GatlingWeapon>().ToArray();
+        foreach (GatlingWeapon gun in _gatlings)
         {
             if (UnlimitedGatlingAmmo)
-                _gatling.UnlimitedAmmo = true;
-            _gatling.Shooter = this;
-            _gatling.SpawnParent = GetParent() as Node3D;
-            _gatling.AmmoChanged += (cur, max) => UpdateAmmoHUD();
+                gun.UnlimitedAmmo = true;
+            gun.Shooter = this;
+            gun.SpawnParent = GetParent() as Node3D;
+            gun.AmmoChanged += (cur, max) => UpdateAmmoHUD();
         }
 
-        fireCooldown = _gatling != null ? 1.0 / _gatling.FireRate : 0.1;
+        fireCooldown = _gatlings.Length > 0 ? 1.0 / _gatlings[0].FireRate : 0.1;
         timeSinceLastShot = fireCooldown;
 
         UpdateAmmoHUD();
@@ -71,24 +67,22 @@ public partial class Kaito
 
     private void UpdateGimbalTracking(float delta)
     {
-        if (_gatling == null) return;
-        _gatling.SetTarget(_lockedTarget);
-        _gatling.ShipVelocity = Velocity;
+        foreach (GatlingWeapon gun in _gatlings)
+        {
+            gun.SetTarget(_lockedTarget);
+            gun.ShipVelocity = Velocity;
+        }
     }
 
     private void Shoot()
     {
         if (!UnlimitedAmmo && _currentAmmo <= 0) return;
 
-        int ammoBefore = _currentAmmo;
-        Transform3D? muzzle = _gatling?.FireOnce();
-        if (muzzle.HasValue)
-            WeaponSync.Instance.ReportGatlingShot(Participants.IdOf(this), muzzle.Value, Velocity);
-
-        if (!UnlimitedAmmo && ammoBefore > 0 && _currentAmmo <= 0)
+        foreach (GatlingWeapon gun in _gatlings)
         {
-            shooting.Stop();
-            endShooting.Play();
+            Transform3D? muzzle = gun.FireOnce();
+            if (muzzle.HasValue)
+                WeaponSync.Instance.ReportGatlingShot(Participants.IdOf(this), muzzle.Value, Velocity);
         }
     }
 
@@ -114,7 +108,13 @@ public partial class Kaito
                 RemoveCollisionExceptionWith(instance);
         };
 
-        Transform3D spawn = _gatling?.GlobalTransform ?? GlobalTransform;
+        // From between the guns, along their aim.
+        Transform3D spawn = GlobalTransform;
+        if (_gatlings.Length > 0)
+        {
+            spawn = _gatlings[0].GlobalTransform;
+            spawn.Origin = _gatlings.Aggregate(Vector3.Zero, (sum, gun) => sum + gun.GlobalPosition) / _gatlings.Length;
+        }
         spawn.Origin -= spawn.Basis.Z * 5f;
         instance.Transform = spawn;
         GetParent().AddChild(instance);
@@ -127,21 +127,27 @@ public partial class Kaito
 
     private void UpdateAmmoHUD()
     {
-        if (_ammoDisplay3D == null || _gatling == null) return;
-        _ammoDisplay3D.Text = _gatling.UnlimitedAmmo ? "∞" : $"{_gatling.CurrentAmmo}/{_gatling.MaxAmmo}";
+        if (_ammoReadout == null || _gatlings.Length == 0) return;
+        _ammoReadout.Value = UnlimitedAmmo ? "∞" : $"{_currentAmmo}/{_gatlings.Sum(gun => gun.MaxAmmo)}";
     }
 
     private void UpdateMissileHUD()
     {
-        if (_missilesDisplay3D != null)
-            _missilesDisplay3D.Text = UnlimitedMissiles ? "∞" : $"{_currentMissiles}/{MaxMissiles}";
+        if (_missilesReadout != null)
+            _missilesReadout.Value = UnlimitedMissiles ? "∞" : $"{_currentMissiles}/{MaxMissiles}";
     }
 
-    public float GetGimbalScreenRadius()    => _gatling?.GetGimbalScreenRadius() ?? 0f;
-    public Vector2? GetGimbalAimScreenPos() => _gatling?.GetAimScreenPos();
+    public float GetGimbalScreenRadius() => _gatlings.Length > 0 ? _gatlings[0].GetGimbalScreenRadius() : 0f;
 
-    // Kaito.Targeting.cs uses these names — delegate to GatlingWeapon
-    private Node3D barrel     => _gatling;
-    private float GimbalAngle => _gatling?.GimbalAngle  ?? 10f;
-    private float BulletSpeed => _gatling?.BulletSpeed  ?? 1600f;
+    // Where the guns' aim lands on screen, averaged over the guns that are in view.
+    public Vector2? GetGimbalAimScreenPos()
+    {
+        Vector2[] points = _gatlings.Select(gun => gun.GetAimScreenPos()).Where(p => p.HasValue).Select(p => p.Value).ToArray();
+        return points.Length == 0 ? null : points.Aggregate(Vector2.Zero, (sum, p) => sum + p) / points.Length;
+    }
+
+    // For the targeting code. The guns share gimbal and bullet settings, so the first stands for all.
+    private Node3D barrel     => _gatlings.Length > 0 ? _gatlings[0] : null;
+    private float GimbalAngle => _gatlings.Length > 0 ? _gatlings[0].GimbalAngle : 10f;
+    private float BulletSpeed => _gatlings.Length > 0 ? _gatlings[0].BulletSpeed : 1600f;
 }

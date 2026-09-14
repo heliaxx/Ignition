@@ -15,6 +15,8 @@ public partial class Graphics : Control
 	[Export] private OptionButton upscalerDropdown;
 	[Export] private CheckBox fpsMeterCheck;
 	[Export] private CheckBox shipModelCheck;
+	[Export] private HSlider cockpitFovSlider;
+	[Export] private Label cockpitFovValue;
 	[Export] private Button backBtn;
 	[Export] private Label hintLabel;
 
@@ -35,6 +37,8 @@ public partial class Graphics : Control
 		upscalerDropdown ??= GetNode<OptionButton>("Menu/Options/UpscalerDropdown");
 		fpsMeterCheck ??= GetNode<CheckBox>("Menu/Options/FPSMeterCheck");
 		shipModelCheck ??= GetNode<CheckBox>("Menu/Options/ShipModelCheck");
+		cockpitFovSlider ??= GetNode<HSlider>("Menu/Options/CockpitFovRow/CockpitFovSlider");
+		cockpitFovValue ??= GetNode<Label>("Menu/Options/CockpitFovRow/CockpitFovValue");
 		backBtn ??= GetNode<Button>("HBoxContainer/BackBtn");
 		hintLabel ??= GetNode<Label>("HintLabel");
 
@@ -47,6 +51,7 @@ public partial class Graphics : Control
 		InitializeResolutionDropdown();
 		InitializeRenderScaleDropdown();
 		InitializeUpscalerDropdown();
+		InitializeCockpitFovSlider();
 
 		FixDropdownPopup(fpsDropdown);
 		FixDropdownPopup(modeDropdown);
@@ -85,6 +90,7 @@ public partial class Graphics : Control
 		RegisterHint(upscalerDropdown, "Upscaling method. Bilinear is fast but blurry; FSR 1.0 and 2.2 sharper but more expensive.");
 		RegisterHint(fpsMeterCheck, "Shows the frame rate during gameplay.");
 		RegisterHint(shipModelCheck, "Photo mode when off: hides the player ship for a completely clean screen.");
+		RegisterHint(cockpitFovSlider, "Field of view from the cockpit, in degrees. Wider shows more around the ship; narrower makes what is ahead larger.");
 	}
 
 	private void RegisterHint(Control control, string text)
@@ -160,6 +166,13 @@ public partial class Graphics : Control
 		upscalerDropdown.AddItem("FSR 2.2");
 	}
 
+	private void InitializeCockpitFovSlider()
+	{
+		cockpitFovSlider.MinValue = ConfigFileHandler.MinCockpitFov;
+		cockpitFovSlider.MaxValue = ConfigFileHandler.MaxCockpitFov;
+		cockpitFovSlider.Step = 1;
+	}
+
 	private void LoadCurrentSettings()
 	{
 		configHandler.ApplyVideoSettings();
@@ -207,6 +220,8 @@ public partial class Graphics : Control
 
 		fpsMeterCheck.ButtonPressed = configHandler.GetShowFpsMeter();
 		shipModelCheck.ButtonPressed = configHandler.GetShowShipModel();
+		cockpitFovSlider.Value = configHandler.GetCockpitFov();
+		cockpitFovValue.Text = $"{configHandler.GetCockpitFov()}°";
 
 		UpdateResolutionEnabled();
 	}
@@ -293,6 +308,12 @@ public partial class Graphics : Control
 	private void _on_ship_model_check_toggled(bool toggled)
 	{
 		configHandler.SaveVideoSettings("show_ship_model", toggled);
+	}
+
+	private void _on_cockpit_fov_slider_value_changed(double value)
+	{
+		configHandler.SaveVideoSettings("cockpit_fov", (int)value);
+		cockpitFovValue.Text = $"{(int)value}°";
 	}
 
 	private void _on_back_btn_pressed()

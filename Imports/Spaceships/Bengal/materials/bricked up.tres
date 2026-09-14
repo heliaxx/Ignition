@@ -1,0 +1,6 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://yloaaasa1c5w"]
+
+[resource]
+resource_name = "bricked up"
+albedo_color = Color(0.43753114, 0.03810799, 0.04240261, 1)
+roughness = 0.96818185

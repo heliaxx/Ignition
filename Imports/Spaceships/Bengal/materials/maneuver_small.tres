@@ -1,0 +1,23 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://cjae2dwykp3q2"]
+
+[ext_resource type="Texture2D" uid="uid://c4c7oo0xi5lfk" path="res://Imports/Spaceships/Bengal/textures/maneuver_small_albedo.png" id="1_unnid"]
+[ext_resource type="Texture2D" uid="uid://bp15dj0ip0chq" path="res://Imports/Spaceships/Bengal/textures/maneuver_small_emit.png" id="2_co4ub"]
+[ext_resource type="Texture2D" uid="uid://cl38q12tyahh8" path="res://Imports/Spaceships/Bengal/textures/maneuver_small_ORM.png" id="3_qcq0k"]
+[ext_resource type="Texture2D" uid="uid://x0pwxnhdndi0" path="res://Imports/Spaceships/Bengal/textures/maneuver_small_normal.png" id="4_e52vk"]
+
+[resource]
+resource_name = "maneuver_small"
+albedo_texture = ExtResource("1_unnid")
+metallic = 1.0
+metallic_texture = ExtResource("3_qcq0k")
+metallic_texture_channel = 2
+roughness_texture = ExtResource("3_qcq0k")
+roughness_texture_channel = 1
+emission_enabled = true
+emission = Color(1, 1, 1, 1)
+emission_energy_multiplier = 9.2
+emission_operator = 1
+emission_texture = ExtResource("2_co4ub")
+normal_enabled = true
+normal_texture = ExtResource("4_e52vk")
+metadata/_gltf_primary_texture_coord = 1

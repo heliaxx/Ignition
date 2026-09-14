@@ -156,6 +156,6 @@ public partial class MissileSync : Node
 		// The copy never detonated, so it plays the blast rather than the launcher's full
 		// impact sequence.
 		Explosion.SpawnAt(remote.Missile, at);
-		remote.Missile.QueueFree();
+		remote.Missile.Vanish();
 	}
 }

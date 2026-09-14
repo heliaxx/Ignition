@@ -49,6 +49,9 @@ uniform vec4 smoke_color : source_color = vec4(0.75, 0.75, 0.78, 1.0);
 uniform sampler2D noise_tex;
 uniform sampler2D mask_tex;
 uniform float max_lod : hint_range(0.0, 10.0) = 8.0;
+// Meters from the camera over which smoke fades in, so a ship flying through its own trail can see out.
+uniform float near_fade_start = 5.0;
+uniform float near_fade_end = 25.0;
 
 void vertex() {
 	// Particle billboard, keeping per-particle scale and rotation.
@@ -76,7 +79,7 @@ void fragment() {
 	float noise = textureLod(noise_tex, UV, lod).r;
 	float mask = texture(mask_tex, UV).r;
 	ALBEDO = smoke_color.rgb;
-	ALPHA = noise * mask * COLOR.a * smoke_color.a;
+	ALPHA = noise * mask * COLOR.a * smoke_color.a * smoothstep(near_fade_start, near_fade_end, length(VERTEX));
 }
 "
 
@@ -114,5 +117,6 @@ lifetime = 20.0
 speed_scale = 6.0
 fixed_fps = 0
 trail_lifetime = 0.5
+visibility_aabb = AABB(-10000, -10000, -10000, 20000, 20000, 20000)
 process_material = SubResource("ParticleProcessMaterial_smoke")
 draw_pass_1 = SubResource("QuadMesh_smoke")

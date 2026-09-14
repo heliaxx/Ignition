@@ -1,0 +1,7 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://bt1gjfa20cacq"]
+
+[resource]
+resource_name = "temporary metal.001"
+albedo_color = Color(0.48548594, 0.1841228, 0.18811876, 1)
+metallic = 0.31059715
+roughness = 0.70961946

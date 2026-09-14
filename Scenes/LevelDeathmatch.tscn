@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bfpr6mejhst5h" path="res://Scripts/LevelDeathmatch.cs" id="1_xijtb"]
 [ext_resource type="Texture2D" uid="uid://bsvhlcw4w5oev" path="res://Imports/Skyboxes/2k_stars_milky_way.jpg" id="3_02vup"]
-[ext_resource type="PackedScene" uid="uid://bkmrv7xhowrhy" path="res://Scenes/Kaito.tscn" id="5_3qx6a"]
+[ext_resource type="PackedScene" uid="uid://duno45em20nnq" path="res://Scenes/PlayerShip.tscn" id="5_3qx6a"]
 [ext_resource type="PackedScene" uid="uid://p8bmcn3ds03m" path="res://Scenes/FpsMeter.tscn" id="7_6pirs"]
 [ext_resource type="PackedScene" uid="uid://dmy55noj8bktd" path="res://Scenes/PauseMenu.tscn" id="8_63mkt"]
 [ext_resource type="Script" uid="uid://bwpdy447817x3" path="res://Scripts/ChunkedAsteroidField.cs" id="9_6rtd5"]
@@ -350,40 +350,40 @@ transform = Transform3D(29.8357, -3.13585, 0, 3.11868, 29.6722, -3.13585, 0.3277
 [node name="SpawnPoints" type="Node3D" parent="." unique_id=912825841]
 
 [node name="Spawn0" type="Marker3D" parent="SpawnPoints" unique_id=177381997]
-transform = Transform3D(0.000000, 0.000000, -1.000000, 0.000000, 1.000000, 0.000000, 1.000000, 0.000000, 0.000000, 700.000, 0, 0.000)
+transform = Transform3D(0.000000, 0.000000, -1.000000, 0.000000, 1.000000, 0.000000, 1.000000, 0.000000, 0.000000, 1400, 0, 0)
 
 [node name="Spawn1" type="Marker3D" parent="SpawnPoints" unique_id=992575010]
-transform = Transform3D(0.500000, 0.000000, -0.866025, 0.000000, 1.000000, 0.000000, 0.866025, 0.000000, 0.500000, 606.218, 0, 350.000)
+transform = Transform3D(0.500000, 0.000000, -0.866025, 0.000000, 1.000000, 0.000000, 0.866025, 0.000000, 0.500000, 1212.436, 0, 700)
 
 [node name="Spawn2" type="Marker3D" parent="SpawnPoints" unique_id=2102863117]
-transform = Transform3D(0.866025, 0.000000, -0.500000, 0.000000, 1.000000, 0.000000, 0.500000, 0.000000, 0.866025, 350.000, 0, 606.218)
+transform = Transform3D(0.866025, 0.000000, -0.500000, 0.000000, 1.000000, 0.000000, 0.500000, 0.000000, 0.866025, 700, 0, 1212.436)
 
 [node name="Spawn3" type="Marker3D" parent="SpawnPoints" unique_id=1351664341]
-transform = Transform3D(1.000000, 0.000000, -0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000, 0, 700.000)
+transform = Transform3D(1.000000, 0.000000, -0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0, 0, 1400)
 
 [node name="Spawn4" type="Marker3D" parent="SpawnPoints" unique_id=1768447389]
-transform = Transform3D(0.866025, -0.000000, 0.500000, 0.000000, 1.000000, 0.000000, -0.500000, 0.000000, 0.866025, -350.000, 0, 606.218)
+transform = Transform3D(0.866025, -0.000000, 0.500000, 0.000000, 1.000000, 0.000000, -0.500000, 0.000000, 0.866025, -700, 0, 1212.436)
 
 [node name="Spawn5" type="Marker3D" parent="SpawnPoints" unique_id=956513448]
-transform = Transform3D(0.500000, -0.000000, 0.866025, 0.000000, 1.000000, 0.000000, -0.866025, 0.000000, 0.500000, -606.218, 0, 350.000)
+transform = Transform3D(0.500000, -0.000000, 0.866025, 0.000000, 1.000000, 0.000000, -0.866025, 0.000000, 0.500000, -1212.436, 0, 700)
 
 [node name="Spawn6" type="Marker3D" parent="SpawnPoints" unique_id=1225433045]
-transform = Transform3D(0.000000, -0.000000, 1.000000, 0.000000, 1.000000, 0.000000, -1.000000, 0.000000, 0.000000, -700.000, 0, 0.000)
+transform = Transform3D(0.000000, -0.000000, 1.000000, 0.000000, 1.000000, 0.000000, -1.000000, 0.000000, 0.000000, -1400, 0, 0)
 
 [node name="Spawn7" type="Marker3D" parent="SpawnPoints" unique_id=1537220994]
-transform = Transform3D(-0.500000, 0.000000, 0.866025, 0.000000, 1.000000, 0.000000, -0.866025, 0.000000, -0.500000, -606.218, 0, -350.000)
+transform = Transform3D(-0.500000, 0.000000, 0.866025, 0.000000, 1.000000, 0.000000, -0.866025, 0.000000, -0.500000, -1212.436, 0, -700)
 
 [node name="Spawn8" type="Marker3D" parent="SpawnPoints" unique_id=1735170125]
-transform = Transform3D(-0.866025, 0.000000, 0.500000, 0.000000, 1.000000, 0.000000, -0.500000, 0.000000, -0.866025, -350.000, 0, -606.218)
+transform = Transform3D(-0.866025, 0.000000, 0.500000, 0.000000, 1.000000, 0.000000, -0.500000, 0.000000, -0.866025, -700, 0, -1212.436)
 
 [node name="Spawn9" type="Marker3D" parent="SpawnPoints" unique_id=1303055745]
-transform = Transform3D(-1.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, -0.000000, 0.000000, -1.000000, -0.000, 0, -700.000)
+transform = Transform3D(-1.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, -0.000000, 0.000000, -1.000000, 0, 0, -1400)
 
 [node name="Spawn10" type="Marker3D" parent="SpawnPoints" unique_id=2126509474]
-transform = Transform3D(-0.866025, 0.000000, -0.500000, 0.000000, 1.000000, 0.000000, 0.500000, 0.000000, -0.866025, 350.000, 0, -606.218)
+transform = Transform3D(-0.866025, 0.000000, -0.500000, 0.000000, 1.000000, 0.000000, 0.500000, 0.000000, -0.866025, 700, 0, -1212.436)
 
 [node name="Spawn11" type="Marker3D" parent="SpawnPoints" unique_id=1474141772]
-transform = Transform3D(-0.500000, 0.000000, -0.866025, 0.000000, 1.000000, 0.000000, 0.866025, 0.000000, -0.500000, 606.218, 0, -350.000)
+transform = Transform3D(-0.500000, 0.000000, -0.866025, 0.000000, 1.000000, 0.000000, 0.866025, 0.000000, -0.500000, 1212.436, 0, -700)
 
 
 [node name="Scoreboard" parent="." instance=ExtResource("99_scoreboard")]

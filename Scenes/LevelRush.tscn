@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://q8h4bqdl7js7" path="res://Scripts/LevelRush.cs" id="1_xijtb"]
 [ext_resource type="Shader" uid="uid://vxoc6h16dya7" path="res://Shaders/SpaceShader.gdshader" id="2_fmvnv"]
 [ext_resource type="Texture2D" uid="uid://bsvhlcw4w5oev" path="res://Imports/Skyboxes/2k_stars_milky_way.jpg" id="3_02vup"]
-[ext_resource type="PackedScene" uid="uid://bkmrv7xhowrhy" path="res://Scenes/Kaito.tscn" id="5_3qx6a"]
+[ext_resource type="PackedScene" uid="uid://duno45em20nnq" path="res://Scenes/PlayerShip.tscn" id="5_3qx6a"]
 [ext_resource type="PackedScene" uid="uid://p8bmcn3ds03m" path="res://Scenes/FpsMeter.tscn" id="7_6pirs"]
 [ext_resource type="PackedScene" uid="uid://dmy55noj8bktd" path="res://Scenes/PauseMenu.tscn" id="8_63mkt"]
 [ext_resource type="Script" uid="uid://bwpdy447817x3" path="res://Scripts/ChunkedAsteroidField.cs" id="9_6rtd5"]

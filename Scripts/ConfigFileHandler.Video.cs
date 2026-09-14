@@ -14,6 +14,9 @@ public partial class ConfigFileHandler
 	private const string DefaultUpscaler      = "bilinear";
 	private const bool   DefaultShowFpsMeter  = true;
 	private const bool   DefaultShowShipModel = true;
+	private const int    DefaultCockpitFov    = 70;
+	public const int     MinCockpitFov        = 60;
+	public const int     MaxCockpitFov        = 80;
 
 	public void SaveVideoSettings(string key, Variant value)
 	{
@@ -38,6 +41,7 @@ public partial class ConfigFileHandler
 		config.SetValue("video", "upscaler",        DefaultUpscaler);
 		config.SetValue("video", "show_fps_meter",  DefaultShowFpsMeter);
 		config.SetValue("video", "show_ship_model", DefaultShowShipModel);
+		config.SetValue("video", "cockpit_fov",     DefaultCockpitFov);
 		config.Save(SETTINGS_FILE_PATH);
 		ApplyVideoSettings();
 	}
@@ -54,6 +58,13 @@ public partial class ConfigFileHandler
 		return config.HasSectionKey("video", "show_ship_model")
 			? (bool)config.GetValue("video", "show_ship_model")
 			: DefaultShowShipModel;
+	}
+
+	public int GetCockpitFov()
+	{
+		return config.HasSectionKey("video", "cockpit_fov")
+			? Mathf.Clamp((int)config.GetValue("video", "cockpit_fov"), MinCockpitFov, MaxCockpitFov)
+			: DefaultCockpitFov;
 	}
 
 	private void EnsureVideoDefaults()
@@ -76,6 +87,7 @@ public partial class ConfigFileHandler
 		Ensure("upscaler",        DefaultUpscaler);
 		Ensure("show_fps_meter",  DefaultShowFpsMeter);
 		Ensure("show_ship_model", DefaultShowShipModel);
+		Ensure("cockpit_fov",     DefaultCockpitFov);
 		if (changed) config.Save(SETTINGS_FILE_PATH);
 	}
 

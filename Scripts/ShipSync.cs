@@ -25,7 +25,8 @@ public partial class ShipSync : Node
 	}
 
 	// Thrust flags ride along with the transform: the flames read them, and without them a
-	// stand-in's engines would sit dark however hard its pilot is burning.
+	// stand-in's engines would sit dark however hard its pilot is burning. Headlights ride
+	// along too; sent with every state, a lost toggle corrects itself on the next packet.
 
 	private Kaito _local;
 	private readonly Dictionary<int, Remote> _remotes = new();
@@ -94,27 +95,27 @@ public partial class ShipSync : Node
 
 		if (NetworkManager.Instance.IsServer)
 			Rpc(MethodName.ApplyShipState, NetworkManager.Instance.LocalPeerId, position, rotation, velocity,
-				_local.ThrustingForward, _local.ThrustingBackward, _local.ThrusterBoostOn);
+				_local.ThrustingForward, _local.ThrustingBackward, _local.ThrusterBoostOn, _local.HeadlightsOn);
 		else
 			RpcId(1, MethodName.SubmitShipState, position, rotation, velocity,
-				_local.ThrustingForward, _local.ThrustingBackward, _local.ThrusterBoostOn);
+				_local.ThrustingForward, _local.ThrustingBackward, _local.ThrusterBoostOn, _local.HeadlightsOn);
 	}
 
 	// Client -> server only. The server stamps the sender id itself, so a client cannot
 	// claim to be somebody else.
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.UnreliableOrdered)]
 	private void SubmitShipState(Vector3 position, Quaternion rotation, Vector3 velocity,
-		bool forward, bool backward, bool boosting)
+		bool forward, bool backward, bool boosting, bool headlights)
 	{
 		int sender = Multiplayer.GetRemoteSenderId();
-		Rpc(MethodName.ApplyShipState, sender, position, rotation, velocity, forward, backward, boosting);
+		Rpc(MethodName.ApplyShipState, sender, position, rotation, velocity, forward, backward, boosting, headlights);
 	}
 
 	// Server -> everyone. A peer has no entry for its own ship, so its own state echoing
 	// back is ignored without a special case.
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.UnreliableOrdered)]
 	private void ApplyShipState(int peerId, Vector3 position, Quaternion rotation, Vector3 velocity,
-		bool forward, bool backward, bool boosting)
+		bool forward, bool backward, bool boosting, bool headlights)
 	{
 		if (!_remotes.TryGetValue(peerId, out Remote remote)) return;
 
@@ -123,6 +124,9 @@ public partial class ShipSync : Node
 		remote.Velocity = velocity;
 
 		if (IsInstanceValid(remote.Ship))
+		{
 			remote.Ship.SetRemoteEngines(velocity, forward, backward, boosting);
+			remote.Ship.SetHeadlights(headlights);
+		}
 	}
 }

@@ -68,24 +68,28 @@ public partial class AimWidgetVisualizer : Control
 			DrawTextureAtCenter(_gimbalReticle, gimbalScreenPos.Value, TargetReticleSize, GimbalColor);
 		}
 
-		// Draw center crosshair
-		if (_centerCrosshair != null)
+		// Pinned to the screen centre, which is the ship's heading only while the view looks straight ahead.
+		if (!playerShip.IsViewTurned)
 		{
-			DrawTextureAtCenter(_centerCrosshair, center, 64f, CrosshairColor);
-		}
+			// Draw center crosshair
+			if (_centerCrosshair != null)
+			{
+				DrawTextureAtCenter(_centerCrosshair, center, 64f, CrosshairColor);
+			}
 
-		// Draw gimbal indicator at center
-		if (_gimbalIndicator != null)
-		{
-			DrawTextureAtCenter(_gimbalIndicator, center, 128f, CrosshairColor);
-		}
+			// Draw gimbal indicator at center
+			if (_gimbalIndicator != null)
+			{
+				DrawTextureAtCenter(_gimbalIndicator, center, 128f, CrosshairColor);
+			}
 
-		// Draw cursor indicator - fades in as it moves away from center
-		Vector2 cursorPos = playerShip.GetWidgetCursorPos();
-		float cursorDist = cursorPos.DistanceTo(center);
-		float cursorAlpha = Mathf.Clamp(cursorDist / radius, 0f, 1f);
-		Color fadedCursorColor = new Color(CursorColor.R, CursorColor.G, CursorColor.B, CursorColor.A * cursorAlpha);
-		DrawCircle(cursorPos, CursorSize, fadedCursorColor);
+			// Draw cursor indicator - fades in as it moves away from center
+			Vector2 cursorPos = playerShip.GetWidgetCursorPos();
+			float cursorDist = cursorPos.DistanceTo(center);
+			float cursorAlpha = Mathf.Clamp(cursorDist / radius, 0f, 1f);
+			Color fadedCursorColor = new Color(CursorColor.R, CursorColor.G, CursorColor.B, CursorColor.A * cursorAlpha);
+			DrawCircle(cursorPos, CursorSize, fadedCursorColor);
+		}
 
 		// Draw target reticle — flickers during lock acquisition, solid when locked
 		Vector2? targetScreenPos = playerShip.GetLockedTargetScreenPos();

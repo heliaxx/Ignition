@@ -1,0 +1,7 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://o57xfm5uo75n"]
+
+[resource]
+resource_name = "gray plastic"
+cull_mode = 2
+albedo_color = Color(0.25633243, 0.25633243, 0.25633243, 1)
+roughness = 0.80813956

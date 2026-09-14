@@ -1,0 +1,8 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://dyqivf7b83lba"]
+
+[resource]
+resource_name = "red plastic"
+cull_mode = 2
+albedo_color = Color(0.52091074, 0.06972919, 0.11300549, 1)
+metallic = 0.36627907
+roughness = 0.8197675

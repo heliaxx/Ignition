@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://h1mhhr2d2v7j"]
+[gd_scene load_steps=11 format=3 uid="uid://h1mhhr2d2v7j"]
 
 [ext_resource type="Script" uid="uid://cfabqj87i6w7l" path="res://Scripts/Graphics.cs" id="1_script"]
 [ext_resource type="FontFile" uid="uid://dp75um7jdyrun" path="res://Imports/Fonts/Eurostile.ttf" id="2_ii5nb"]
@@ -20,6 +20,14 @@ bg_color = Color(0.894118, 0.717647, 0.337255, 1)
 bg_color = Color(0.894118, 0.717647, 0.337255, 1)
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qdpag"]
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_fov_slider_bg"]
+color = Color(0.314316, 0.314316, 0.314316, 1)
+thickness = 4
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_fov_slider_fill"]
+color = Color(0.894118, 0.717647, 0.337255, 1)
+thickness = 4
 
 [node name="Graphics" type="Control"]
 layout_mode = 3
@@ -133,6 +141,14 @@ theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "Ship Model"
+
+[node name="CockpitFov" type="Label" parent="Menu/Labels"]
+layout_mode = 2
+size_flags_vertical = 6
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("2_ii5nb")
+theme_override_font_sizes/font_size = 30
+text = "Cockpit FOV"
 
 [node name="Options" type="VBoxContainer" parent="Menu"]
 layout_mode = 2
@@ -270,6 +286,32 @@ theme_override_constants/outline_size = 1
 theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 
+[node name="CockpitFovRow" type="HBoxContainer" parent="Menu/Options"]
+layout_mode = 2
+size_flags_vertical = 6
+theme_override_constants/separation = 12
+
+[node name="CockpitFovSlider" type="HSlider" parent="Menu/Options/CockpitFovRow"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_default_cursor_shape = 2
+theme_override_styles/slider = SubResource("StyleBoxLine_fov_slider_bg")
+theme_override_styles/grabber_area = SubResource("StyleBoxLine_fov_slider_fill")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxLine_fov_slider_fill")
+min_value = 60.0
+max_value = 80.0
+value = 70.0
+
+[node name="CockpitFovValue" type="Label" parent="Menu/Options/CockpitFovRow"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("2_ii5nb")
+theme_override_font_sizes/font_size = 30
+text = "70°"
+
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 0
 offset_right = 40.0
@@ -381,5 +423,6 @@ autowrap_mode = 3
 [connection signal="item_selected" from="Menu/Options/UpscalerDropdown" to="." method="_on_upscaler_dropdown_item_selected"]
 [connection signal="toggled" from="Menu/Options/FPSMeterCheck" to="." method="_on_fps_meter_check_toggled"]
 [connection signal="toggled" from="Menu/Options/ShipModelCheck" to="." method="_on_ship_model_check_toggled"]
+[connection signal="value_changed" from="Menu/Options/CockpitFovRow/CockpitFovSlider" to="." method="_on_cockpit_fov_slider_value_changed"]
 [connection signal="pressed" from="HBoxContainer/BackBtn" to="." method="_on_back_btn_pressed"]
 [connection signal="pressed" from="HBoxContainer/ResetBtn" to="." method="_on_reset_btn_pressed"]

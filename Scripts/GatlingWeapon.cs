@@ -4,6 +4,10 @@ using Godot;
 // between StartFiring()/StopFiring(). Gimbal tracking runs every physics frame.
 public partial class GatlingWeapon : WeaponBase
 {
+    // A remote ship is only ever seen as the shots it relays, never as a trigger release, so its
+    // firing sound ends once shots stop arriving. Three intervals ride out one dropped packet.
+    private const double SilenceAfterIntervals = 3.0;
+
     [ExportGroup("Gatling")]
     [Export] public float FireRate          = 10f;     // shots per second (auto mode + fireCooldown calc)
     [Export] public float BulletSpeed       = 2500f;
@@ -35,10 +39,16 @@ public partial class GatlingWeapon : WeaponBase
     private bool _autoFiring;
     private double _autoTimer;
 
+    private AudioStreamPlayer3D _fireLoop;
+    private AudioStreamPlayer3D _fireEnd;
+    private double _sinceLastShot;
+
     public override void _Ready()
     {
         CurrentAmmo = MaxAmmo;
         _autoTimer = 1.0 / FireRate;
+        _fireLoop = GetNodeOrNull<AudioStreamPlayer3D>("Shooting");
+        _fireEnd = GetNodeOrNull<AudioStreamPlayer3D>("ShootingEnd");
     }
 
     public override void StartFiring()
@@ -50,11 +60,26 @@ public partial class GatlingWeapon : WeaponBase
     public override void StopFiring()
     {
         _autoFiring = false;
+        EndFiringSound();
+    }
+
+    // Cuts the firing sound without its tail, for a ship that is gone mid-burst.
+    public void Silence()
+    {
+        _fireLoop?.Stop();
+        _fireEnd?.Stop();
     }
 
     public override void _PhysicsProcess(double delta)
     {
         if (HasGimbal) UpdateGimbal((float)delta);
+
+        if (_fireLoop != null && _fireLoop.Playing)
+        {
+            _sinceLastShot += delta;
+            if (_sinceLastShot > SilenceAfterIntervals / FireRate)
+                EndFiringSound();
+        }
 
         if (!_autoFiring) return;
 
@@ -95,6 +120,8 @@ public partial class GatlingWeapon : WeaponBase
         {
             CurrentAmmo--;
             EmitSignal(SignalName.AmmoChanged, CurrentAmmo, MaxAmmo);
+            if (CurrentAmmo <= 0)
+                EndFiringSound();
         }
 
         EmitSignal(SignalName.ShotFired);
@@ -117,5 +144,20 @@ public partial class GatlingWeapon : WeaponBase
         var parent = SpawnParent ?? GetTree().CurrentScene;
         parent.AddChild(bullet);
         bullet.GlobalTransform = spawn;
+        SustainFiringSound();
+    }
+
+    private void SustainFiringSound()
+    {
+        _sinceLastShot = 0.0;
+        if (_fireLoop != null && !_fireLoop.Playing)
+            _fireLoop.Play();
+    }
+
+    private void EndFiringSound()
+    {
+        if (_fireLoop == null || !_fireLoop.Playing) return;
+        _fireLoop.Stop();
+        _fireEnd?.Play();
     }
 }

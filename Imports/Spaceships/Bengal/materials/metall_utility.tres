@@ -1,0 +1,17 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://dsrmpr3eko0bj"]
+
+[ext_resource type="Texture2D" uid="uid://chw3ndgvmrncn" path="res://Imports/Spaceships/Bengal/textures/utility_socket_albedo.png" id="1_ranyf"]
+[ext_resource type="Texture2D" uid="uid://bnxy60nsvv57y" path="res://Imports/Spaceships/Bengal/textures/utility_socket_ORM.png" id="2_uydmr"]
+[ext_resource type="Texture2D" uid="uid://tdjfbctiwyuf" path="res://Imports/Spaceships/Bengal/textures/utility_socket_normal.png" id="3_ij8xp"]
+
+[resource]
+resource_name = "metall_utility"
+albedo_texture = ExtResource("1_ranyf")
+metallic = 1.0
+metallic_texture = ExtResource("2_uydmr")
+metallic_texture_channel = 2
+roughness_texture = ExtResource("2_uydmr")
+roughness_texture_channel = 1
+normal_enabled = true
+normal_texture = ExtResource("3_ij8xp")
+metadata/_gltf_primary_texture_coord = 1

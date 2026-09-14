@@ -1,0 +1,7 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://cnheq1sc6gnt"]
+
+[resource]
+resource_name = "temporary metal exterior"
+albedo_color = Color(0.38563308, 0.38875407, 0.43549824, 1)
+metallic = 0.9476292
+roughness = 0.40344453

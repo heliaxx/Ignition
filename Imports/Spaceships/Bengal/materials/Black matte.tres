@@ -1,0 +1,8 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://dyyexnp80r2iw"]
+
+[resource]
+resource_name = "Black matte"
+cull_mode = 2
+albedo_color = Color(0.13502344, 0.1331476, 0.15633316, 1)
+metallic = 0.12871288
+roughness = 0.8861386

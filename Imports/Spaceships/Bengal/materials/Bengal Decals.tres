@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://b3vtkpeky5nvo"]
+
+[ext_resource type="Texture2D" uid="uid://de3cvhrqo8vic" path="res://Imports/Spaceships/Bengal/textures/Bengal_Decal_sheet.webp" id="1_xufty"]
+
+[resource]
+resource_name = "Bengal Decals"
+transparency = 4
+albedo_texture = ExtResource("1_xufty")
+roughness = 0.7863636
+metadata/_gltf_primary_texture_coord = 0

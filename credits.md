@@ -31,7 +31,7 @@ License: [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
 by brycejellybean1 — [CGTrader](https://www.cgtrader.com/designers/brycejellybean1)
 
 **RECOZU Bengal (player ship)**
-by Beiratet
+by Frosnix-8 / Beiratet — [GitHub](https://github.com/Frosnix-8)
 
 **Geroteng G1 Missile (model & flight-model prototype)**
 by Frosnix — [Missile-flight-model](https://github.com/Frosnix-8/Missile-flight-model)

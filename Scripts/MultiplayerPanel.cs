@@ -39,6 +39,8 @@ public partial class MultiplayerPanel : Control
 		net.LeftServer += OnLeftServer;
 
 		Refresh();
+		if (MatchManager.Instance.TakeLeaveReason() is string reason)
+			_status.Text = reason;
 	}
 
 	// NetworkManager outlives this panel, so its signals must not keep pointing here.

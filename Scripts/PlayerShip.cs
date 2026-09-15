@@ -216,6 +216,7 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 	// dies for good and when it comes back.
 	public void Respawn(Transform3D at)
 	{
+		RespawnCount++;
 		GlobalTransform = at;
 		Velocity = Vector3.Zero;
 		angularVelocity = Vector3.Zero;
@@ -231,6 +232,10 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		if (_deathScreen != null) _deathScreen.Visible = false;
 		if (!GetTree().Paused) Input.MouseMode = Input.MouseModeEnum.Captured;
 	}
+
+	// Every machine counts the same respawns, so ship state sent before the latest one can be
+	// told apart from state sent after it.
+	public int RespawnCount { get; private set; }
 
 	// Engine state the thruster flames run on. Read from the ship this machine flies and
 	// written onto a stand-in, so other players see the same engines burning.

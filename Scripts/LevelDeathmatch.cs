@@ -65,6 +65,15 @@ public partial class LevelDeathmatch : BaseLevel
 	}
 
 	// Puts a participant back in the arena. The level owns which ship a participant flies
+	// A player who left: their ship and any missile still flying for them go, their scoreboard
+	// row stays.
+	public void RemoveParticipant(int participantId)
+	{
+		ShipSync.Instance.RemoveRemoteShip(participantId);
+		MissileSync.Instance.RemoveOwner(participantId);
+		Participants.NodeOf(participantId)?.QueueFree();
+	}
+
 	public void Respawn(int participantId, int spawnRoll)
 	{
 		if (Participants.NodeOf(participantId) is PlayerShip ship)

@@ -29,7 +29,12 @@ public partial class MatchManager : Node
 	// every machine.
 	public long SpawnSeed { get; private set; }
 
-	public override void _Ready() => Instance = this;
+	public override void _Ready()
+	{
+		Instance = this;
+		NetworkManager.Instance.PeerLeft += OnPeerLeft;
+		NetworkManager.Instance.LeftServer += OnLeftServer;
+	}
 
 	public void StartMatch(string levelPath = DeathmatchLevel)
 	{
@@ -103,12 +108,12 @@ public partial class MatchManager : Node
 		return DeathOutcome.Respawning;
 	}
 
-	// Highest kill count, or None on an empty board.
+	// Highest kill count among those still playing, or None on an empty board.
 	private static int Leader()
 	{
 		int best = Participants.None;
 		foreach (KeyValuePair<int, MatchStats.Entry> pair in MatchStats.Entries)
-			if (best == Participants.None || pair.Value.Kills > MatchStats.Entries[best].Kills)
+			if (!pair.Value.Left && (best == Participants.None || pair.Value.Kills > MatchStats.Entries[best].Kills))
 				best = pair.Key;
 		return best;
 	}
@@ -127,6 +132,47 @@ public partial class MatchManager : Node
 		// server's roll for where.
 		if (GetTree().CurrentScene is LevelDeathmatch level)
 			level.Respawn(participantId, spawnRoll);
+	}
+
+	// Server: a player dropping out of a running match is news for everyone still in it.
+	private void OnPeerLeft(int peerId)
+	{
+		if (!NetworkManager.Instance.IsServer || !_spawnOrder.Contains(peerId)) return;
+		if (GetTree().CurrentScene is not LevelDeathmatch) return;
+		Rpc(MethodName.ParticipantLeft, peerId);
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void ParticipantLeft(int participantId)
+	{
+		MatchStats.MarkLeft(participantId);
+		if (GetTree().CurrentScene is LevelDeathmatch level)
+			level.RemoveParticipant(participantId);
+
+		// A match needs someone to play against.
+		if (NetworkManager.Instance.IsServer && !_matchOver
+			&& NetworkManager.Instance.Peers.Count(id => _spawnOrder.Contains(id)) < 2)
+			Rpc(MethodName.EndMatch, Leader());
+	}
+
+	// Client: the host is gone and the match with it.
+	private void OnLeftServer(string reason)
+	{
+		if (GetTree().CurrentScene is not LevelDeathmatch) return;
+		_leaveReason = reason;
+		LeaveMatch();
+	}
+
+	// Why the last match ended when this player did not choose to leave; the menu shows it once.
+	private string _leaveReason;
+
+	public bool HasLeaveReason => _leaveReason != null;
+
+	public string TakeLeaveReason()
+	{
+		string reason = _leaveReason;
+		_leaveReason = null;
+		return reason;
 	}
 
 	public override void _Process(double delta)

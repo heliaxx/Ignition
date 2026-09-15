@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 
 // Replicates missiles. The peer that fired one simulates it and streams its transform;
@@ -61,6 +62,16 @@ public partial class MissileSync : Node
 			Rpc(MethodName.SpawnCopy, NetworkManager.Instance.LocalPeerId, seq, spawn);
 		else
 			RpcId(1, MethodName.SubmitLaunch, seq, spawn);
+	}
+
+	// Copies from a player who is gone: nobody is left to report them despawned.
+	public void RemoveOwner(int owner)
+	{
+		foreach ((int Owner, int Seq) key in _remotes.Keys.Where(k => k.Owner == owner).ToList())
+		{
+			if (IsInstanceValid(_remotes[key].Missile)) _remotes[key].Missile.Vanish();
+			_remotes.Remove(key);
+		}
 	}
 
 	private void ReportDespawn(int seq, Vector3 at)

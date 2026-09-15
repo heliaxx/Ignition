@@ -69,7 +69,8 @@ public partial class Scoreboard : CanvasLayer
 			var label = new Label
 			{
 				Text = $"{entry.Value.Name,-16} {entry.Value.Kills,3} / {entry.Value.Deaths,-3}"
-					+ (entry.Value.Suicides > 0 ? $"  ({entry.Value.Suicides} self)" : ""),
+					+ (entry.Value.Suicides > 0 ? $"  ({entry.Value.Suicides} self)" : "")
+					+ (entry.Value.Left ? "  (left)" : ""),
 			};
 			_rows.AddChild(label);
 		}

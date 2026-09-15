@@ -12,6 +12,8 @@ public static class MatchStats
 		public int Deaths;
 		// Deaths nobody gets credit for: rammed an asteroid, own missile, level hazard.
 		public int Suicides;
+		// Dropped out mid-match: the row stays on the board, but cannot win.
+		public bool Left;
 	}
 
 	private static readonly Dictionary<int, Entry> _entries = new();
@@ -34,6 +36,8 @@ public static class MatchStats
 		int id = Participants.Register(participant);
 		if (id != Participants.None) Get(id);
 	}
+
+	public static void MarkLeft(int id) => Get(id).Left = true;
 
 	private static void OnKilled(int victim, int killer)
 	{

@@ -39,6 +39,7 @@ public partial class MatchHud : CanvasLayer
 		// The board leader, or the runner-up when that is us: the point is always to show
 		// who you are measured against.
 		List<int> ranked = MatchStats.Entries
+			.Where(e => !e.Value.Left)
 			.OrderByDescending(e => e.Value.Kills)
 			.ThenBy(e => e.Value.Deaths)
 			.Select(e => e.Key)

@@ -22,6 +22,7 @@ public partial class ShipSync : Node
 		public Vector3 Position;
 		public Quaternion Rotation;
 		public Vector3 Velocity;
+		public int Respawns;
 	}
 
 	// Thrust flags ride along with the transform: the flames read them, and without them a
@@ -51,15 +52,20 @@ public partial class ShipSync : Node
 			Position = ship.GlobalPosition,
 			Rotation = ship.GlobalBasis.GetRotationQuaternion(),
 			Velocity = Vector3.Zero,
+			Respawns = ship.RespawnCount,
 		};
 	}
+
+	public void RemoveRemoteShip(int peerId) => _remotes.Remove(peerId);
 
 	public override void _PhysicsProcess(double delta)
 	{
 		AdvanceRemotes((float)delta);
 
 		if (!NetworkManager.Instance.IsActive) return;
-		if (_local == null || !IsInstanceValid(_local)) return;
+		// A scene change leaves _local valid but out of the tree for a frame, where its
+		// transform reads as the origin.
+		if (_local == null || !IsInstanceValid(_local) || !_local.IsInsideTree()) return;
 
 		_sendTimer += delta;
 		if (_sendTimer < SendInterval) return;
@@ -75,6 +81,16 @@ public partial class ShipSync : Node
 			// stays true for a frame after the node leaves the tree — where reading or
 			// writing a global transform fails.
 			if (!IsInstanceValid(remote.Ship) || !remote.Ship.IsInsideTree()) continue;
+
+			// Respawned here before any state from its new life arrived: hold it at the spawn
+			// point rather than easing back to where it died.
+			if (remote.Ship.RespawnCount > remote.Respawns)
+			{
+				remote.Respawns = remote.Ship.RespawnCount;
+				remote.Position = remote.Ship.GlobalPosition;
+				remote.Rotation = remote.Ship.GlobalBasis.GetRotationQuaternion();
+				remote.Velocity = Vector3.Zero;
+			}
 
 			// Carry the last known velocity forward so motion stays smooth between packets,
 			// then ease onto the authoritative state instead of snapping to it.
@@ -95,29 +111,35 @@ public partial class ShipSync : Node
 
 		if (NetworkManager.Instance.IsServer)
 			Rpc(MethodName.ApplyShipState, NetworkManager.Instance.LocalPeerId, position, rotation, velocity,
-				_local.ThrustingForward, _local.ThrustingBackward, _local.ThrusterBoostOn, _local.HeadlightsOn);
+				_local.ThrustingForward, _local.ThrustingBackward, _local.ThrusterBoostOn, _local.HeadlightsOn,
+				_local.RespawnCount);
 		else
 			RpcId(1, MethodName.SubmitShipState, position, rotation, velocity,
-				_local.ThrustingForward, _local.ThrustingBackward, _local.ThrusterBoostOn, _local.HeadlightsOn);
+				_local.ThrustingForward, _local.ThrustingBackward, _local.ThrusterBoostOn, _local.HeadlightsOn,
+				_local.RespawnCount);
 	}
 
 	// Client -> server only. The server stamps the sender id itself, so a client cannot
 	// claim to be somebody else.
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.UnreliableOrdered)]
 	private void SubmitShipState(Vector3 position, Quaternion rotation, Vector3 velocity,
-		bool forward, bool backward, bool boosting, bool headlights)
+		bool forward, bool backward, bool boosting, bool headlights, int respawns)
 	{
 		int sender = Multiplayer.GetRemoteSenderId();
-		Rpc(MethodName.ApplyShipState, sender, position, rotation, velocity, forward, backward, boosting, headlights);
+		Rpc(MethodName.ApplyShipState, sender, position, rotation, velocity, forward, backward, boosting, headlights, respawns);
 	}
 
 	// Server -> everyone. A peer has no entry for its own ship, so its own state echoing
 	// back is ignored without a special case.
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.UnreliableOrdered)]
 	private void ApplyShipState(int peerId, Vector3 position, Quaternion rotation, Vector3 velocity,
-		bool forward, bool backward, bool boosting, bool headlights)
+		bool forward, bool backward, bool boosting, bool headlights, int respawns)
 	{
 		if (!_remotes.TryGetValue(peerId, out Remote remote)) return;
+
+		// From before a respawn this machine has already applied: it would drag the ship back.
+		if (IsInstanceValid(remote.Ship) && respawns < remote.Ship.RespawnCount) return;
+		remote.Respawns = respawns;
 
 		remote.Position = position;
 		remote.Rotation = rotation;

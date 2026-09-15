@@ -18,6 +18,8 @@ public partial class Menu : Control
 	public override void _Ready()
 	{
 		GetTree().Paused = false;
+		// Gameplay captures the cursor, and not every way back here releases it first.
+		Input.MouseMode = Input.MouseModeEnum.Visible;
 		EventBus.ClearAll();
 
 		// Found by name, not by path: the menu gets rearranged in the editor often, and a
@@ -54,6 +56,10 @@ public partial class Menu : Control
 		controlsButton.Pressed += OnControlsPressed;
 		graphicsButton.Pressed += OnGraphicsPressed;
 		audioButton.Pressed += OnAudioPressed;
+
+		// Back from a match that ended without this player choosing to leave: show them why.
+		if (MatchManager.Instance.HasLeaveReason)
+			OnMultiplayerPressed();
 
 		pveChallengesButton.MouseEntered += OnButtonHovered;
 		multiplayerButton.MouseEntered += OnButtonHovered;

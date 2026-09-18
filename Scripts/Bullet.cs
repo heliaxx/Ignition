@@ -28,6 +28,8 @@ public partial class Bullet : Node3D
 	{
 		mesh = GetNode<MeshInstance3D>("MeshInstance3D");
 		ray = GetNode<RayCast3D>("RayCast3D");
+		// Swept by hand every tick instead.
+		ray.Enabled = false;
 		particles = GetNode<GpuParticles3D>("GPUParticles3D");
 		velocity = new Vector3(0, 0, -Speed);
 
@@ -37,13 +39,25 @@ public partial class Bullet : Node3D
 
 	public override void _PhysicsProcess(double delta)
 	{
+		// Local velocity (forward) + inherited world velocity from spawner
+		Vector3 motion = (Transform.Basis * velocity + InheritedVelocity) * (float)delta;
+
+		if (!_hasHit)
+		{
+			// The ray spans exactly this tick's travel: a bullet covers more ground per tick than
+			// any fixed ray, and a surface in the gap would be stepped over without a hit.
+			ray.TargetPosition = Transform.Basis.Inverse() * motion;
+			ray.ForceRaycastUpdate();
+		}
+
 		if (!_hasHit && ray.IsColliding())
 		{
 			_hasHit = true;
+			// The hit can be most of a tick ahead; the sparks belong where it landed.
+			GlobalPosition = ray.GetCollisionPoint();
 			mesh.Visible = false;
 			particles.Emitting = true;
 			velocity = Vector3.Zero;
-			ray.Enabled = false;
 
 			var collider = ray.GetCollider();
 
@@ -61,8 +75,7 @@ public partial class Bullet : Node3D
 		}
 		else
 		{
-			// Move bullet: local velocity (forward) + inherited world velocity from spawner
-			Position += (Transform.Basis * velocity + InheritedVelocity) * (float)delta;
+			Position += motion;
 		}
 	}
 }

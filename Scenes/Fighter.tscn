@@ -197,7 +197,7 @@ shape = SubResource("ConvexPolygonShape3D_fqskv")
 
 [node name="LaserWeapon" parent="." instance=ExtResource("22_y1n25")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.8, -3.4)
-DPS = 5.0
+DPS = 20.0
 BeamColor = Color(0.972549, 0.384314, 0, 1)
 
 [node name="ThrusterFlame" parent="." instance=ExtResource("23_thruster")]

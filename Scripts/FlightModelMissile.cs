@@ -152,6 +152,13 @@ public partial class FlightModelMissile : RigidBody3D
 		CollisionLayer = 0;
 		CollisionMask = 0;
 		if (_collisionCheck != null) _collisionCheck.Enabled = false;
+
+		// A copy runs no physics tick to notice the fuel run out, so the burn is timed instead.
+		if (!UnlimitedFuel)
+			GetTree().CreateTimer(_thrustTime).Timeout += () =>
+			{
+				if (IsInstanceValid(this)) Burnout();
+			};
 	}
 
 	// Ends a copy: gone at once, but kept until its trail has faded. A copy runs no physics
@@ -169,6 +176,18 @@ public partial class FlightModelMissile : RigidBody3D
 	{
 		if (_smokeTrail != null)
 			_smokeTrail.Emitting = emitting;
+	}
+
+	// Engine off: thrusters dark and no more smoke. What it already laid stays in the world.
+	private void Burnout()
+	{
+		foreach (MissileThruster t in _allThrusters)
+		{
+			t.Shutdown();
+			t.Hide();
+		}
+		SetSmokeTrail(false);
+		GetNodeOrNull<Node3D>("BurnGlow")?.Hide();
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -197,12 +216,7 @@ public partial class FlightModelMissile : RigidBody3D
 		// Out of fuel: coast until the lifetime runs out.
 		if (_thrustTime <= 0 && !UnlimitedFuel)
 		{
-			foreach (MissileThruster t in _allThrusters)
-			{
-				t.Shutdown();
-				t.Hide();
-			}
-			SetSmokeTrail(false); // engine off, no more smoke
+			Burnout();
 			if (ExplodeOnFuelLoss)
 				MissileImpact(null);
 			return;
@@ -474,13 +488,9 @@ public partial class FlightModelMissile : RigidBody3D
 
 	private void HideBody()
 	{
-		SetSmokeTrail(false); // already-emitted smoke stays in the world
-		foreach (MissileThruster t in _allThrusters)
-		{
-			t.Shutdown();
-			t.Hide();
-		}
+		Burnout();
 		GetNode<Node3D>("missile final_001").Hide();
+		GetNode<Node3D>("Text_008").Hide();
 		GetNode<Node3D>("Text_008").Hide();
 		GetNodeOrNull<Node3D>("BurnGlow").Hide();
 	}

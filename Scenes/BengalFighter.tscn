@@ -1,0 +1,113 @@
+[gd_scene format=3 uid="uid://buex165lg53sh"]
+
+[ext_resource type="Script" uid="uid://c74nax228c5qi" path="res://Scripts/Fighter.cs" id="1_fighter"]
+[ext_resource type="PackedScene" uid="uid://bi1cjxlwgda55" path="res://Scenes/Bengal.tscn" id="2_model"]
+[ext_resource type="PackedScene" uid="uid://bpq0au2klggsn" path="res://Scenes/LaserWeapon.tscn" id="3_laser"]
+[ext_resource type="Script" uid="uid://c5675ggcjvai7" path="res://States/StateMachine.cs" id="4_machine"]
+[ext_resource type="Script" uid="uid://pt3p2vc8iqt3" path="res://States/Idle.cs" id="5_idle"]
+[ext_resource type="Script" uid="uid://4c3wxf8n87rc" path="res://States/Pursue.cs" id="6_pursue"]
+[ext_resource type="Script" uid="uid://bqljf15hcuwya" path="res://States/Joust.cs" id="7_joust"]
+[ext_resource type="Script" uid="uid://bkjrpyufe3ama" path="res://States/Orbit.cs" id="8_orbit"]
+[ext_resource type="Script" uid="uid://cd0s4j4eg4ri5" path="res://States/Evade.cs" id="9_evade"]
+[ext_resource type="Script" uid="uid://b1c7whds4yxr3" path="res://States/Flee.cs" id="10_flee"]
+[ext_resource type="Script" uid="uid://cogr2wsp3j1ts" path="res://States/ReturnToCenter.cs" id="11_return"]
+[ext_resource type="Script" uid="uid://iuhcmmfkmh3" path="res://Scripts/GimbalTarget.cs" id="12_gimbal"]
+[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull01.tres" id="20_hull01"]
+[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull02.tres" id="20_hull02"]
+[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull03.tres" id="20_hull03"]
+[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull04.tres" id="20_hull04"]
+[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull05.tres" id="20_hull05"]
+[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull06.tres" id="20_hull06"]
+[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull07.tres" id="20_hull07"]
+[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull08.tres" id="20_hull08"]
+[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull09.tres" id="20_hull09"]
+[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull10.tres" id="20_hull10"]
+[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull11.tres" id="20_hull11"]
+[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull12.tres" id="20_hull12"]
+
+[node name="BengalFighter" type="CharacterBody3D" unique_id=941056484 groups=["enemies"]]
+script = ExtResource("1_fighter")
+
+[node name="Model" parent="." unique_id=956250148 instance=ExtResource("2_model")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
+
+[node name="Hull1" type="CollisionShape3D" parent="." unique_id=1187228114]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
+shape = ExtResource("20_hull01")
+
+[node name="Hull2" type="CollisionShape3D" parent="." unique_id=2038617436]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
+shape = ExtResource("20_hull02")
+
+[node name="Hull3" type="CollisionShape3D" parent="." unique_id=1099034321]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
+shape = ExtResource("20_hull03")
+
+[node name="Hull4" type="CollisionShape3D" parent="." unique_id=598399362]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
+shape = ExtResource("20_hull04")
+
+[node name="Hull5" type="CollisionShape3D" parent="." unique_id=236030113]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
+shape = ExtResource("20_hull05")
+
+[node name="Hull6" type="CollisionShape3D" parent="." unique_id=1395138001]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
+shape = ExtResource("20_hull06")
+
+[node name="Hull7" type="CollisionShape3D" parent="." unique_id=1525161625]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
+shape = ExtResource("20_hull07")
+
+[node name="Hull8" type="CollisionShape3D" parent="." unique_id=59476705]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
+shape = ExtResource("20_hull08")
+
+[node name="Hull9" type="CollisionShape3D" parent="." unique_id=1168296777]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
+shape = ExtResource("20_hull09")
+
+[node name="Hull10" type="CollisionShape3D" parent="." unique_id=1631686307]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
+shape = ExtResource("20_hull10")
+
+[node name="Hull11" type="CollisionShape3D" parent="." unique_id=54858396]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
+shape = ExtResource("20_hull11")
+
+[node name="Hull12" type="CollisionShape3D" parent="." unique_id=2138436774]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
+shape = ExtResource("20_hull12")
+
+[node name="LaserWeapon" parent="." unique_id=393343523 instance=ExtResource("3_laser")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, -8.3)
+DPS = 20.0
+BeamColor = Color(0.972549, 0.384314, 0, 1)
+
+[node name="StateMachine" type="Node" parent="." unique_id=1773697558]
+script = ExtResource("4_machine")
+initialState = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine" unique_id=849916630]
+script = ExtResource("5_idle")
+
+[node name="Pursue" type="Node" parent="StateMachine" unique_id=289701955]
+script = ExtResource("6_pursue")
+
+[node name="Joust" type="Node" parent="StateMachine" unique_id=1600361775]
+script = ExtResource("7_joust")
+
+[node name="Orbit" type="Node" parent="StateMachine" unique_id=1193501631]
+script = ExtResource("8_orbit")
+
+[node name="Evade" type="Node" parent="StateMachine" unique_id=426871969]
+script = ExtResource("9_evade")
+
+[node name="Flee" type="Node" parent="StateMachine" unique_id=1227997796]
+script = ExtResource("10_flee")
+
+[node name="ReturnToCenter" type="Node" parent="StateMachine" unique_id=2004246279]
+script = ExtResource("11_return")
+
+[node name="GimbalTarget" type="Node3D" parent="." unique_id=1131676053]
+script = ExtResource("12_gimbal")

@@ -32,7 +32,7 @@ public partial class LevelWave : BaseLevel
 
 		_spawner = new EnemySpawner
 		{
-			EnemyScene  = GD.Load<PackedScene>("res://Scenes/Fighter.tscn"),
+			EnemyScene  = GD.Load<PackedScene>("res://Scenes/BengalFighter.tscn"),
 			PortalScene = GD.Load<PackedScene>("res://Scenes/Portal.tscn"),
 			PoolSize    = POOL_SIZE
 		};

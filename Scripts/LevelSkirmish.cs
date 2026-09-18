@@ -4,7 +4,7 @@ public partial class LevelSkirmish : BaseLevel
 {
 	[Export] public int SpawnCount = 8;
 
-	private PackedScene enemyShip = GD.Load<PackedScene>("res://Scenes/Fighter.tscn");
+	private PackedScene enemyShip = GD.Load<PackedScene>("res://Scenes/BengalFighter.tscn");
 	private PackedScene portalScene = GD.Load<PackedScene>("res://Scenes/Portal.tscn");
 
 	private int _killsRemaining;

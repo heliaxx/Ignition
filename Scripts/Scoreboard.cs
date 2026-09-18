@@ -20,7 +20,14 @@ public partial class Scoreboard : CanvasLayer
 		_leave = GetNode<Button>("Panel/Layout/LeaveButton");
 
 		MenuUtils.AttachButtonSounds(this);
-		_leave.Pressed += () => MatchManager.Instance.LeaveMatch();
+		// In a session only the match ended, so the button leads back to the lobby.
+		bool networked = NetworkManager.Instance.IsActive;
+		_leave.Text = networked ? "BACK TO LOBBY" : "LEAVE";
+		_leave.Pressed += () =>
+		{
+			if (networked) MatchManager.Instance.ReturnToLobby();
+			else MatchManager.Instance.LeaveMatch();
+		};
 		_leave.Visible = false;
 
 		MatchManager.Instance.MatchEnded += OnMatchEnded;

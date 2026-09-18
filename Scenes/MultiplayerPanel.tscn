@@ -1,9 +1,9 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://bc23y4gc5eq86"]
 
-[ext_resource type="Script" path="res://Scripts/MultiplayerPanel.cs" id="1_script"]
+[ext_resource type="Script" uid="uid://vkx8a4w7geby" path="res://Scripts/MultiplayerPanel.cs" id="1_script"]
 [ext_resource type="Theme" uid="uid://brj8jmsa6vurj" path="res://theme.tres" id="2_theme"]
 
-[node name="MultiplayerPanel" type="Control"]
+[node name="MultiplayerPanel" type="Control" unique_id=1377416800]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -13,7 +13,7 @@ grow_vertical = 2
 theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
-[node name="CenterContainer" type="CenterContainer" parent="."]
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=316572091]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -21,46 +21,92 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=1505727804]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Title" type="Label" parent="CenterContainer/VBoxContainer"]
+[node name="Title" type="Label" parent="CenterContainer/VBoxContainer" unique_id=1482155295]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 text = "MULTIPLAYER"
 
-[node name="NameEdit" type="LineEdit" parent="CenterContainer/VBoxContainer"]
+[node name="NameEdit" type="LineEdit" parent="CenterContainer/VBoxContainer" unique_id=572440441]
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 placeholder_text = "callsign"
 
-[node name="HostButton" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="HostButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1614124812]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "HOST"
 
-[node name="AddressEdit" type="LineEdit" parent="CenterContainer/VBoxContainer"]
+[node name="AddressEdit" type="LineEdit" parent="CenterContainer/VBoxContainer" unique_id=1323081961]
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 text = "127.0.0.1"
 placeholder_text = "host address"
 
-[node name="JoinButton" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="JoinButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=276560043]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "JOIN"
 
-[node name="StartButton" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="PlayersTitle" type="Label" parent="CenterContainer/VBoxContainer" unique_id=1529759017]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+text = "PLAYERS"
+
+[node name="PlayersBox" type="VBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=1302339901]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="ModeLabel" type="Label" parent="CenterContainer/VBoxContainer" unique_id=307276314]
+layout_mode = 2
+text = "PVP ARENA〡DEATHMATCH"
+
+[node name="KillRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=673321798]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/KillRow" unique_id=1608782677]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "KILL LIMIT"
+
+[node name="KillLimitOption" type="OptionButton" parent="CenterContainer/VBoxContainer/KillRow" unique_id=662478463]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+
+[node name="TimeRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=663004319]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/TimeRow" unique_id=1844976542]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "TIME LIMIT"
+
+[node name="TimeLimitOption" type="OptionButton" parent="CenterContainer/VBoxContainer/TimeRow" unique_id=1876063687]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+
+[node name="ReadyButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=139191595]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+toggle_mode = true
+text = "READY"
+
+[node name="StartButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1107573832]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "START MATCH"
 
-[node name="StatusLabel" type="Label" parent="CenterContainer/VBoxContainer"]
+[node name="StatusLabel" type="Label" parent="CenterContainer/VBoxContainer" unique_id=1119620994]
 layout_mode = 2
 text = "offline"
 
-[node name="BackButton" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="BackButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=383124443]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "BACK"

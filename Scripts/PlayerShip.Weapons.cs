@@ -8,8 +8,8 @@ public partial class PlayerShip
     [Export] public bool UnlimitedMissiles = false;
     [Export] public int MaxMissiles = 8;
     [Export] public float MissileCooldown = 1f;
-    [Export] public float MissileDamageMin = 50f;
-    [Export] public float MissileDamageMax = 70f;
+    [Export] public float MissileDamageMin = 40f;
+    [Export] public float MissileDamageMax = 60f;
 
     private int _currentMissiles;
     public int CurrentMissiles => _currentMissiles;

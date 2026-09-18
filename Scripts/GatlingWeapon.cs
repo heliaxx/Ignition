@@ -11,7 +11,7 @@ public partial class GatlingWeapon : WeaponBase
     [ExportGroup("Gatling")]
     [Export] public float FireRate          = 10f;     // shots per second (auto mode + fireCooldown calc)
     [Export] public float BulletSpeed       = 2500f;
-    [Export] public float DamagePerBullet   = 10f;
+    [Export] public float DamagePerBullet   = 1f;
     [Export] public float SpreadAngle       = 0.5f;    // max bullet deviation, degrees
     [Export] public PackedScene BulletScene;
 

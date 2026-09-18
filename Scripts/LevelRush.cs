@@ -5,13 +5,13 @@ public partial class LevelRush : BaseLevel
 	[Export] public float ScoreRatePerSecond = 100f;
 
 	[ExportGroup("Health Drain")]
-	[Export] public float DrainStartRate = 1f;
-	[Export] public float DrainGrowthRate = 4f;
+	[Export] public float DrainStartRate = 2f;
+	[Export] public float DrainGrowthRate = 8f;
 
 	[ExportGroup("Ring Powerup")]
 	[Export] public float RingSpawnInterval = 5f;
 	[Export] public float RingSpawnDistance = 500f;
-	[Export] public float RingHealAmount = 30f;
+	[Export] public float RingHealAmount = 60f;
 	[Export] public float RingScoreMultiplier = 1.5f;
 	[Export] public float RingScoreMultiplierDuration = 2f;
 

@@ -57,8 +57,8 @@ public partial class Menu : Control
 		graphicsButton.Pressed += OnGraphicsPressed;
 		audioButton.Pressed += OnAudioPressed;
 
-		// Back from a match that ended without this player choosing to leave: show them why.
-		if (MatchManager.Instance.HasLeaveReason)
+		// Back from a match: the lobby, or why the session ended without this player leaving it.
+		if (NetworkManager.Instance.IsActive || MatchManager.Instance.HasLeaveReason)
 			OnMultiplayerPressed();
 
 		pveChallengesButton.MouseEntered += OnButtonHovered;

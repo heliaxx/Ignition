@@ -56,7 +56,7 @@ public partial class ChunkedAsteroidField : Node3D
     public bool AsteroidsDestroyable = true;
 
     [Export(PropertyHint.Range, "10,500,10")]
-    public int AsteroidHP = 50;
+    public int AsteroidHP = 40;
 
     [ExportGroup("Spawn Clearance")]
     [Export]

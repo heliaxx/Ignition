@@ -35,7 +35,7 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 	[Export] public float CollisionAngularDamping = 0.75f;
 	[Export] public float CollisionPushOutDistance = 0.1f;
 	[Export] public float CollisionDamageSpeedThreshold = 50.0f;
-	[Export] public float CollisionDamageMultiplier = 0.5f;
+	[Export] public float CollisionDamageMultiplier = 1.0f;
 
 	private float aimTargetYaw = 0.0f;
 	private float aimTargetPitch = 0.0f;

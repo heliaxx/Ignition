@@ -3,7 +3,7 @@ using System;
 
 public partial class Fighter : CharacterBody3D, IDamageable
 {
-    private const float MAX_HEALTH = 100f;
+    private const float MAX_HEALTH = 200f;
     private float currentHealth = MAX_HEALTH;
     public float CurrentHealthValue => currentHealth;
     public float MaxHealthValue => MAX_HEALTH;
@@ -74,6 +74,7 @@ public partial class Fighter : CharacterBody3D, IDamageable
 
     // Thruster visuals
     private ShaderMaterial _thrusterMaterial;
+    private ShipModel _model;
 
     private Node3D player;
     private CharacterBody3D playerBody;
@@ -90,6 +91,9 @@ public partial class Fighter : CharacterBody3D, IDamageable
         if (thrusterMesh != null)
             _thrusterMaterial = thrusterMesh.GetSurfaceOverrideMaterial(0) as ShaderMaterial
                 ?? thrusterMesh.Mesh?.SurfaceGetMaterial(0) as ShaderMaterial;
+        _model = GetNodeOrNull<ShipModel>("Model");
+        // Nobody sits in an NPC cockpit.
+        _model?.SetInteriorVisible(false);
         // Stagger avoidance frames across instances so they don't all raycast simultaneously
         _avoidanceFrameCounter = (int)(GD.Randi() % AvoidanceFrameInterval);
         SetLaserFiring(false);
@@ -153,11 +157,9 @@ public partial class Fighter : CharacterBody3D, IDamageable
         }
 
         // Update thruster intensity based on speed
-        if (_thrusterMaterial != null)
-        {
-            float speedRatio = Velocity.Length() / Speed;
-            _thrusterMaterial.SetShaderParameter("intensity", Mathf.Clamp(speedRatio * 1.2f, 0f, 1.5f));
-        }
+        float intensity = Mathf.Clamp(Velocity.Length() / Speed * 1.2f, 0f, 1.5f);
+        _thrusterMaterial?.SetShaderParameter("intensity", intensity);
+        _model?.SetThrottle(intensity, 0f);
     }
 
     private void EnsureCacheValid()

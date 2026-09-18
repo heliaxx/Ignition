@@ -29,16 +29,91 @@ public partial class MatchManager : Node
 	// every machine.
 	public long SpawnSeed { get; private set; }
 
+	// Lobby state, owned by the server and mirrored to everyone: who has readied up and what
+	// the host set the limits to.
+	private readonly HashSet<int> _ready = new();
+
+	public int KillLimit { get; private set; } = DefaultKillLimit;
+	public int TimeLimitMinutes { get; private set; } = DefaultTimeLimitMinutes;
+
+	[Signal] public delegate void LobbyChangedEventHandler();
+
+	public bool IsReady(int peerId) => _ready.Contains(peerId);
+
+	// Two ships make a match, and the host waits until the others say they are ready.
+	public bool CanStart => !NetworkManager.Instance.IsActive
+		|| (NetworkManager.Instance.Peers.Count >= 2
+			&& NetworkManager.Instance.Peers.All(id => id == ServerPeerId || _ready.Contains(id)));
+
 	public override void _Ready()
 	{
 		Instance = this;
+		NetworkManager.Instance.PeerJoined += OnPeerJoined;
 		NetworkManager.Instance.PeerLeft += OnPeerLeft;
 		NetworkManager.Instance.LeftServer += OnLeftServer;
 	}
 
-	public void StartMatch(string levelPath = DeathmatchLevel)
+	// Client -> server. The server stamps the sender, so nobody readies up for somebody else.
+	public void SetLocalReady(bool ready)
+	{
+		if (!NetworkManager.Instance.IsActive) return;
+
+		if (NetworkManager.Instance.IsServer)
+			ApplyReady(NetworkManager.Instance.LocalPeerId, ready);
+		else
+			RpcId(ServerPeerId, MethodName.RequestReady, ready);
+	}
+
+	// Host only; on anyone else the server simply never hears about it.
+	public void SetLimits(int kills, int minutes)
 	{
 		if (!NetworkManager.Instance.IsServer) return;
+
+		KillLimit = kills;
+		TimeLimitMinutes = minutes;
+		BroadcastLobby();
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void RequestReady(bool ready) => ApplyReady(Multiplayer.GetRemoteSenderId(), ready);
+
+	private void ApplyReady(int peerId, bool ready)
+	{
+		if (ready) _ready.Add(peerId);
+		else _ready.Remove(peerId);
+		BroadcastLobby();
+	}
+
+	private void BroadcastLobby()
+	{
+		if (!NetworkManager.Instance.IsActive)
+		{
+			EmitSignal(SignalName.LobbyChanged);
+			return;
+		}
+
+		Rpc(MethodName.SyncLobby, _ready.ToArray(), KillLimit, TimeLimitMinutes);
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void SyncLobby(int[] ready, int killLimit, int timeLimitMinutes)
+	{
+		_ready.Clear();
+		foreach (int peerId in ready) _ready.Add(peerId);
+		KillLimit = killLimit;
+		TimeLimitMinutes = timeLimitMinutes;
+		EmitSignal(SignalName.LobbyChanged);
+	}
+
+	// A new arrival knows nothing about the lobby until the server tells it.
+	private void OnPeerJoined(int peerId)
+	{
+		if (NetworkManager.Instance.IsServer) BroadcastLobby();
+	}
+
+	public void StartMatch(string levelPath = DeathmatchLevel)
+	{
+		if (!NetworkManager.Instance.IsServer || !CanStart) return;
 
 		long seed = (long)GD.Randi() << 32 | GD.Randi();
 		long spawnSeed = (long)GD.Randi() << 32 | GD.Randi();
@@ -46,32 +121,38 @@ public partial class MatchManager : Node
 		// Offline the same path runs without a peer to send to.
 		if (!NetworkManager.Instance.IsActive)
 		{
-			BeginMatch(levelPath, new[] { NetworkManager.Instance.LocalPeerId }, seed, spawnSeed);
+			BeginMatch(levelPath, new[] { NetworkManager.Instance.LocalPeerId }, seed, spawnSeed, KillLimit, TimeLimitMinutes);
 			return;
 		}
 
 		int[] order = NetworkManager.Instance.Peers.OrderBy(id => id).ToArray();
-		Rpc(MethodName.BeginMatch, levelPath, order, seed, spawnSeed);
+		Rpc(MethodName.BeginMatch, levelPath, order, seed, spawnSeed, KillLimit, TimeLimitMinutes);
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	private void BeginMatch(string levelPath, int[] spawnOrder, long worldSeed, long spawnSeed)
+	private void BeginMatch(string levelPath, int[] spawnOrder, long worldSeed, long spawnSeed,
+		int killLimit, int timeLimitMinutes)
 	{
 		_spawnOrder = spawnOrder;
 		WorldSeed = worldSeed;
 		SpawnSeed = spawnSeed;
+		KillLimit = killLimit;
+		TimeLimitMinutes = timeLimitMinutes;
+		_ready.Clear();
 		_matchOver = false;
-		_timeLeft = MatchDuration;
+		_timeLeft = timeLimitMinutes * 60.0;
 		GetTree().ChangeSceneToFile(levelPath);
 	}
 
 	// Long enough to see the explosion, short enough not to sit out the match.
 	private const double RespawnDelay = 3.0;
 
-	// First to this many kills takes the match, or the highest score when time runs out.
-	// The lobby will own both of these once it exists.
-	private const int KillLimit = 15;
-	private const double MatchDuration = 600.0;
+	// What the host starts from; the lobby offers a few values around them.
+	private const int DefaultKillLimit = 15;
+	private const int DefaultTimeLimitMinutes = 10;
+
+	// The server always holds peer id 1.
+	private const int ServerPeerId = 1;
 
 	// Counted down on every peer for the clock; only the server's expiry ends the match.
 	private double _timeLeft;
@@ -137,7 +218,10 @@ public partial class MatchManager : Node
 	// Server: a player dropping out of a running match is news for everyone still in it.
 	private void OnPeerLeft(int peerId)
 	{
-		if (!NetworkManager.Instance.IsServer || !_spawnOrder.Contains(peerId)) return;
+		if (!NetworkManager.Instance.IsServer) return;
+
+		if (_ready.Remove(peerId)) BroadcastLobby();
+		if (!_spawnOrder.Contains(peerId)) return;
 		if (GetTree().CurrentScene is not LevelDeathmatch) return;
 		Rpc(MethodName.ParticipantLeft, peerId);
 	}
@@ -185,6 +269,20 @@ public partial class MatchManager : Node
 		_timeLeft = 0.0;
 		if (NetworkManager.Instance.IsServer)
 			Rpc(MethodName.EndMatch, Leader());
+	}
+
+	// The match is over, not the session: the ships go, the lobby stays.
+	public void ReturnToLobby(string menuPath = MenuScene)
+	{
+		_timeLeft = 0.0;
+		ShipSync.Instance.Clear();
+		MissileSync.Instance.Clear();
+		if (NetworkManager.Instance.IsServer)
+		{
+			_ready.Clear();
+			BroadcastLobby();
+		}
+		GetTree().ChangeSceneToFile(menuPath);
 	}
 
 	// Ends the session and returns to the menu. Without this a player could walk out of a

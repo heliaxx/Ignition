@@ -30,6 +30,8 @@ public partial class Bullet : Node3D
 		ray = GetNode<RayCast3D>("RayCast3D");
 		// Swept by hand every tick instead.
 		ray.Enabled = false;
+		if (Source is CollisionObject3D shooter)
+			ray.AddException(shooter);
 		particles = GetNode<GpuParticles3D>("GPUParticles3D");
 		velocity = new Vector3(0, 0, -Speed);
 

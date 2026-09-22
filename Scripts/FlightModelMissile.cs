@@ -82,6 +82,7 @@ public partial class FlightModelMissile : RigidBody3D
 
 	public override void _Ready()
 	{
+		AddToGroup("missiles");
 		_thrustForward = GetNode<MissileThruster>("ThrustEffect");
 		_thrustDown = GetNode<MissileThruster>("ThrustEffect2");
 		_thrustUp = GetNode<MissileThruster>("ThrustEffect5");
@@ -135,6 +136,12 @@ public partial class FlightModelMissile : RigidBody3D
 	}
 
 	private GpuParticles3D _smokeTrail;
+
+	// Detonated or out of fuel: it will not hit anything any more.
+	public bool IsSpent => _hitTarget || (_thrustTime <= 0 && !UnlimitedFuel);
+
+	// Blown up, here or, for a copy, on the machine that fired it; only the smoke is left.
+	public bool Exploded { get; private set; }
 
 	private CollisionObject3D _ignoredBody;
 
@@ -488,6 +495,7 @@ public partial class FlightModelMissile : RigidBody3D
 
 	private void HideBody()
 	{
+		Exploded = true;
 		Burnout();
 		GetNode<Node3D>("missile final_001").Hide();
 		GetNode<Node3D>("Text_008").Hide();

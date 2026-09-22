@@ -23,11 +23,13 @@ public partial class BaseLevel : Node3D
 	// Null offline, where the node name will do.
 	protected virtual string LocalParticipantName => null;
 
-	private static readonly string[] PrewarmScenes =
+	private static readonly (string Path, float Scale)[] PrewarmScenes =
 	{
-		"res://Scenes/Bullet.tscn",
-		"res://Scenes/FlightModelMissile.tscn",
-		"res://Scenes/BigExplosionSpace.tscn",
+		("res://Scenes/Bullet.tscn", 1f),
+		("res://Scenes/FlightModelMissile.tscn", 1f),
+		("res://Scenes/BigExplosionSpace.tscn", 1f),
+		("res://Scenes/LaserWeapon.tscn", 1f),
+		("res://Scenes/Bengal.tscn", 0.01f),
 	};
 
 	public override void _Ready()
@@ -57,7 +59,7 @@ public partial class BaseLevel : Node3D
 			? cam.GlobalPosition - cam.GlobalTransform.Basis.Z * 20f
 			: Player.GlobalPosition;
 
-		foreach (string path in PrewarmScenes)
+		foreach ((string path, float scale) in PrewarmScenes)
 		{
 			var scene = GD.Load<PackedScene>(path);
 			if (scene == null) continue;
@@ -65,7 +67,10 @@ public partial class BaseLevel : Node3D
 			var inst = scene.Instantiate();
 			AddChild(inst);
 			if (inst is Node3D n3d)
+			{
 				n3d.GlobalPosition = basePos;
+				n3d.Scale = Vector3.One * scale;
+			}
 			FreezeSubtree(inst);
 			ForceParticlesOn(inst);
 			_prewarmInstances.Add(inst);

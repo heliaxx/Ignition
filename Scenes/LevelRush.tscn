@@ -98,7 +98,8 @@ environment = SubResource("Environment_r05y7")
 
 [node name="Player" parent="." unique_id=1499692613 instance=ExtResource("5_3qx6a")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 0, 0, 0)
-MaxMissiles = 4
+MaxMissiles = 6
+GatlingAmmo = 1000
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=584183668]
 transform = Transform3D(-0.573577, 0, -0.819152, 0, 1, 0, 0.819152, 0, -0.573577, 0, 0, -20)

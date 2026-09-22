@@ -290,6 +290,8 @@ layer = 3
 
 [node name="Player" parent="." unique_id=1614651952 instance=ExtResource("5_6u5s5")]
 transform = Transform3D(-1, 0, 4.37114e-08, 0, 1, 0, -4.37114e-08, 0, -1, 0, 150, -1500)
+MaxMissiles = 12
+GatlingAmmo = 2000
 
 [node name="BigStation" parent="." unique_id=1467537794 instance=ExtResource("9_dgv10")]
 transform = Transform3D(27.9176, 8.02256, 7.50001, -9.911, 27.2302, 7.76458, -4.73117, -9.70334, 27.9904, 0, 0, 0)
@@ -354,6 +356,13 @@ layout_mode = 2
 size_flags_horizontal = 4
 text = "LEVEL COMPLETE!"
 horizontal_alignment = 1
+
+[node name="RestartButton" type="Button" parent="EndScreenLayer/EndScreen/VBoxContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_default_cursor_shape = 2
+text = "Restart Level"
 
 [node name="MainMenuButton" type="Button" parent="EndScreenLayer/EndScreen/VBoxContainer" unique_id=1937709562]
 layout_mode = 2

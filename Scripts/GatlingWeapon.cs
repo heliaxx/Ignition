@@ -51,6 +51,14 @@ public partial class GatlingWeapon : WeaponBase
         _fireEnd = GetNodeOrNull<AudioStreamPlayer3D>("ShootingEnd");
     }
 
+    // Sets the magazine size and fills it.
+    public void LoadAmmo(int rounds)
+    {
+        MaxAmmo = rounds;
+        CurrentAmmo = rounds;
+        EmitSignal(SignalName.AmmoChanged, CurrentAmmo, MaxAmmo);
+    }
+
     public override void StartFiring()
     {
         if (!UnlimitedAmmo && CurrentAmmo <= 0) return;

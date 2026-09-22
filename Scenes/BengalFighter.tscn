@@ -12,18 +12,10 @@
 [ext_resource type="Script" uid="uid://b1c7whds4yxr3" path="res://States/Flee.cs" id="10_flee"]
 [ext_resource type="Script" uid="uid://cogr2wsp3j1ts" path="res://States/ReturnToCenter.cs" id="11_return"]
 [ext_resource type="Script" uid="uid://iuhcmmfkmh3" path="res://Scripts/GimbalTarget.cs" id="12_gimbal"]
-[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull01.tres" id="20_hull01"]
-[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull02.tres" id="20_hull02"]
-[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull03.tres" id="20_hull03"]
-[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull04.tres" id="20_hull04"]
-[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull05.tres" id="20_hull05"]
-[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull06.tres" id="20_hull06"]
-[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull07.tres" id="20_hull07"]
-[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull08.tres" id="20_hull08"]
-[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull09.tres" id="20_hull09"]
-[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull10.tres" id="20_hull10"]
-[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull11.tres" id="20_hull11"]
-[ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull12.tres" id="20_hull12"]
+[ext_resource type="Shape3D" path="res://Resources/Collision/BengalNpcHullNose.tres" id="20_npc_nose"]
+[ext_resource type="Shape3D" path="res://Resources/Collision/BengalNpcHullBody.tres" id="20_npc_body"]
+[ext_resource type="Shape3D" path="res://Resources/Collision/BengalNpcHullPort.tres" id="20_npc_port"]
+[ext_resource type="Shape3D" path="res://Resources/Collision/BengalNpcHullStarboard.tres" id="20_npc_starboard"]
 
 [node name="BengalFighter" type="CharacterBody3D" unique_id=941056484 groups=["enemies"]]
 script = ExtResource("1_fighter")
@@ -31,53 +23,21 @@ script = ExtResource("1_fighter")
 [node name="Model" parent="." unique_id=956250148 instance=ExtResource("2_model")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
 
-[node name="Hull1" type="CollisionShape3D" parent="." unique_id=1187228114]
+[node name="HullNose" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
-shape = ExtResource("20_hull01")
+shape = ExtResource("20_npc_nose")
 
-[node name="Hull2" type="CollisionShape3D" parent="." unique_id=2038617436]
+[node name="HullBody" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
-shape = ExtResource("20_hull02")
+shape = ExtResource("20_npc_body")
 
-[node name="Hull3" type="CollisionShape3D" parent="." unique_id=1099034321]
+[node name="HullPort" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
-shape = ExtResource("20_hull03")
+shape = ExtResource("20_npc_port")
 
-[node name="Hull4" type="CollisionShape3D" parent="." unique_id=598399362]
+[node name="HullStarboard" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
-shape = ExtResource("20_hull04")
-
-[node name="Hull5" type="CollisionShape3D" parent="." unique_id=236030113]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
-shape = ExtResource("20_hull05")
-
-[node name="Hull6" type="CollisionShape3D" parent="." unique_id=1395138001]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
-shape = ExtResource("20_hull06")
-
-[node name="Hull7" type="CollisionShape3D" parent="." unique_id=1525161625]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
-shape = ExtResource("20_hull07")
-
-[node name="Hull8" type="CollisionShape3D" parent="." unique_id=59476705]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
-shape = ExtResource("20_hull08")
-
-[node name="Hull9" type="CollisionShape3D" parent="." unique_id=1168296777]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
-shape = ExtResource("20_hull09")
-
-[node name="Hull10" type="CollisionShape3D" parent="." unique_id=1631686307]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
-shape = ExtResource("20_hull10")
-
-[node name="Hull11" type="CollisionShape3D" parent="." unique_id=54858396]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
-shape = ExtResource("20_hull11")
-
-[node name="Hull12" type="CollisionShape3D" parent="." unique_id=2138436774]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.8555, 1.129)
-shape = ExtResource("20_hull12")
+shape = ExtResource("20_npc_starboard")
 
 [node name="LaserWeapon" parent="." unique_id=393343523 instance=ExtResource("3_laser")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, -8.3)

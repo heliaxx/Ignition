@@ -18,11 +18,16 @@ public partial class PlayerShip
 
     [ExportGroup("Gatling")]
     [Export] public bool UnlimitedGatlingAmmo = false;
+    // Rounds for all guns together, split evenly between them.
+    [Export] public int GatlingAmmo = 800;
 
     private GatlingWeapon[] _gatlings = Array.Empty<GatlingWeapon>();
 
     private bool UnlimitedAmmo => _gatlings.Length > 0 && _gatlings[0].UnlimitedAmmo;
     private int _currentAmmo  => _gatlings.Sum(gun => gun.CurrentAmmo);
+
+    // Nothing left to shoot with: every gun dry and no missiles.
+    public bool OutOfAmmo => !UnlimitedAmmo && _currentAmmo <= 0 && !UnlimitedMissiles && _currentMissiles <= 0;
 
     private double timeSinceLastShot = 0.0;
     private double fireCooldown;
@@ -53,6 +58,7 @@ public partial class PlayerShip
         {
             if (UnlimitedGatlingAmmo)
                 gun.UnlimitedAmmo = true;
+            gun.LoadAmmo(GatlingAmmo / _gatlings.Length);
             gun.Shooter = this;
             gun.SpawnParent = GetParent() as Node3D;
             gun.AmmoChanged += (cur, max) => UpdateAmmoHUD();

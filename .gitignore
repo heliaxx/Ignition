@@ -19,3 +19,7 @@ data_*/
 mono_crash.*.json
 # Godot working copies of GDExtension libraries
 addons/**/~*
+
+# EOS client secret, supplied per developer
+Scripts/EosSecret.gd
+Scripts/EosSecret.gd.uid

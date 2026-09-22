@@ -33,6 +33,19 @@ ShipSync="*res://Scripts/ShipSync.cs"
 DamageManager="*res://Scripts/DamageManager.cs"
 WeaponSync="*res://Scripts/WeaponSync.cs"
 MissileSync="*res://Scripts/MissileSync.cs"
+SteamManager="*res://Scripts/SteamManager.cs"
+EOSGRuntime="*res://addons/epic-online-services-godot/runtime.gd"
+HPlatform="*res://addons/epic-online-services-godot/heos/hplatform.gd"
+HAuth="*res://addons/epic-online-services-godot/heos/hauth.gd"
+HAchievements="*res://addons/epic-online-services-godot/heos/hachievements.gd"
+HFriends="*res://addons/epic-online-services-godot/heos/hfriends.gd"
+HStats="*res://addons/epic-online-services-godot/heos/hstats.gd"
+HLeaderboards="*res://addons/epic-online-services-godot/heos/hleaderboards.gd"
+HLobbies="*res://addons/epic-online-services-godot/heos/hlobbies.gd"
+HP2P="*res://addons/epic-online-services-godot/heos/hp2p.gd"
+HSessions="*res://addons/epic-online-services-godot/heos/hsessions.gd"
+EosBridge="*res://Scripts/EosBridge.gd"
+EosManager="*res://Scripts/EosManager.cs"
 
 [display]
 
@@ -179,3 +192,7 @@ environment/volumetric_fog/volume_size=96
 environment/volumetric_fog/volume_depth=96
 anti_aliasing/quality/screen_space_aa=1
 anti_aliasing/disable_vsync=true
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/epic-online-services-godot/plugin.cfg")

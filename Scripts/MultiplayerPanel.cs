@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
-// Host/join bench for the ENet transport, and the lobby it turns into once connected: who is
-// here, what the host set the match to, and who has readied up.
+// Host/join bench for every transport this machine can reach, and the lobby it turns into once
+// connected: who is here, what the host set the match to, and who has readied up.
 public partial class MultiplayerPanel : Control
 {
 	// The server always holds peer id 1.
@@ -13,6 +14,12 @@ public partial class MultiplayerPanel : Control
 	private static readonly int[] KillLimits = { 5, 10, 15, 25 };
 	private static readonly int[] TimeLimits = { 5, 10, 15, 20 };
 
+	// Players on different transports cannot meet, so one is chosen before hosting or joining.
+	private enum Transport { Steam, Eos, Enet }
+
+	private readonly List<Transport> _transports = new();
+
+	private OptionButton _transportOption;
 	private LineEdit _name;
 	private LineEdit _address;
 	private Label _status;
@@ -20,6 +27,10 @@ public partial class MultiplayerPanel : Control
 	private Button _join;
 	private Button _start;
 	private Button _ready;
+	private Label _gamesTitle;
+	private VBoxContainer _games;
+	private Button _refreshGames;
+	private Button _invite;
 	private Label _playersTitle;
 	private VBoxContainer _players;
 	private Label _mode;
@@ -37,6 +48,7 @@ public partial class MultiplayerPanel : Control
 		// Saved as it is typed: the name has to be on disk before Host or Join reads it.
 		_name.TextChanged += ConfigFileHandler.Instance.SavePlayerName;
 
+		_transportOption = (OptionButton)FindChild("TransportOption");
 		_address = (LineEdit)FindChild("AddressEdit");
 		_status = (Label)FindChild("StatusLabel");
 
@@ -44,6 +56,10 @@ public partial class MultiplayerPanel : Control
 		_join = (Button)FindChild("JoinButton");
 		_start = (Button)FindChild("StartButton");
 		_ready = (Button)FindChild("ReadyButton");
+		_gamesTitle = (Label)FindChild("GamesTitle");
+		_games = (VBoxContainer)FindChild("GamesBox");
+		_refreshGames = (Button)FindChild("RefreshButton");
+		_invite = (Button)FindChild("InviteButton");
 		_playersTitle = (Label)FindChild("PlayersTitle");
 		_players = (VBoxContainer)FindChild("PlayersBox");
 		_mode = (Label)FindChild("ModeLabel");
@@ -56,6 +72,9 @@ public partial class MultiplayerPanel : Control
 		FillLimits(_timeLimit, TimeLimits, "{0} MIN");
 
 		_host.Pressed += OnHost;
+		_refreshGames.Pressed += RefreshGames;
+		_invite.Pressed += SteamManager.Instance.InviteFriends;
+		_transportOption.ItemSelected += _ => { RefreshGames(); Refresh(); };
 		_join.Pressed += OnJoin;
 		_start.Pressed += OnStart;
 		_ready.Toggled += pressed => MatchManager.Instance.SetLocalReady(pressed);
@@ -69,8 +88,16 @@ public partial class MultiplayerPanel : Control
 		net.JoinedServer += OnJoinedServer;
 		net.LeftServer += OnLeftServer;
 		MatchManager.Instance.LobbyChanged += Refresh;
+		SteamManager.Instance.LobbiesFound += Refresh;
+		SteamManager.Instance.LobbyOpened += Refresh;
+		SteamManager.Instance.LobbyFailed += OnLobbyFailed;
+		EosManager.Instance.LobbiesFound += Refresh;
+		EosManager.Instance.LobbyOpened += Refresh;
+		EosManager.Instance.LobbyFailed += OnLobbyFailed;
+		// EOS logs in during startup, so it can arrive after this panel is open.
+		EosManager.Instance.AvailabilityChanged += BuildTransports;
 
-		Refresh();
+		BuildTransports();
 		// Why the last match ended, when this player did not choose to leave it.
 		if (MatchManager.Instance.TakeLeaveReason() is string reason)
 			_status.Text = reason;
@@ -88,14 +115,68 @@ public partial class MultiplayerPanel : Control
 		net.JoinedServer -= OnJoinedServer;
 		net.LeftServer -= OnLeftServer;
 		MatchManager.Instance.LobbyChanged -= Refresh;
+		SteamManager.Instance.LobbiesFound -= Refresh;
+		SteamManager.Instance.LobbyOpened -= Refresh;
+		SteamManager.Instance.LobbyFailed -= OnLobbyFailed;
+		EosManager.Instance.LobbiesFound -= Refresh;
+		EosManager.Instance.LobbyOpened -= Refresh;
+		EosManager.Instance.LobbyFailed -= OnLobbyFailed;
+		EosManager.Instance.AvailabilityChanged -= BuildTransports;
+	}
+
+	private void BuildTransports()
+	{
+		Transport chosen = _transports.Count > 0 ? Chosen : Transport.Steam;
+		_transports.Clear();
+		_transportOption.Clear();
+
+		if (SteamManager.Instance.IsAvailable) AddTransport(Transport.Steam, "STEAM");
+		if (EosManager.Instance.IsAvailable) AddTransport(Transport.Eos, "EOS");
+		AddTransport(Transport.Enet, "ENET");
+
+		int index = _transports.IndexOf(chosen);
+		_transportOption.Selected = index >= 0 ? index : 0;
+		RefreshGames();
+		Refresh();
+	}
+
+	private void AddTransport(Transport transport, string label)
+	{
+		_transportOption.AddItem(label);
+		_transports.Add(transport);
+	}
+
+	private Transport Chosen => _transports[Mathf.Max(_transportOption.Selected, 0)];
+
+	private void RefreshGames()
+	{
+		if (Chosen == Transport.Steam) SteamManager.Instance.RefreshLobbies();
+		else if (Chosen == Transport.Eos) EosManager.Instance.RefreshLobbies();
 	}
 
 	private void OnHost()
 	{
-		if (NetworkManager.Instance.Host())
-			Refresh();
-		else
-			_status.Text = "could not host";
+		switch (Chosen)
+		{
+			case Transport.Steam:
+				SteamManager.Instance.HostLobby();
+				_status.Text = "opening a Steam lobby…";
+				break;
+			case Transport.Eos:
+				EosManager.Instance.HostLobby();
+				_status.Text = "opening an EOS lobby…";
+				break;
+			default:
+				if (NetworkManager.Instance.Host()) Refresh();
+				else _status.Text = "could not host";
+				break;
+		}
+	}
+
+	private void OnLobbyFailed(string reason)
+	{
+		Refresh();
+		_status.Text = reason;
 	}
 
 	private void OnJoin()
@@ -120,6 +201,8 @@ public partial class MultiplayerPanel : Control
 	private void OnBack()
 	{
 		NetworkManager.Instance.Leave();
+		SteamManager.Instance.LeaveLobby();
+		EosManager.Instance.LeaveLobby();
 		GetParent<MenuStack>().Pop();
 	}
 
@@ -134,12 +217,20 @@ public partial class MultiplayerPanel : Control
 		MatchManager match = MatchManager.Instance;
 		bool connected = net.IsActive;
 		bool hosting = connected && net.IsServer;
+		bool browsing = !connected && Chosen != Transport.Enet;
 
 		// Offline this is where a session is opened; connected, it is the lobby.
 		_name.Editable = !connected;
 		_host.Visible = !connected;
-		_join.Visible = !connected;
-		_address.Visible = !connected;
+		_transportOption.Visible = !connected;
+		_join.Visible = !connected && !browsing;
+		_address.Visible = !connected && !browsing;
+		_gamesTitle.Visible = browsing;
+		_gamesTitle.Text = Chosen == Transport.Eos ? "EOS GAMES" : "STEAM GAMES";
+		_games.Visible = browsing;
+		_refreshGames.Visible = browsing;
+		// Only Steam knows the player's friends; an EOS device login has none to invite.
+		_invite.Visible = hosting && SteamManager.Instance.LobbyId != 0;
 		_playersTitle.Visible = connected;
 		_players.Visible = connected;
 		_mode.Visible = connected;
@@ -151,6 +242,7 @@ public partial class MultiplayerPanel : Control
 
 		if (!connected)
 		{
+			BuildGames();
 			_status.Text = "offline";
 			return;
 		}
@@ -170,6 +262,26 @@ public partial class MultiplayerPanel : Control
 		if (!net.IsServer) return "in lobby";
 		if (net.Peers.Count < 2) return "waiting for another player";
 		return match.CanStart ? "ready to start" : "waiting for everyone to ready up";
+	}
+
+	private void BuildGames()
+	{
+		foreach (Node row in _games.GetChildren())
+			row.QueueFree();
+
+		if (Chosen == Transport.Steam)
+			foreach (SteamManager.Lobby lobby in SteamManager.Instance.Lobbies)
+				AddGame(lobby.Host, lobby.Players, () => SteamManager.Instance.JoinLobby(lobby.Id));
+		else if (Chosen == Transport.Eos)
+			foreach (EosManager.Lobby lobby in EosManager.Instance.Lobbies)
+				AddGame(lobby.Host, lobby.Players, () => EosManager.Instance.JoinLobby(lobby.Id));
+	}
+
+	private void AddGame(string host, int players, Action join)
+	{
+		var row = new Button { Text = $"{host}   {players}/{NetworkManager.MaxPlayers}" };
+		row.Pressed += join;
+		_games.AddChild(row);
 	}
 
 	private void BuildPlayers()

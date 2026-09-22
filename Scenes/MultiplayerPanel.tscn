@@ -35,6 +35,10 @@ custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 placeholder_text = "callsign"
 
+[node name="TransportOption" type="OptionButton" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+
 [node name="HostButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1614124812]
 layout_mode = 2
 mouse_default_cursor_shape = 2
@@ -51,6 +55,21 @@ layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "JOIN"
 
+[node name="GamesTitle" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+text = "GAMES"
+
+[node name="GamesBox" type="VBoxContainer" parent="CenterContainer/VBoxContainer"]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="RefreshButton" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "REFRESH LIST"
+
 [node name="PlayersTitle" type="Label" parent="CenterContainer/VBoxContainer" unique_id=1529759017]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -60,6 +79,11 @@ text = "PLAYERS"
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 theme_override_constants/separation = 2
+
+[node name="InviteButton" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "INVITE FRIENDS"
 
 [node name="ModeLabel" type="Label" parent="CenterContainer/VBoxContainer" unique_id=307276314]
 layout_mode = 2

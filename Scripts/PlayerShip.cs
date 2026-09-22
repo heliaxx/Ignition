@@ -79,7 +79,7 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 	private Camera3D _cockpitCamera;
 	private Camera3D _externalCamera;
 	private bool _isExternalView = false;
-	private CockpitReadout _healthReadout;
+	private CockpitBar _healthBar;
 	private CockpitReadout _speedReadout;
 	private HealthComponent health;
 	private bool _isDead = false;
@@ -111,12 +111,12 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 
 		canvasLayer = GetNode<CanvasLayer>("HUD");
 		_scoreHud = GetParent().GetParent().GetNodeOrNull<CanvasLayer>("ScoreHUD");
-		_healthReadout = GetNodeOrNull<CockpitReadout>("HealthReadout");
+		_healthBar = GetNodeOrNull<CockpitBar>("HealthBar");
 		_speedReadout = GetNodeOrNull<CockpitReadout>("SpeedReadout");
 		health = GetNode<HealthComponent>("HealthComponent");
 		health.HealthChanged += OnHealthChanged;
 		health.Died += OnDied;
-		if (_healthReadout != null) _healthReadout.Value = $"{health.CurrentHealth:F0}";
+		_healthBar?.SetFraction(health.CurrentHealth / health.MaxHealth);
 
 		_model = GetNodeOrNull<ShipModel>("Model");
 		_headlights = GetNodeOrNull<Node3D>("Headlights");
@@ -132,8 +132,8 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 
 			foreach (string nodeName in new[]
 			{
-				"HealthReadout", "SpeedReadout", "AmmoReadout",
-				"MissilesReadout", "TargetNameReadout", "TargetDistReadout"
+				"HealthBar", "SpeedReadout", "AmmoReadout",
+				"MissilesReadout", "TargetNameReadout", "TargetDistReadout", "TargetHealthBar", "Radar"
 			})
 				GetNodeOrNull<Node3D>(nodeName)?.SetVisible(_showShip);
 
@@ -287,7 +287,7 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 
 	private void OnHealthChanged(float current, float max)
 	{
-		if (_healthReadout != null) _healthReadout.Value = $"{current:F0}";
+		_healthBar?.SetFraction(current / max);
 	}
 
 	public override void _Input(InputEvent @event)
@@ -365,6 +365,8 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 				case Camera3D camera: camera.Current = false; break;
 				case CanvasLayer layer: layer.Visible = false; break;
 				case Label3D label: label.Visible = false; break;
+				case CockpitBar bar: bar.Visible = false; break;
+				case CockpitRadar radar: radar.Visible = false; break;
 			}
 			StripLocalOnlyNodes(child);
 		}

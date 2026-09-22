@@ -14,19 +14,13 @@ public partial class PlayerShip
 	public bool IsMissileLocked => _lockedTarget != null && _missileLockTimer >= MissileLockTime;
 
 	// Target HUD elements
-	private Control _targetPanel;
-	private ProgressBar _targetHealthBar;
+	private CockpitBar _targetHealthBar;
 	private CockpitReadout _targetNameReadout;
 	private CockpitReadout _targetDistReadout;
 
 	private void InitTargeting()
 	{
-		_targetPanel = canvasLayer.GetNodeOrNull<Control>("TargetPanel");
-		if (_targetPanel != null)
-		{
-			_targetHealthBar = _targetPanel.GetNode<ProgressBar>("MarginContainer/VBoxContainer/TargetHealthBar");
-			_targetPanel.Visible = false;
-		}
+		_targetHealthBar = GetNodeOrNull<CockpitBar>("TargetHealthBar");
 		_targetNameReadout = GetNodeOrNull<CockpitReadout>("TargetNameReadout");
 		_targetDistReadout = GetNodeOrNull<CockpitReadout>("TargetDistReadout");
 	}
@@ -121,8 +115,6 @@ public partial class PlayerShip
 
 	private void UpdateTargetHUD(float delta)
 	{
-		if (_targetPanel == null) return;
-
 		// Validate target is still alive and in range
 		if (_lockedTarget != null)
 		{
@@ -140,7 +132,7 @@ public partial class PlayerShip
 
 		if (_lockedTarget == null)
 		{
-			_targetPanel.Visible = false;
+			_targetHealthBar?.SetFraction(null);
 			if (_targetNameReadout != null) _targetNameReadout.Value = "---";
 			if (_targetDistReadout != null) _targetDistReadout.Value = "---";
 			return;
@@ -154,17 +146,13 @@ public partial class PlayerShip
 				_missileLockTimer = 0f;
 		}
 
-		_targetPanel.Visible = true;
 		float distance = GlobalPosition.DistanceTo(_lockedTarget.GlobalPosition);
 		if (_targetNameReadout != null) _targetNameReadout.Value = _lockedTarget.GetDisplayName();
 		if (_targetDistReadout != null) _targetDistReadout.Value = $"{distance:F0}m";
 
-		_targetHealthBar.Visible = _lockedTarget.HasHealthData();
-		if (_lockedTarget.HasHealthData())
-		{
-			_targetHealthBar.MaxValue = _lockedTarget.GetMaxHealth();
-			_targetHealthBar.Value    = _lockedTarget.GetCurrentHealth();
-		}
+		_targetHealthBar?.SetFraction(_lockedTarget.HasHealthData()
+			? _lockedTarget.GetCurrentHealth() / _lockedTarget.GetMaxHealth()
+			: null);
 	}
 
 	private bool IsTargetInGimbalCone()

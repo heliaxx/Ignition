@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://fwtipcqqy2mu"]
+
+[ext_resource type="Script" uid="uid://kkbejioia05v" path="res://Scripts/CockpitRadar.cs" id="1_radar"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_screen"]
+resource_local_to_scene = true
+transparency = 1
+shading_mode = 0
+texture_filter = 1
+
+[sub_resource type="QuadMesh" id="QuadMesh_screen"]
+size = Vector2(0.52, 0.338)
+
+[node name="CockpitRadar" type="Node3D" unique_id=1566420384]
+script = ExtResource("1_radar")
+
+[node name="Screen" type="MeshInstance3D" parent="." unique_id=128641768]
+material_override = SubResource("StandardMaterial3D_screen")
+cast_shadow = 0
+mesh = SubResource("QuadMesh_screen")
+
+[node name="Viewport" type="SubViewport" parent="." unique_id=2085391207]
+disable_3d = true
+transparent_bg = true
+msaa_2d = 2
+size = Vector2i(640, 416)
+render_target_update_mode = 4
+
+[node name="Display" type="Control" parent="Viewport" unique_id=2083896520]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

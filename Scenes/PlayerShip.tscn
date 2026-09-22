@@ -13,6 +13,8 @@
 [ext_resource type="PackedScene" uid="uid://086mbplltvr6" path="res://Scenes/DeathScreen.tscn" id="11_death"]
 [ext_resource type="Script" uid="uid://b6pqt1p3yf8sg" path="res://Scripts/FreeLook.cs" id="12_look"]
 [ext_resource type="PackedScene" uid="uid://yvagcpnbd5be" path="res://Scenes/Light.tscn" id="13_light"]
+[ext_resource type="PackedScene" path="res://Scenes/CockpitBar.tscn" id="14_bar"]
+[ext_resource type="PackedScene" uid="uid://fwtipcqqy2mu" path="res://Scenes/CockpitRadar.tscn" id="15_radar"]
 [ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull01.tres" id="20_hull01"]
 [ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull02.tres" id="20_hull02"]
 [ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull03.tres" id="20_hull03"]
@@ -120,29 +122,36 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.33, -0.0455, -5.721)
 BulletScene = ExtResource("6_bullet")
 HasGimbal = true
 
-[node name="HealthReadout" parent="." unique_id=233706102 instance=ExtResource("7_readout")]
-transform = Transform3D(0.242441, -0.032495, 0.0881285, -3.60822e-18, 0.243945, 0.0899482, -0.0939284, -0.0838735, 0.22747, -0.529456, -0.342718, -4.55818)
-Title = "HEALTH"
+[node name="TargetHealthBar" parent="." unique_id=812360798 instance=ExtResource("14_bar")]
+transform = Transform3D(0.16891447, -0.03458704, 0.058273617, 0.011828488, 0.16915481, 0.06611171, -0.066724755, -0.05757093, 0.15924013, -0.52550817, -0.41489536, -4.547476)
+Title = ""
 
 [node name="SpeedReadout" parent="." unique_id=699686121 instance=ExtResource("7_readout")]
-transform = Transform3D(0.242441, 0.032495, -0.0881285, 3.60822e-18, 0.243945, 0.0899482, 0.0939284, -0.0838735, 0.22747, 0.529456, -0.342718, -4.55818)
+transform = Transform3D(0.16891444, 0.034587078, -0.0582736, -0.011828486, 0.16915499, 0.06611169, 0.06672474, -0.05757099, 0.15924008, 0.5548951, -0.30478212, -4.576336)
 Title = "SPEED"
 
+[node name="HealthBar" parent="." unique_id=233706102 instance=ExtResource("14_bar")]
+transform = Transform3D(0.1677242, 0.03558656, -0.06104384, -0.011828485, 0.16915499, 0.06611169, 0.06966253, -0.056958597, 0.1581988, 0.5372605, -0.40831104, -4.545518)
+Title = "HEALTH"
+
 [node name="AmmoReadout" parent="." unique_id=1682387511 instance=ExtResource("7_readout")]
-transform = Transform3D(0.219998, 0.00023591, -0.000879889, 0, 0.212495, 0.0569728, 0.000910965, -0.0569723, 0.212493, -0.43502, -0.153385, -4.75623)
+transform = Transform3D(0.21881416, -0.022798458, -0.0007417759, 0.022212673, 0.21133961, 0.056940157, -0.0051880954, -0.056708205, 0.21250227, -0.43502, -0.153385, -4.7694626)
 Title = "GATLING"
 
 [node name="MissilesReadout" parent="." unique_id=1907237836 instance=ExtResource("7_readout")]
-transform = Transform3D(0.219998, -0.00023591, 0.000879889, 0, 0.212495, 0.0569728, -0.000910965, -0.0569723, 0.212493, 0.43502, -0.153385, -4.75623)
+transform = Transform3D(0.21881416, 0.022798458, 0.0007417759, -0.022212673, 0.21133961, 0.056940157, 0.0051880954, -0.056708205, 0.21250227, 0.43502, -0.153385, -4.770082)
 Title = "MISSILES"
 
 [node name="TargetNameReadout" parent="." unique_id=1398205836 instance=ExtResource("7_readout")]
-transform = Transform3D(0.2, 0, 0, 0, 0.188226, 0.0676093, 0, -0.0676093, 0.188226, 0, -0.310046, -4.65545)
+transform = Transform3D(0.16947965, -0.031589836, 0.05833437, 0.008819855, 0.16934912, 0.06608495, -0.065749995, -0.058711, 0.159229, -0.6460274, -0.31437546, -4.5394588)
 Title = "TARGET"
 
 [node name="TargetDistReadout" parent="." unique_id=81112735 instance=ExtResource("7_readout")]
-transform = Transform3D(0.2, 0, 0, 0, 0.188226, 0.0676093, 0, -0.0676093, 0.188226, 0, -0.460627, -4.60137)
+transform = Transform3D(0.16949235, -0.031633817, 0.058273632, 0.008874521, 0.1693355, 0.06611173, -0.06570982, -0.05872667, 0.15924017, -0.4498552, -0.30379966, -4.619773)
 Title = "DISTANCE"
+
+[node name="Radar" parent="." unique_id=1121817329 instance=ExtResource("15_radar")]
+transform = Transform3D(1, 0, 0, 0, 0.941129, 0.338046, 0, -0.338046, 0.941129, 0, -0.42, -4.615)
 
 [node name="dustParticles" parent="." unique_id=1671658564 instance=ExtResource("8_dust")]
 transform = Transform3D(0, 0, 1, 1, -4.37114e-08, 0, 4.37114e-08, 1, 0, 0, -2.1265, -17.203)

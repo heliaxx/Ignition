@@ -48,12 +48,12 @@ func _ready() -> void:
 		print("EosBridge: EOS unavailable")
 		return
 
-	# Device id login: no EOS account, no login screen, just this machine.
-	if not await HAuth.login_anonymous_async(_player_name()):
+	if not await _login_async():
 		print("EosBridge: EOS login failed")
 		return
 
 	available = true
+	print("EosBridge: EOS ready as %s" % HAuth.product_user_id)
 	became_available.emit()
 
 
@@ -123,6 +123,34 @@ func leave_lobby() -> void:
 		await lobby.destroy_async()
 	else:
 		await lobby.leave_async()
+
+func _login_async() -> bool:
+	if await HAuth.login_game_services_async(_login_options()):
+		return true
+
+	EOS.Connect.ConnectInterface.create_device_id(_device_id_options())
+	var created = await IEOS.connect_interface_create_device_id_callback
+	if not EOS.is_success(created):
+		print("EosBridge: could not create an EOS device id: %s" % EOS.result_str(created.result_code))
+		return false
+
+	return await HAuth.login_game_services_async(_login_options())
+
+
+func _login_options() -> EOS.Connect.LoginOptions:
+	var opts := EOS.Connect.LoginOptions.new()
+	opts.credentials = EOS.Connect.Credentials.new()
+	opts.credentials.type = EOS.ExternalCredentialType.DeviceidAccessToken
+	opts.credentials.token = null
+	opts.user_login_info = EOS.Connect.UserLoginInfo.new()
+	opts.user_login_info.display_name = _player_name()
+	return opts
+
+
+func _device_id_options() -> EOS.Connect.CreateDeviceIdOptions:
+	var opts := EOS.Connect.CreateDeviceIdOptions.new()
+	opts.device_model = " ".join(PackedStringArray([OS.get_name(), OS.get_model_name()]))
+	return opts
 
 
 ## The secret lives in an untracked script holding only CLIENT_SECRET, so a clone of this

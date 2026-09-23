@@ -24,6 +24,9 @@ public partial class NetworkManager : Node
 	// it to everyone, so a name is known before the ship carrying it exists.
 	private readonly Dictionary<int, string> _peers = new();
 
+	// Peers already let in. A relay can deliver the same authentication packet twice.
+	private readonly HashSet<int> _authenticated = new();
+
 	private SceneMultiplayer _scene;
 
 	private bool _sessionOpen;
@@ -31,6 +34,11 @@ public partial class NetworkManager : Node
 	public bool IsActive => _sessionOpen;
 
 	public bool IsServer => !IsActive || Multiplayer.IsServer();
+
+	// A session is open from the moment a peer is created, which on the relay transports is
+	// well before the host answers, and stays open when it never does.
+	public bool IsConnected => IsActive && (Multiplayer.IsServer()
+		|| Multiplayer.MultiplayerPeer.GetConnectionStatus() == MultiplayerPeer.ConnectionStatus.Connected);
 
 	public int LocalPeerId => IsActive ? Multiplayer.GetUniqueId() : 1;
 
@@ -108,6 +116,7 @@ public partial class NetworkManager : Node
 		Multiplayer.MultiplayerPeer = null;
 		_sessionOpen = false;
 		_peers.Clear();
+		_authenticated.Clear();
 	}
 
 	private void OnPeerAuthenticating(long id)
@@ -120,7 +129,7 @@ public partial class NetworkManager : Node
 		string theirs = data.GetStringFromUtf8();
 		if (theirs == ProtocolVersion)
 		{
-			_scene.CompleteAuth(id);
+			if (_authenticated.Add(id)) _scene.CompleteAuth(id);
 			return;
 		}
 
@@ -143,6 +152,7 @@ public partial class NetworkManager : Node
 	private void OnPeerDisconnected(long id)
 	{
 		_peers.Remove((int)id);
+		_authenticated.Remove((int)id);
 		if (Multiplayer.IsServer()) BroadcastRoster();
 		EmitSignal(SignalName.PeerLeft, (int)id);
 	}

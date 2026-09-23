@@ -56,7 +56,7 @@ public partial class MatchManager : Node
 	// Client -> server. The server stamps the sender, so nobody readies up for somebody else.
 	public void SetLocalReady(bool ready)
 	{
-		if (!NetworkManager.Instance.IsActive) return;
+		if (!NetworkManager.Instance.IsConnected) return;
 
 		if (NetworkManager.Instance.IsServer)
 			ApplyReady(NetworkManager.Instance.LocalPeerId, ready);

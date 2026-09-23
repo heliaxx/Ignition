@@ -55,6 +55,8 @@ public partial class SteamManager : Node
 			return;
 		}
 
+		GD.Print($"SteamManager: Steam ready as {PersonaName}");
+
 		_steam.Connect("lobby_created", Callable.From<long, long>(OnLobbyCreated));
 		_steam.Connect("lobby_joined", Callable.From<long, long, bool, long>(OnLobbyJoined));
 		_steam.Connect("lobby_match_list", Callable.From<Godot.Collections.Array>(OnLobbyMatchList));

@@ -56,6 +56,14 @@ func _ready() -> void:
 	print("EosBridge: EOS ready as %s" % HAuth.product_user_id)
 	became_available.emit()
 
+func _exit_tree() -> void:
+	if not available:
+		return
+
+	available = false
+	EOS.Platform.PlatformInterface.release()
+	EOS.Platform.PlatformInterface.shutdown()
+
 
 func host_lobby(max_players: int) -> void:
 	if not available:

@@ -65,6 +65,10 @@ project/assembly_name="Ignition"
 movie_writer/movie_file="C:/Users/motlt/Videos/Godot.avi"
 movie_writer/disable_vsync=true
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/epic-online-services-godot/plugin.cfg")
+
 [filesystem]
 
 import/blender/enabled=false
@@ -192,7 +196,3 @@ environment/volumetric_fog/volume_size=96
 environment/volumetric_fog/volume_depth=96
 anti_aliasing/quality/screen_space_aa=1
 anti_aliasing/disable_vsync=true
-
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/epic-online-services-godot/plugin.cfg")

@@ -105,4 +105,4 @@ MinSpacing = 800.0
 MinScale = 30.0
 MaxScale = 90.0
 LodBias = 20.1
-WorldSeed = 1
+WorldSeed = 0

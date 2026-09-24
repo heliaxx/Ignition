@@ -25,6 +25,8 @@ public partial class ConfigFileHandler
 		{ "primary_fire",    "mouse_1" },
 		{ "secondary_fire",  "mouse_2" },
 		{ "light",           "L"       },
+		{ "target_cycle",    "T"       },
+		{ "target_cycle_all", "F"      },
 		{ "free_look",       "mouse_3" },
 	};
 

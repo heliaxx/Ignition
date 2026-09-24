@@ -4,6 +4,7 @@ public partial class BaseLevel : Node3D
 {
 	protected Node3D Player;
 	protected PlayerShip PlayerShip;
+	public PlayerShip LocalShip => PlayerShip;
 	protected MusicManager MusicManager;
 	protected Node3D NavigationRegion;
 

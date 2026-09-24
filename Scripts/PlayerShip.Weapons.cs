@@ -152,8 +152,5 @@ public partial class PlayerShip
         return points.Length == 0 ? null : points.Aggregate(Vector2.Zero, (sum, p) => sum + p) / points.Length;
     }
 
-    // For the targeting code. The guns share gimbal and bullet settings, so the first stands for all.
-    private Node3D barrel     => _gatlings.Length > 0 ? _gatlings[0] : null;
-    private float GimbalAngle => _gatlings.Length > 0 ? _gatlings[0].GimbalAngle : 10f;
     private float BulletSpeed => _gatlings.Length > 0 ? _gatlings[0].BulletSpeed : 1600f;
 }

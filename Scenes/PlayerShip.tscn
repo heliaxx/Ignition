@@ -123,15 +123,15 @@ BulletScene = ExtResource("6_bullet")
 HasGimbal = true
 
 [node name="TargetHealthBar" parent="." unique_id=812360798 instance=ExtResource("14_bar")]
-transform = Transform3D(0.16891447, -0.03458704, 0.058273617, 0.011828488, 0.16915481, 0.06611171, -0.066724755, -0.05757093, 0.15924013, -0.52550817, -0.41489536, -4.547476)
+transform = Transform3D(0.16891447, -0.03458704, 0.058273617, 0.011828488, 0.16915481, 0.06611171, -0.066724755, -0.05757093, 0.15924013, -0.52453154, -0.41489536, -4.5402694)
 Title = ""
 
-[node name="SpeedReadout" parent="." unique_id=699686121 instance=ExtResource("7_readout")]
-transform = Transform3D(0.16891444, 0.034587078, -0.0582736, -0.011828486, 0.16915499, 0.06611169, 0.06672474, -0.05757099, 0.15924008, 0.5548951, -0.30478212, -4.576336)
+[node name="SpeedBar" parent="." unique_id=699686121 instance=ExtResource("14_bar")]
+transform = Transform3D(0.16743131, 0.035824552, -0.061705172, -0.01182848, 0.16915499, 0.0661117, 0.07036364, -0.05680921, 0.15794204, 0.55482334, -0.3147245, -4.570094)
 Title = "SPEED"
 
 [node name="HealthBar" parent="." unique_id=233706102 instance=ExtResource("14_bar")]
-transform = Transform3D(0.1677242, 0.03558656, -0.06104384, -0.011828485, 0.16915499, 0.06611169, 0.06966253, -0.056958597, 0.1581988, 0.5372605, -0.40831104, -4.545518)
+transform = Transform3D(0.1677242, 0.03558656, -0.06104384, -0.011828485, 0.16915499, 0.06611169, 0.06966253, -0.056958597, 0.1581988, 0.5372605, -0.40831104, -4.540405)
 Title = "HEALTH"
 
 [node name="AmmoReadout" parent="." unique_id=1682387511 instance=ExtResource("7_readout")]
@@ -143,11 +143,11 @@ transform = Transform3D(0.21881416, 0.022798458, 0.0007417759, -0.022212673, 0.2
 Title = "MISSILES"
 
 [node name="TargetNameReadout" parent="." unique_id=1398205836 instance=ExtResource("7_readout")]
-transform = Transform3D(0.16947965, -0.031589836, 0.05833437, 0.008819855, 0.16934912, 0.06608495, -0.065749995, -0.058711, 0.159229, -0.6460274, -0.31437546, -4.5394588)
+transform = Transform3D(0.16947965, -0.031589836, 0.05833437, 0.008819855, 0.16934912, 0.06608495, -0.065749995, -0.058711, 0.159229, -0.6402521, -0.31437546, -4.5299525)
 Title = "TARGET"
 
 [node name="TargetDistReadout" parent="." unique_id=81112735 instance=ExtResource("7_readout")]
-transform = Transform3D(0.16949235, -0.031633817, 0.058273632, 0.008874521, 0.1693355, 0.06611173, -0.06570982, -0.05872667, 0.15924017, -0.4498552, -0.30379966, -4.619773)
+transform = Transform3D(0.16949235, -0.031633817, 0.058273632, 0.008874521, 0.1693355, 0.06611173, -0.06570982, -0.05872667, 0.15924017, -0.4498552, -0.30379966, -4.610488)
 Title = "DISTANCE"
 
 [node name="Radar" parent="." unique_id=1121817329 instance=ExtResource("15_radar")]

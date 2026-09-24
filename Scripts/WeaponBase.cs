@@ -14,6 +14,14 @@ public abstract partial class WeaponBase : Node3D
     // Override in subclasses for lead prediction. Laser = instant (MaxValue).
     protected virtual float GimbalLeadSpeed => float.MaxValue;
 
+    // Velocity a shot carries from its launcher. It already moves with the shooter, so only
+    // the target's motion relative to the shooter needs leading.
+    protected virtual Vector3 InheritedLaunchVelocity => Vector3.Zero;
+
+    // Easing alone trails a target that keeps moving, by its angular rate over GimbalSpeed,
+    // which at a few hundred metres is wider than a ship. Below this rate the barrel keeps up.
+    private static readonly float MinTrackRate = Mathf.DegToRad(90f);
+
     // Weapon's initial aim direction stored in parent-local space on first gimbal update.
     // This tracks the "neutral" barrel direction even as the ship rotates.
     private Vector3? _neutralLocal;
@@ -58,7 +66,7 @@ public abstract partial class WeaponBase : Node3D
         float remaining = cur.AngleTo(targetDir);
         if (remaining < 1e-4f) return;
 
-        float step = remaining * (1f - Mathf.Exp(-GimbalSpeed * delta));
+        float step = Mathf.Max(remaining * (1f - Mathf.Exp(-GimbalSpeed * delta)), MinTrackRate * delta);
         Vector3 newFwd = remaining > 1e-3f
             ? cur.Slerp(targetDir, Mathf.Min(step / remaining, 1f)).Normalized()
             : targetDir;
@@ -73,7 +81,7 @@ public abstract partial class WeaponBase : Node3D
 
         if (GimbalLeadSpeed < 1e9f)
         {
-            Vector3 tv = (_target as GimbalTarget)?.GetVelocity() ?? Vector3.Zero;
+            Vector3 tv = ((_target as GimbalTarget)?.GetVelocity() ?? Vector3.Zero) - InheritedLaunchVelocity;
             tp = AimUtils.PredictIntercept(GlobalPosition, tp, tv, GimbalLeadSpeed);
         }
 

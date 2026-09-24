@@ -20,6 +20,7 @@ public partial class GatlingWeapon : WeaponBase
     [Export] public int MaxAmmo = 400;
 
     protected override float GimbalLeadSpeed => BulletSpeed;
+    protected override Vector3 InheritedLaunchVelocity => ShipVelocity;
 
     public int CurrentAmmo { get; private set; }
     public bool IsFiring => _autoFiring;

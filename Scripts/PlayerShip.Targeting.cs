@@ -6,10 +6,14 @@ public partial class PlayerShip
 	// Targeting
 	private GimbalTarget _lockedTarget;
 	private const float TARGET_MAX_RANGE = 2000f;
+	// Missile lock, and switching away from a target, both need it this close to the nose.
+	private const float TargetingConeDeg = 20f;
 	public GimbalTarget LockedTarget => _lockedTarget;
 
 	public const float MissileLockTime = 2f;
 	private float _missileLockTimer = 0f;
+	private const float MissileLockLossTime = 2f;
+	private float _outOfConeTimer = 0f;
 	public float MissileLockProgress => _lockedTarget != null ? Mathf.Clamp(_missileLockTimer / MissileLockTime, 0f, 1f) : 0f;
 	public bool IsMissileLocked => _lockedTarget != null && _missileLockTimer >= MissileLockTime;
 
@@ -66,11 +70,11 @@ public partial class PlayerShip
 		}
 		else
 		{
-			// Has a target - find a different one closer to center, or untarget
+			// Has a target: the next nearest the centre if another sits in the cone, or untarget
 			GimbalTarget best = null;
 			foreach (var (gt, _) in validTargets)
 			{
-				if (gt != _lockedTarget)
+				if (gt != _lockedTarget && IsInTargetingCone(gt))
 				{
 					best = gt;
 					break;
@@ -82,6 +86,29 @@ public partial class PlayerShip
 			else
 				ClearTarget();
 		}
+	}
+
+	// Steps through every target in range, nearest first, whichever way it lies.
+	private void CycleAllTargets()
+	{
+		var targets = new List<GimbalTarget>();
+		foreach (var node in GetTree().GetNodesInGroup("gimbal_targets"))
+		{
+			if (node is not GimbalTarget gt || !gt.IsValid() || gt.TargetOwner == this) continue;
+			if (GlobalPosition.DistanceTo(gt.GlobalPosition) <= TARGET_MAX_RANGE) targets.Add(gt);
+		}
+
+		if (targets.Count == 0)
+		{
+			ClearTarget();
+			return;
+		}
+
+		targets.Sort((a, b) => GlobalPosition.DistanceSquaredTo(a.GlobalPosition)
+			.CompareTo(GlobalPosition.DistanceSquaredTo(b.GlobalPosition)));
+		// Not in the list, or nothing locked, gives -1: the cycle starts at the nearest.
+		int current = targets.IndexOf(_lockedTarget);
+		SetTarget(targets[(current + 1) % targets.Count]);
 	}
 
 	private void SetTarget(GimbalTarget target)
@@ -138,12 +165,19 @@ public partial class PlayerShip
 			return;
 		}
 
-		if (_missileLockTimer < MissileLockTime)
+		bool inCone = IsInTargetingCone(_lockedTarget);
+		if (!IsMissileLocked)
 		{
-			if (IsTargetInGimbalCone())
-				_missileLockTimer += delta;
-			else
-				_missileLockTimer = 0f;
+			_missileLockTimer = inCone ? _missileLockTimer + delta : 0f;
+			_outOfConeTimer = 0f;
+		}
+		else if (inCone)
+		{
+			_outOfConeTimer = 0f;
+		}
+		else if ((_outOfConeTimer += delta) >= MissileLockLossTime)
+		{
+			_missileLockTimer = 0f;
 		}
 
 		float distance = GlobalPosition.DistanceTo(_lockedTarget.GlobalPosition);
@@ -155,12 +189,10 @@ public partial class PlayerShip
 			: null);
 	}
 
-	private bool IsTargetInGimbalCone()
+	private bool IsInTargetingCone(GimbalTarget target)
 	{
-		if (_lockedTarget == null || barrel == null) return false;
-		Vector3 toTarget = (_lockedTarget.GlobalPosition - barrel.GlobalPosition).Normalized();
-		Vector3 forward = (-barrel.GlobalTransform.Basis.Z).Normalized();
-		return forward.AngleTo(toTarget) <= Mathf.DegToRad(GimbalAngle);
+		Vector3 toTarget = target.GlobalPosition - GlobalPosition;
+		return (-GlobalTransform.Basis.Z).AngleTo(toTarget) <= Mathf.DegToRad(TargetingConeDeg);
 	}
 
 	public Vector2? GetLockedTargetScreenPos()
@@ -186,10 +218,9 @@ public partial class PlayerShip
 		if (camera == null) return null;
 
 		Vector3 targetPos = _lockedTarget.GlobalPosition;
-		Vector3 targetVel = _lockedTarget.GetVelocity();
-
-		float bulletWorldSpeed = BulletSpeed + Mathf.Max(0, Velocity.Dot((-GlobalTransform.Basis.Z).Normalized()));
-		Vector3 leadPos = AimUtils.PredictIntercept(GlobalPosition, targetPos, targetVel, bulletWorldSpeed);
+		// Bullets leave with this ship's velocity, so the lead is on the target's relative motion.
+		Vector3 relativeVel = _lockedTarget.GetVelocity() - Velocity;
+		Vector3 leadPos = AimUtils.PredictIntercept(GlobalPosition, targetPos, relativeVel, BulletSpeed);
 
 		if (camera.IsPositionBehind(leadPos))
 			return null;

@@ -19,6 +19,16 @@ public partial class CockpitBar : Node3D
 		}
 	}
 
+	// A reading beside the bar, for what the bar alone cannot say; empty shows nothing.
+	public string ValueText
+	{
+		set
+		{
+			if (GetNodeOrNull<Label3D>("Value") is Label3D label)
+				label.Text = value;
+		}
+	}
+
 	public override void _Ready()
 	{
 		// The scene's own root gets Title before its labels exist.

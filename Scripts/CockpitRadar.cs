@@ -74,9 +74,13 @@ public partial class CockpitRadar : Node3D
 		// Farther contacts sit higher on the screen and are drawn first, so nearer ones cover them.
 		foreach (var c in contacts.Where(c => c.Local.Length() <= Range).OrderBy(c => c.Local.Z))
 		{
-			float scale = radius / Range;
-			Vector2 foot = center + new Vector2(c.Local.X, c.Local.Z * Flatten) * scale;
-			Vector2 tip = (foot - new Vector2(0, c.Local.Y * scale)).Clamp(Vector2.Zero, size);
+			// Square-root range: a dogfight a few hundred metres out gets a third of the screen
+			// instead of a few pixels, while far contacts still fit. The half-radius ring is at a
+			// quarter of Range.
+			float distance = c.Local.Length();
+			Vector3 p = distance > 0.01f ? c.Local * (radius * Mathf.Sqrt(distance / Range) / distance) : Vector3.Zero;
+			Vector2 foot = center + new Vector2(p.X, p.Z * Flatten);
+			Vector2 tip = (foot - new Vector2(0, p.Y)).Clamp(Vector2.Zero, size);
 
 			if (c.Local.Y >= 0) _display.DrawLine(foot, tip, c.Color, 4f);
 			else _display.DrawDashedLine(foot, tip, c.Color, 4f, 6f);

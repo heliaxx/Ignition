@@ -5,13 +5,13 @@ using System.Linq;
 public partial class PlayerShip : CharacterBody3D, IDamageable
 {
 	private const float MAX_SPEED = 200.0f;
-	private const float MAX_ROLL_SPEED = 2.0f;
-	private const float ROLL_ACCELERATION = 2.5f;
+	private const float MAX_ROLL_SPEED = 120f * Mathf.Pi / 180f;
+	private const float ROLL_ACCELERATION = 3f;
 
-	private const float MAX_PITCH_SPEED = 4.0f;
-	private const float PITCH_ACCELERATION = 6f;
+	private const float MAX_PITCH_SPEED = 80f * Mathf.Pi / 180f;
+	private const float PITCH_ACCELERATION = 8f;
 
-	private const float MAX_YAW_SPEED = 2.0f;
+	private const float MAX_YAW_SPEED = 50f * Mathf.Pi / 180f;
 	private const float YAW_ACCELERATION = 6.0f;
 
 	private const float ACCELERATION = 40.0f;
@@ -63,6 +63,20 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 	public bool IsLocallyControlled { get; set; } = true;
 
 	private bool _justUnpaused = false;
+
+	// Set while a menu is open in a match, which cannot pause: the ship coasts on without
+	// its pilot until the menu closes.
+	public bool InputSuspended
+	{
+		get => _inputSuspended;
+		set
+		{
+			// A key still held from the menu must not act on the first tick back.
+			if (_inputSuspended && !value) _justUnpaused = true;
+			_inputSuspended = value;
+		}
+	}
+	private bool _inputSuspended;
 	private float _currentMaxSpeed = MAX_SPEED;
 	private float _currentAcceleration = ACCELERATION;
 	private float _currentRollAcceleration = ROLL_ACCELERATION;
@@ -80,7 +94,7 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 	private Camera3D _externalCamera;
 	private bool _isExternalView = false;
 	private CockpitBar _healthBar;
-	private CockpitReadout _speedReadout;
+	private CockpitBar _speedBar;
 	private HealthComponent health;
 	private bool _isDead = false;
 	private uint _liveCollisionLayer;
@@ -112,7 +126,7 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		canvasLayer = GetNode<CanvasLayer>("HUD");
 		_scoreHud = GetParent().GetParent().GetNodeOrNull<CanvasLayer>("ScoreHUD");
 		_healthBar = GetNodeOrNull<CockpitBar>("HealthBar");
-		_speedReadout = GetNodeOrNull<CockpitReadout>("SpeedReadout");
+		_speedBar = GetNodeOrNull<CockpitBar>("SpeedBar");
 		health = GetNode<HealthComponent>("HealthComponent");
 		health.HealthChanged += OnHealthChanged;
 		health.Died += OnDied;
@@ -132,7 +146,7 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 
 			foreach (string nodeName in new[]
 			{
-				"HealthBar", "SpeedReadout", "AmmoReadout",
+				"HealthBar", "SpeedBar", "AmmoReadout",
 				"MissilesReadout", "TargetNameReadout", "TargetDistReadout", "TargetHealthBar", "Radar"
 			})
 				GetNodeOrNull<Node3D>(nodeName)?.SetVisible(_showShip);
@@ -230,7 +244,7 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		if (!IsLocallyControlled) return;
 
 		if (_deathScreen != null) _deathScreen.Visible = false;
-		if (!GetTree().Paused) Input.MouseMode = Input.MouseModeEnum.Captured;
+		if (!GetTree().Paused && !InputSuspended) Input.MouseMode = Input.MouseModeEnum.Captured;
 	}
 
 	// Every machine counts the same respawns, so ship state sent before the latest one can be
@@ -292,6 +306,8 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 
 	public override void _Input(InputEvent @event)
 	{
+		if (InputSuspended) return;
+
 		// While looking around, the mouse turns the view, not the ship.
 		if (@event is InputEventMouseMotion mouseEvent && !Input.IsActionPressed("free_look"))
 		{
@@ -323,20 +339,24 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		UpdateDustSpawnBySpeed();
 		AlignDustSpawnToVelocity((float)delta);
 		UpdateAutoCenterCursor((float)delta);
-		if (_speedReadout != null)
-			_speedReadout.Value = $"{CurrentSpeed:F0}";
+		if (_speedBar != null)
+		{
+			// Full at cruise top speed; a boost runs past it, which only the number shows.
+			_speedBar.SetFraction(CurrentSpeed / MAX_SPEED);
+			_speedBar.ValueText = $"{CurrentSpeed:F0} m/s";
+		}
 		UpdateTargetHUD((float)delta);
 	}
 
 	public override void _PhysicsProcess(double delta)
 	{
 		if (IsLocallyControlled)
-			_input = SampleLocalInput((float)delta);
+			_input = InputSuspended ? default : SampleLocalInput((float)delta);
 
 		if (CanAct())
 		{
 			ProcessIntent((float)delta);
-			if (IsLocallyControlled) UpdateLocalOnly();
+			if (IsLocallyControlled && !InputSuspended) UpdateLocalOnly();
 		}
 
 		ProcessBoost((float)delta);
@@ -421,6 +441,9 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 
 		if (Input.IsActionJustPressed("target_cycle"))
 			CycleTarget();
+
+		if (Input.IsActionJustPressed("target_cycle_all"))
+			CycleAllTargets();
 	}
 
 	// The flight model for one tick. Reads only _input, so replaying a record reproduces

@@ -56,6 +56,9 @@ public partial class GimbalTarget : Node3D
 	public string GetDisplayName()
 	{
 		if (!string.IsNullOrEmpty(DisplayNameOverride)) return DisplayNameOverride;
+		// A player's ship node is just "PlayerShip"; the match registered the pilot's name.
+		int id = Participants.IdOf(_owner);
+		if (id != Participants.None) return Participants.NameOf(id);
 		if (_owner is Fighter fighter) return fighter.DisplayName;
 		return _owner?.Name ?? Name;
 	}

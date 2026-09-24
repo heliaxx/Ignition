@@ -1,6 +1,6 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://djwlk8w3lms7i"]
 
-[ext_resource type="Script" path="res://Scripts/CockpitBar.cs" id="1_bar"]
+[ext_resource type="Script" uid="uid://hff4j8mkgh10" path="res://Scripts/CockpitBar.cs" id="1_bar"]
 [ext_resource type="FontFile" uid="uid://64qnj4inssje" path="res://Imports/Fonts/Montserrat-Medium.ttf" id="2_font"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_track"]
@@ -20,31 +20,41 @@ albedo_color = Color(0.894118, 0.717647, 0.337255, 1)
 material = SubResource("StandardMaterial3D_fill")
 size = Vector2(1.25, 0.12)
 
-[node name="CockpitBar" type="Node3D"]
+[node name="CockpitBar" type="Node3D" unique_id=863530835]
 script = ExtResource("1_bar")
 Title = "TITLE"
 
-[node name="Title" type="Label3D" parent="."]
+[node name="Title" type="Label3D" parent="." unique_id=1244127777]
 double_sided = false
 modulate = Color(0.894118, 0.717647, 0.337255, 1)
 text = "TITLE"
 font = ExtResource("2_font")
 outline_size = 4
 
-[node name="Track" type="MeshInstance3D" parent="."]
+[node name="Track" type="MeshInstance3D" parent="." unique_id=376648810]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.341, 0)
+visible = false
 cast_shadow = 0
 mesh = SubResource("QuadMesh_track")
 
-[node name="Fill" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.341, 0.002)
+[node name="Fill" type="MeshInstance3D" parent="." unique_id=453619503]
+transform = Transform3D(0.001, 0, 0, 0, 1, 0, 0, 0, 1, -0.625, -0.341, 0.002)
+visible = false
 cast_shadow = 0
 mesh = SubResource("QuadMesh_fill")
 
-[node name="Empty" type="Label3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.341, 0)
+[node name="Empty" type="Label3D" parent="." unique_id=1257769220]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.34, 0)
 double_sided = false
 modulate = Color(0.894118, 0.717647, 0.337255, 1)
 text = "---"
 font = ExtResource("2_font")
 outline_size = 4
+
+[node name="Value" type="Label3D" parent="." unique_id=542565294]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -0.68, -0.34, 0)
+double_sided = false
+modulate = Color(0.894118, 0.717647, 0.337255, 1)
+font = ExtResource("2_font")
+outline_size = 4
+horizontal_alignment = 2

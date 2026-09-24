@@ -95,6 +95,8 @@ public partial class ShipSync : Node
 			// Carry the last known velocity forward so motion stays smooth between packets,
 			// then ease onto the authoritative state instead of snapping to it.
 			remote.Position += remote.Velocity * delta;
+			// A stand-in runs no physics, so this is only a reading: guns and missiles lead by it.
+			remote.Ship.Velocity = remote.Velocity;
 
 			float t = 1.0f - Mathf.Exp(-Smoothing * delta);
 			remote.Ship.GlobalPosition = remote.Ship.GlobalPosition.Lerp(remote.Position, t);

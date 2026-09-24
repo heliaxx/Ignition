@@ -11,6 +11,8 @@ public partial class PauseMenu : ColorRect
 	private AudioStreamPlayer hoverSound;
 	private AudioStreamPlayer clickSound;
 
+	private PlayerShip LocalShip => (GetTree().CurrentScene as BaseLevel)?.LocalShip;
+
 	public override void _Ready()
 	{
 		animator ??= GetNode<AnimationPlayer>("AnimationPlayer");
@@ -49,6 +51,7 @@ public partial class PauseMenu : ColorRect
 	{
 		animator.Play("Unpause");
 		GetTree().Paused = false;
+		if (LocalShip != null) LocalShip.InputSuspended = false;
 		Input.MouseMode = Input.MouseModeEnum.Captured;
 		SetProcess(false);
 		Visible = false;
@@ -57,7 +60,15 @@ public partial class PauseMenu : ColorRect
 	public void Pause()
 	{
 		animator.Play("Pause");
-		GetTree().Paused = true;
+		// A match goes on for everyone else, so there the menu only takes the controls away.
+		if (NetworkManager.Instance.IsActive)
+		{
+			if (LocalShip != null) LocalShip.InputSuspended = true;
+		}
+		else
+		{
+			GetTree().Paused = true;
+		}
 		Input.MouseMode = Input.MouseModeEnum.Visible;
 		SetProcess(true);
 		Visible = true;
@@ -73,7 +84,7 @@ public partial class PauseMenu : ColorRect
 	{
 		if (@event.IsActionPressed("menu"))
 		{
-			if (GetTree().Paused)
+			if (Visible)
 				Unpause();
 			else
 				Pause();

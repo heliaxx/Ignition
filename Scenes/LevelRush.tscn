@@ -92,6 +92,7 @@ volumetric_fog_temporal_reprojection_amount = 0.5
 
 [node name="Level3" type="Node3D" unique_id=509348223]
 script = ExtResource("1_xijtb")
+ShowMapCenterMarker = false
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=168676791]
 environment = SubResource("Environment_r05y7")

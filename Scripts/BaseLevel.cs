@@ -16,6 +16,12 @@ public partial class BaseLevel : Node3D
 
 	private float _originShiftThresholdSq;
 
+	// Off where there is no reason to steer back to center
+	[Export] public bool ShowMapCenterMarker = true;
+
+	// Where the level's own origin is now. Origin shifts move it along with the rest of the world.
+	public Vector3 MapCenter { get; private set; } = Vector3.Zero;
+
 	// Id for the ship this machine flies. None lets Participants assign from its local
 	// counter, which is right offline; a networked level overrides it with the peer id so
 	// both machines name the same ship the same way.
@@ -132,6 +138,7 @@ public partial class BaseLevel : Node3D
 		}
 
 		Player.GlobalPosition = Vector3.Zero;
+		MapCenter -= offset;
 	}
 
 	protected void SyncDirectionalLight()

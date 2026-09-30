@@ -5,24 +5,32 @@ using Godot;
 public partial class CockpitRadar : Node3D
 {
 	[Export] public float Range = 2000f;
+	[Export] public float CenterMarkerStartDistance = 1000f;
+	[Export] public float CenterMarkerFullDistance = 5000f;
 
 	// How flat the ship's plane is drawn, 1 being seen from straight above.
 	private const float Flatten = 0.45f;
+	private const float EdgeMargin = 14f;
 
-	private static readonly Color Grid = new(0.894118f, 0.717647f, 0.337255f, 0.6f);
-	private static readonly Color Center = new(0.894118f, 0.717647f, 0.337255f, 0.80f);
+	private static readonly Color Grid = new(0.9f, 0.7f, 0.3f, 0.6f);
+	private static readonly Color Center = new(0.9f, 0.7f, 0.3f, 0.80f);
 	private static readonly Color Enemy = new(0.95f, 0.3f, 0.25f);
 	private static readonly Color Ally = new(0.35f, 0.9f, 0.45f);
 	private static readonly Color Missile = new(1f, 0.95f, 0.85f);
-	private static readonly Color Locked = new(0.894118f, 0.717647f, 0.337255f, 0.85f);
+	private static readonly Color Locked = new(0.9f, 0.7f, 0.3f, 0.85f);
+	private static readonly Color MapCenterMarker = new(0.45f, 0.85f, 1f);
 
 	private PlayerShip _ship;
+	private BaseLevel _level;
+	private Vector2 _centerDirection = new(0, -1);
 	private SubViewport _viewport;
 	private Control _display;
 
 	public override void _Ready()
 	{
 		_ship = GetParentOrNull<PlayerShip>();
+		for (Node n = GetParent(); n != null && _level == null; n = n.GetParent())
+			_level = n as BaseLevel;
 		_viewport = GetNode<SubViewport>("Viewport");
 		_display = GetNode<Control>("Viewport/Display");
 		_display.Draw += DrawScanner;
@@ -58,6 +66,8 @@ public partial class CockpitRadar : Node3D
 
 		if (_ship == null) return;
 
+		DrawMapCenterMarker(center, radius, size);
+
 		var contacts = new List<(Vector3 Local, Color Color, bool IsMissile, bool IsLocked)>();
 		foreach (Node node in GetTree().GetNodesInGroup("gimbal_targets"))
 		{
@@ -80,7 +90,7 @@ public partial class CockpitRadar : Node3D
 			float distance = c.Local.Length();
 			Vector3 p = distance > 0.01f ? c.Local * (radius * Mathf.Sqrt(distance / Range) / distance) : Vector3.Zero;
 			Vector2 foot = center + new Vector2(p.X, p.Z * Flatten);
-			Vector2 tip = (foot - new Vector2(0, p.Y)).Clamp(Vector2.Zero, size);
+			Vector2 tip = KeepOnScreen(foot - new Vector2(0, p.Y), size);
 
 			if (c.Local.Y >= 0) _display.DrawLine(foot, tip, c.Color, 4f);
 			else _display.DrawDashedLine(foot, tip, c.Color, 4f, 6f);
@@ -98,6 +108,31 @@ public partial class CockpitRadar : Node3D
 				_display.DrawRect(new Rect2(tip - new Vector2(13, 13), new Vector2(26, 26)), Locked, false, 3f);
 		}
 	}
+
+	// Marker toward the the map centre, more opaque the farther it is.
+	private void DrawMapCenterMarker(Vector2 center, float radius, Vector2 size)
+	{
+		if (_level == null || !_level.ShowMapCenterMarker) return;
+
+		Vector3 local = ToShip(_level.MapCenter);
+		float distance = local.Length();
+		float fade = Mathf.InverseLerp(CenterMarkerStartDistance, CenterMarkerFullDistance, distance);
+		if (fade <= 0f) return;
+
+		Vector2 flat = new(local.X, local.Z);
+		if (flat.Length() > 0.01f) _centerDirection = flat.Normalized();
+
+		Color color = MapCenterMarker with { A = Mathf.Clamp(fade, 0f, 1f) };
+		Vector2 foot = center + new Vector2(_centerDirection.X * radius, _centerDirection.Y * radius * Flatten);
+		Vector2 tip = KeepOnScreen(foot - new Vector2(0, local.Y / distance * radius), size);
+		if (local.Y >= 0) _display.DrawLine(foot, tip, color, 4f);
+		else _display.DrawDashedLine(foot, tip, color, 4f, 6f);
+		_display.DrawCircle(foot, 3f, color);
+		DrawEllipse(tip, 10f, color);
+	}
+
+	private static Vector2 KeepOnScreen(Vector2 point, Vector2 size) =>
+		point.Clamp(Vector2.One * EdgeMargin, size - Vector2.One * EdgeMargin);
 
 	private Vector3 ToShip(Vector3 world) =>
 		_ship.GlobalTransform.Basis.Inverse() * (world - _ship.GlobalPosition);

@@ -185,6 +185,61 @@ theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "8.0"
 
+[node name="FlightSettings" type="VBoxContainer" parent="SettingsPanel/Margin/Sections" unique_id=1572146616]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="FlightSettingsTitle" type="Label" parent="SettingsPanel/Margin/Sections/FlightSettings" unique_id=2106577605]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("3_oyrkr")
+theme_override_font_sizes/font_size = 30
+text = "FLIGHT SETTINGS"
+
+[node name="FlightAssistToggleRow" type="HBoxContainer" parent="SettingsPanel/Margin/Sections/FlightSettings" unique_id=1545824195]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="FlightAssistToggleLabel" type="Label" parent="SettingsPanel/Margin/Sections/FlightSettings/FlightAssistToggleRow" unique_id=114051175]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("3_oyrkr")
+theme_override_font_sizes/font_size = 30
+text = "Flight Assist Toggle"
+
+[node name="FlightAssistToggleDropdown" type="OptionButton" parent="SettingsPanel/Margin/Sections/FlightSettings/FlightAssistToggleRow" unique_id=790608471]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+
+[node name="FlightAssistModeRow" type="HBoxContainer" parent="SettingsPanel/Margin/Sections/FlightSettings" unique_id=670429662]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="FlightAssistModeLabel" type="Label" parent="SettingsPanel/Margin/Sections/FlightSettings/FlightAssistModeRow" unique_id=1175251746]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("3_oyrkr")
+theme_override_font_sizes/font_size = 30
+text = "Flight Assist Mode"
+
+[node name="FlightAssistModeDropdown" type="OptionButton" parent="SettingsPanel/Margin/Sections/FlightSettings/FlightAssistModeRow" unique_id=693183308]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+
 [node name="BottomButtons" type="HBoxContainer" parent="." unique_id=881451608]
 layout_mode = 1
 anchors_preset = 2

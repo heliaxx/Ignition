@@ -18,6 +18,12 @@ public partial class Controls : Control
 	private Label aimSensitivityValue;
 	private Label aimDeadzoneValue;
 	private Label autoCenterSpeedValue;
+	private OptionButton flightAssistToggleDropdown;
+	private const int FlightAssistToggleOff = 0;
+	private const int FlightAssistTogglePartial = 1;
+	private OptionButton flightAssistModeDropdown;
+	private const int FlightAssistModeThrust = 0;
+	private const int FlightAssistModeThrottle = 1;
 	private const string Sections = "SettingsPanel/Margin/Sections/";
 	private const int KeybindRowBaseLeftMargin = 0;
 	private const int KeybindRowHoverLeftMargin = 20;
@@ -36,6 +42,8 @@ public partial class Controls : Control
 		{ "strafe_down", "Strafe down" },
 		{ "boost", "Boost" },
 		{ "stop", "Precise stop" },
+		{ "flight_assist", "Flight assist toggle" },
+		{ "relative_mouse", "Relative mouse on/off" },
 		{ "light", "Light" },
 		{ "camera_switch", "Switch camera" },
 		{ "target_cycle", "Select target ahead" },
@@ -53,6 +61,12 @@ public partial class Controls : Control
 		aimSensitivityValue = GetNode<Label>(Sections + "MouseSettings/AimSensitivityRow/AimSensitivityValue");
 		aimDeadzoneValue = GetNode<Label>(Sections + "MouseSettings/AimDeadzoneRow/AimDeadzoneValue");
 		autoCenterSpeedValue = GetNode<Label>(Sections + "MouseSettings/AutoCenterSpeedRow/AutoCenterSpeedValue");
+		flightAssistToggleDropdown = GetNode<OptionButton>(Sections + "FlightSettings/FlightAssistToggleRow/FlightAssistToggleDropdown");
+		flightAssistToggleDropdown.AddItem("Full / Off", FlightAssistToggleOff);
+		flightAssistToggleDropdown.AddItem("Full / Partial", FlightAssistTogglePartial);
+		flightAssistModeDropdown = GetNode<OptionButton>(Sections + "FlightSettings/FlightAssistModeRow/FlightAssistModeDropdown");
+		flightAssistModeDropdown.AddItem("Thrust", FlightAssistModeThrust);
+		flightAssistModeDropdown.AddItem("Throttle", FlightAssistModeThrottle);
 
 		LoadMouseSettings();
 		BindMouseSettingsSignals();
@@ -67,6 +81,10 @@ public partial class Controls : Control
 		aimSensitivitySlider.Value = settings.ContainsKey("aim_sensitivity") ? settings["aim_sensitivity"].AsSingle() : 1.2f;
 		aimDeadzoneSlider.Value = settings.ContainsKey("aim_deadzone") ? settings["aim_deadzone"].AsSingle() : 0.05f;
 		autoCenterSpeedSlider.Value = settings.ContainsKey("auto_center_speed") ? settings["auto_center_speed"].AsSingle() : 8.0f;
+		bool partial = settings.ContainsKey("toggle_partial") && settings["toggle_partial"].AsBool();
+		flightAssistToggleDropdown.Select(partial ? FlightAssistTogglePartial : FlightAssistToggleOff);
+		bool throttleMode = settings.ContainsKey("throttle_mode") && settings["throttle_mode"].AsBool();
+		flightAssistModeDropdown.Select(throttleMode ? FlightAssistModeThrottle : FlightAssistModeThrust);
 
 		UpdateMouseSettingsUi();
 	}
@@ -76,6 +94,20 @@ public partial class Controls : Control
 		aimSensitivitySlider.ValueChanged += OnAimSensitivityChanged;
 		aimDeadzoneSlider.ValueChanged += OnAimDeadzoneChanged;
 		autoCenterSpeedSlider.ValueChanged += OnAutoCenterSpeedChanged;
+		flightAssistToggleDropdown.ItemSelected += OnFlightAssistToggleSelected;
+		flightAssistModeDropdown.ItemSelected += OnFlightAssistModeSelected;
+	}
+
+	private void OnFlightAssistToggleSelected(long index)
+	{
+		bool partial = flightAssistToggleDropdown.GetItemId((int)index) == FlightAssistTogglePartial;
+		ConfigFileHandler.Instance.SaveControlSettings("toggle_partial", partial);
+	}
+
+	private void OnFlightAssistModeSelected(long index)
+	{
+		bool throttleMode = flightAssistModeDropdown.GetItemId((int)index) == FlightAssistModeThrottle;
+		ConfigFileHandler.Instance.SaveControlSettings("throttle_mode", throttleMode);
 	}
 
 	private void OnAimSensitivityChanged(double value)

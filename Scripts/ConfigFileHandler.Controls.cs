@@ -8,6 +8,8 @@ public partial class ConfigFileHandler
 	private const float DefaultAimSensitivity  = 1.2f;
 	private const float DefaultAimDeadzone     = 0.05f;
 	private const float DefaultAutoCenterSpeed = 8.0f;
+	private const bool  DefaultThrottleMode    = false;
+	private const bool  DefaultTogglePartial = false;
 
 	private static readonly Dictionary<string, string> DefaultKeybindings = new()
 	{
@@ -20,7 +22,9 @@ public partial class ConfigFileHandler
 		{ "strafe_left",     "A"       },
 		{ "strafe_right",    "D"       },
 		{ "boost",           "tab"     },
-		{ "stop",            "X"       },
+		{ "stop",            "Shift"   },
+		{ "relative_mouse",  "X"       },
+		{ "flight_assist",   "Z"       },
 		{ "camera_switch",   "C"       },
 		{ "primary_fire",    "mouse_1" },
 		{ "secondary_fire",  "mouse_2" },
@@ -36,6 +40,8 @@ public partial class ConfigFileHandler
 		config.SetValue("controls", "aim_sensitivity",   DefaultAimSensitivity);
 		config.SetValue("controls", "aim_deadzone",      DefaultAimDeadzone);
 		config.SetValue("controls", "auto_center_speed", DefaultAutoCenterSpeed);
+		config.SetValue("controls", "throttle_mode", DefaultThrottleMode);
+		config.SetValue("controls", "toggle_partial", DefaultTogglePartial);
 		foreach (var kvp in DefaultKeybindings)
 			config.SetValue("keybinding", kvp.Key, kvp.Value);
 		config.Save(SETTINGS_FILE_PATH);
@@ -54,6 +60,8 @@ public partial class ConfigFileHandler
 		Ensure("controls", "aim_sensitivity",   DefaultAimSensitivity);
 		Ensure("controls", "aim_deadzone",      DefaultAimDeadzone);
 		Ensure("controls", "auto_center_speed", DefaultAutoCenterSpeed);
+		Ensure("controls", "throttle_mode", DefaultThrottleMode);
+		Ensure("controls", "toggle_partial", DefaultTogglePartial);
 		foreach (var kvp in DefaultKeybindings)
 			Ensure("keybinding", kvp.Key, kvp.Value);
 		if (changed) config.Save(SETTINGS_FILE_PATH);
@@ -117,8 +125,6 @@ public partial class ConfigFileHandler
 			}
 			else
 			{
-				// Saved by position, like the project's own input map, so a binding stays on
-				// the key that was pressed whatever the layout (QWERTZ swaps Y and Z).
 				inputEvent = new InputEventKey
 				{
 					PhysicalKeycode = OS.FindKeycodeFromString(eventStr)

@@ -4,13 +4,17 @@ public partial class PlayerShip
 {
 	[ExportGroup("Boost")]
 	[Export] public float BoostSpeedMultiplier = 1.5f;
-	[Export] public float BoostAccelerationMultiplier = 5.0f;
+	[Export] public float BoostAccelerationMultiplier = 6.0f;
 	[Export] public float BoostRotationMultiplier = 1.5f;
 	[Export] public float BoostDuration = 3.0f;
 	[Export] public float BoostCooldown = 1.0f;
+	// Seconds between pressing boost button and the boost actually starting
+	[Export] public float BoostDelay = 0.8f;
 	[Export] public float BoostSpoolUpTime = 0.3f;
 	[Export] public float BoostDecayTime = 1.5f;
 
+	private bool _isBoostCharging = false;
+	private float _boostChargeTimer = 0.0f;
 	private bool _isBoosting = false;
 	private bool _isBoostDecaying = false;
 	private float _boostTimer = 0.0f;
@@ -21,28 +25,20 @@ public partial class PlayerShip
 
 	public bool IsBoosting => _isBoosting || _isBoostDecaying;
 	public float BoostCooldownRemaining => _boostCooldownTimer;
-	public bool CanBoost => _boostCooldownTimer <= 0.0f && !_isBoosting;
+	public bool CanBoost => _boostCooldownTimer <= 0.0f && !_isBoosting && !_isBoostCharging;
 	public float CurrentBoostPower => _currentBoostPower;
 
 	private void InitBoost()
 	{
-		_currentMaxSpeed = MAX_SPEED;
-		_currentAcceleration = ACCELERATION;
-		_currentRollAcceleration = ROLL_ACCELERATION;
-		_currentPitchAcceleration = PITCH_ACCELERATION;
-		_currentYawAcceleration = YAW_ACCELERATION;
-		_currentMaxRollSpeed = MAX_ROLL_SPEED;
-		_currentMaxPitchSpeed = MAX_PITCH_SPEED;
-		_currentMaxYawSpeed = MAX_YAW_SPEED;
 		_currentBoostPower = 0.0f;
 		_boostCooldownTimer = 0.0f;
+		ApplyBoostPower();
 	}
 
 	private void ActivateBoost()
 	{
-		_isBoosting = true;
-		_isBoostDecaying = false;
-		_boostTimer = BoostDuration;
+		_isBoostCharging = true;
+		_boostChargeTimer = BoostDelay;
 	}
 
 	private void ProcessBoost(float delta)
@@ -51,6 +47,18 @@ public partial class PlayerShip
 		if (_boostCooldownTimer > 0.0f)
 		{
 			_boostCooldownTimer -= delta;
+		}
+
+		if (_isBoostCharging)
+		{
+			_boostChargeTimer -= delta;
+			if (_boostChargeTimer <= 0.0f)
+			{
+				_isBoostCharging = false;
+				_isBoosting = true;
+				_isBoostDecaying = false;
+				_boostTimer = BoostDuration;
+			}
 		}
 
 		// Handle active boost phase
@@ -87,19 +95,26 @@ public partial class PlayerShip
 			}
 		}
 
-		// Apply boost power to acceleration, max speed, and rotation
+		ApplyBoostPower();
+	}
+
+	// Scales the ship's base performance by the current boost power.
+	private void ApplyBoostPower()
+	{
 		float boostAccelMult = Mathf.Lerp(1.0f, BoostAccelerationMultiplier, _currentBoostPower);
 		float boostSpeedMult = Mathf.Lerp(1.0f, BoostSpeedMultiplier, _currentBoostPower);
 		float boostRotMult = Mathf.Lerp(1.0f, BoostRotationMultiplier, _currentBoostPower);
 
-		_currentAcceleration = ACCELERATION * boostAccelMult;
-		_currentMaxSpeed = MAX_SPEED * boostSpeedMult;
-		_currentRollAcceleration = ROLL_ACCELERATION * boostRotMult;
-		_currentPitchAcceleration = PITCH_ACCELERATION * boostRotMult;
-		_currentYawAcceleration = YAW_ACCELERATION * boostRotMult;
-		_currentMaxRollSpeed = MAX_ROLL_SPEED * boostRotMult;
-		_currentMaxPitchSpeed = MAX_PITCH_SPEED * boostRotMult;
-		_currentMaxYawSpeed = MAX_YAW_SPEED * boostRotMult;
-
+		float engine = MaxSpeed / TimeToMaxSpeed * boostAccelMult;
+		_currentAcceleration = engine;
+		_currentReverseAcceleration = engine * ReverseThrustRatio;
+		_currentStrafeAcceleration = engine * StrafeThrustRatio;
+		_currentMaxSpeed = MaxSpeed * boostSpeedMult;
+		_currentRollAcceleration = Mathf.DegToRad(RollAcceleration) * boostRotMult;
+		_currentPitchAcceleration = Mathf.DegToRad(PitchAcceleration) * boostRotMult;
+		_currentYawAcceleration = Mathf.DegToRad(YawAcceleration) * boostRotMult;
+		_currentMaxRollSpeed = Mathf.DegToRad(RollRate) * boostRotMult;
+		_currentMaxPitchSpeed = Mathf.DegToRad(PitchRate) * boostRotMult;
+		_currentMaxYawSpeed = Mathf.DegToRad(YawRate) * boostRotMult;
 	}
 }

@@ -4,18 +4,23 @@ using System.Linq;
 
 public partial class PlayerShip : CharacterBody3D, IDamageable
 {
-	private const float MAX_SPEED = 200.0f;
-	private const float MAX_ROLL_SPEED = 120f * Mathf.Pi / 180f;
-	private const float ROLL_ACCELERATION = 3f;
-
-	private const float MAX_PITCH_SPEED = 80f * Mathf.Pi / 180f;
-	private const float PITCH_ACCELERATION = 8f;
-
-	private const float MAX_YAW_SPEED = 50f * Mathf.Pi / 180f;
-	private const float YAW_ACCELERATION = 6.0f;
-
-	private const float ACCELERATION = 40.0f;
 	private const float MOUSE_SENSITIVITY = 0.18f;
+
+	[ExportGroup("Flight")]
+	[Export] public float MaxSpeed = 200.0f;
+	// Seconds from 0 to MaxSpeed on the main engine; sets the acceleration.
+	[Export] public float TimeToMaxSpeed = 6.0f;
+	// Shares of the main engine's thrust
+	[Export] public float ReverseThrustRatio = 0.6f;
+	[Export] public float StrafeThrustRatio = 0.7f;
+	// Degrees per second.
+	[Export] public float PitchRate = 70.0f;
+	[Export] public float YawRate = 40.0f;
+	[Export] public float RollRate = 120.0f;
+	// Degrees per second squared.
+	[Export] public float PitchAcceleration = 150.0f;
+	[Export] public float YawAcceleration = 110.0f;
+	[Export] public float RollAcceleration = 170.0f;
 
 	[ExportGroup("Aim")]
 	[Export] public float AimRadius = 100.0f;
@@ -64,8 +69,8 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 
 	private bool _justUnpaused = false;
 
-	// Set while a menu is open in a match, which cannot pause: the ship coasts on without
-	// its pilot until the menu closes.
+	// Set while a menu is open in a match, which cannot pause: the ship flies on as if the
+	// pilot had let go of the controls until the menu closes.
 	public bool InputSuspended
 	{
 		get => _inputSuspended;
@@ -77,14 +82,16 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		}
 	}
 	private bool _inputSuspended;
-	private float _currentMaxSpeed = MAX_SPEED;
-	private float _currentAcceleration = ACCELERATION;
-	private float _currentRollAcceleration = ROLL_ACCELERATION;
-	private float _currentPitchAcceleration = PITCH_ACCELERATION;
-	private float _currentYawAcceleration = YAW_ACCELERATION;
-	private float _currentMaxRollSpeed = MAX_ROLL_SPEED;
-	private float _currentMaxPitchSpeed = MAX_PITCH_SPEED;
-	private float _currentMaxYawSpeed = MAX_YAW_SPEED;
+	private float _currentMaxSpeed;
+	private float _currentAcceleration;
+	private float _currentReverseAcceleration;
+	private float _currentStrafeAcceleration;
+	private float _currentRollAcceleration;
+	private float _currentPitchAcceleration;
+	private float _currentYawAcceleration;
+	private float _currentMaxRollSpeed;
+	private float _currentMaxPitchSpeed;
+	private float _currentMaxYawSpeed;
 
 	private Node3D dustParticles;
 	private GpuParticles3D dustParticlesGpu;
@@ -108,7 +115,7 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 	public float CurrentHealth => health.CurrentHealth;
 	public float MaxHealth => health.MaxHealth;
 	public float CurrentSpeed => Velocity.Length();
-	public static float BaseMaxSpeed => MAX_SPEED;
+	public float BaseMaxSpeed => MaxSpeed;
 
 	public override void _Ready()
 	{
@@ -160,6 +167,7 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 
 		InitWeapons();
 		InitBoost();
+		InitFlightAssist();
 		InitTargeting();
 		_liveCollisionLayer = CollisionLayer;
 		_liveCollisionMask = CollisionMask;
@@ -188,6 +196,13 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 			AimDeadzone = settings["aim_deadzone"].AsSingle();
 		if (settings.ContainsKey("auto_center_speed"))
 			AutoCenterSpeed = settings["auto_center_speed"].AsSingle();
+		// Relative mouse: the aim cursor springs back to centre; off, it stays like a joystick.
+		if (settings.ContainsKey("relative_mouse"))
+			AutoCenterCursor = settings["relative_mouse"].AsBool();
+		if (settings.ContainsKey("throttle_mode"))
+			_throttleMode = settings["throttle_mode"].AsBool();
+		if (settings.ContainsKey("toggle_partial"))
+			_togglePartial = settings["toggle_partial"].AsBool();
 	}
 
 	public override void _Notification(int what)
@@ -236,6 +251,7 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		angularVelocity = Vector3.Zero;
 		thrust = Vector3.Zero;
 		torque = Vector3.Zero;
+		_throttleLever = 0.0f;
 
 		_isDead = false;
 		health.Reset();
@@ -253,15 +269,15 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 
 	// Engine state the thruster flames run on. Read from the ship this machine flies and
 	// written onto a stand-in, so other players see the same engines burning.
-	public bool ThrustingForward => _input.ThrustForward;
-	public bool ThrustingBackward => _input.ThrustBackward;
+	public bool ThrustingForward => _engineForward;
+	public bool ThrustingBackward => _engineBackward;
 	public bool ThrusterBoostOn => _isBoosting;
 
 	public void SetRemoteEngines(Vector3 velocity, bool forward, bool backward, bool boosting)
 	{
 		Velocity = velocity;
-		_input.ThrustForward = forward;
-		_input.ThrustBackward = backward;
+		_engineForward = forward;
+		_engineBackward = backward;
 		_isBoosting = boosting;
 	}
 
@@ -342,16 +358,20 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		if (_speedBar != null)
 		{
 			// Full at cruise top speed; a boost runs past it, which only the number shows.
-			_speedBar.SetFraction(CurrentSpeed / MAX_SPEED);
-			_speedBar.ValueText = $"{CurrentSpeed:F0} m/s";
+			_speedBar.SetFraction(CurrentSpeed / MaxSpeed);
+			// Negative while flying tail-first; never "-0", which .NET prints for a negative zero.
+			float shownSpeed = Mathf.Round(CurrentSpeed);
+			if (shownSpeed > 0.0f && Velocity.Dot(Transform.Basis.Z) > 0.0f) shownSpeed = -shownSpeed;
+			_speedBar.ValueText = $"{shownSpeed:F0} m/s";
 		}
+		UpdateFlightAssistHud();
 		UpdateTargetHUD((float)delta);
 	}
 
 	public override void _PhysicsProcess(double delta)
 	{
 		if (IsLocallyControlled)
-			_input = InputSuspended ? default : SampleLocalInput((float)delta);
+			_input = InputSuspended ? HandsOffInput() : SampleLocalInput((float)delta);
 
 		if (CanAct())
 		{
@@ -439,6 +459,12 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		if (Input.IsActionJustPressed("camera_switch"))
 			ToggleCameraView();
 
+		if (Input.IsActionJustPressed("relative_mouse"))
+		{
+			AutoCenterCursor = !AutoCenterCursor;
+			ConfigFileHandler.Instance?.SaveControlSettings("relative_mouse", AutoCenterCursor);
+		}
+
 		if (Input.IsActionJustPressed("target_cycle"))
 			CycleTarget();
 
@@ -451,7 +477,6 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 	private void SimulateTick(float delta)
 	{
 		ReadThrustAndTorqueInput();
-		ApplyStopKey(delta);
 		IntegrateVelocities(delta);
 		MoveAndResolveCollision(delta);
 		ApplyRotation(delta);
@@ -495,6 +520,7 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		input.Boost          = Input.IsActionPressed("boost");
 
 		UpdateAim(delta, ref input);
+		SampleFlightAssist(delta, ref input);
 		return input;
 	}
 
@@ -538,54 +564,53 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		thrust = Vector3.Zero;
 
 		// Forward axis (-Z): boost forces full forward thrust and disables backward.
-		if (_isBoosting)
-		{
-			thrust -= Transform.Basis.Z * _currentAcceleration;
-		}
-		else
-		{
-			thrust -= Transform.Basis.Z * _currentAcceleration
-				* ShipInput.Axis(_input.ThrustForward, _input.ThrustBackward);
-		}
+		float forward = _isBoosting ? 1.0f : ShipInput.Axis(_input.ThrustForward, _input.ThrustBackward);
+		float engine = forward < 0.0f ? _currentReverseAcceleration : _currentAcceleration;
+		thrust -= Transform.Basis.Z * engine * forward;
+		_engineForward = forward > 0.0f;
+		_engineBackward = forward < 0.0f;
 
-		thrust += Transform.Basis.Y * _currentAcceleration * ShipInput.Axis(_input.StrafeUp, _input.StrafeDown);
-		thrust += Transform.Basis.X * _currentAcceleration * ShipInput.Axis(_input.StrafeRight, _input.StrafeLeft);
+		thrust += Transform.Basis.Y * _currentStrafeAcceleration * ShipInput.Axis(_input.StrafeUp, _input.StrafeDown);
+		thrust += Transform.Basis.X * _currentStrafeAcceleration * ShipInput.Axis(_input.StrafeRight, _input.StrafeLeft);
 
 		torque = new Vector3(
-			_input.Pitch * _currentPitchAcceleration,
-			_input.Yaw * _currentYawAcceleration,
+			AimDeflection(_input.Pitch) * _currentPitchAcceleration,
+			AimDeflection(_input.Yaw) * _currentYawAcceleration,
 			-_input.Roll * _currentRollAcceleration);
 	}
 
-	private void ApplyStopKey(float delta)
-	{
-		if (!_input.Stop || _isBoosting)
-			return;
+	private bool IsStopping => _input.Stop && !_isBoosting;
 
-		thrust = Vector3.Zero;
-		torque = Vector3.Zero;
-		if (Velocity.Length() > 0.1f)
-			Velocity = Velocity.MoveToward(Vector3.Zero, ACCELERATION * delta);
-		angularVelocity = angularVelocity.MoveToward(Vector3.Zero, MAX_PITCH_SPEED * 4f * delta);
-	}
-
-	// Integrates thrust and torque, caps both against the ship's current limits.
+	// Integrates thrust and torque — or lets the stop key or flight assist steer both — then
+	// caps both against the ship's current limits.
 	private void IntegrateVelocities(float delta)
 	{
-		Velocity += thrust * delta;
+		if (IsStopping)
+		{
+			ApplyStop(delta);
+		}
+		else if (_input.FlightAssist)
+		{
+			ApplyFlightAssist(delta);
+		}
+		else
+		{
+			Velocity += thrust * delta;
+			angularVelocity += torque * delta;
+			_intendedVelocity = Vector3.Zero;
+		}
 
 		if (_isBoostDecaying)
 		{
 			// While boost bleeds off, the cap eases from the boosted speed back to normal.
 			float decayProgress = 1.0f - (_boostDecayTimer / BoostDecayTime);
-			Velocity = Velocity.LimitLength(Mathf.Lerp(_speedAtBoostEnd, MAX_SPEED, decayProgress));
+			Velocity = Velocity.LimitLength(Mathf.Lerp(_speedAtBoostEnd, MaxSpeed, decayProgress));
 		}
 		else
 		{
 			Velocity = Velocity.LimitLength(_currentMaxSpeed);
 		}
 
-		angularVelocity += torque * delta;
 		angularVelocity.X = Mathf.Clamp(angularVelocity.X, -_currentMaxPitchSpeed, _currentMaxPitchSpeed);
 		angularVelocity.Y = Mathf.Clamp(angularVelocity.Y, -_currentMaxYawSpeed, _currentMaxYawSpeed);
 		angularVelocity.Z = Mathf.Clamp(angularVelocity.Z, -_currentMaxRollSpeed, _currentMaxRollSpeed);
@@ -696,14 +721,14 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		float forward;
 		if (_isBoosting)
 			forward = 1.5f;
-		else if (_input.ThrustForward)
+		else if (_engineForward)
 			forward = 0.6f + _currentBoostPower * 0.4f;
 		else if (Velocity.LengthSquared() > 1f)
 			forward = 0.15f;
 		else
 			forward = 0.0f;
 
-		float reverse = _input.ThrustBackward && !_isBoosting ? 0.6f : 0.0f;
+		float reverse = _engineBackward && !_isBoosting ? 0.6f : 0.0f;
 		_model.SetThrottle(forward, reverse);
 	}
 }

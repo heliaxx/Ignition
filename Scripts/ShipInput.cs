@@ -17,6 +17,9 @@ public struct ShipInput
 	public bool StrafeLeft;
 	public bool StrafeRight;
 	public bool Stop;
+	public bool FlightAssist;
+	public bool Partial; // assists only rotation, the ship drifts
+	public float Throttle; // -1..1
 
 	// Held, not edges: IsActionJustPressed cannot be replayed, so edges are derived
 	// by comparing against the previous tick's record.
@@ -30,6 +33,7 @@ public struct ShipInput
 		Pitch = Mathf.Clamp(Pitch, -1.0f, 1.0f);
 		Yaw   = Mathf.Clamp(Yaw,   -1.0f, 1.0f);
 		Roll  = Mathf.Clamp(Roll,  -1.0f, 1.0f);
+		Throttle = Mathf.Clamp(Throttle, -1.0f, 1.0f);
 		return this;
 	}
 

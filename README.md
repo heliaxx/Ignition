@@ -14,6 +14,7 @@ and race through checkpoints - in your cockpit or from a cinematic external view
 ## Features
 
 - **Newtonian flight model** - full 6 degrees of freedom with real inertia: thrust, strafe on three axes, roll/pitch/yaw, boost with mechanic, and a precision-stop assist.
+- **Flight assist** - the thrusters cancel drift and unwanted rotation and the throttle sets a target speed (thrust or throttle mode). The toggle key switches between full assist and a second setting chosen in Options -> Controls: off (pure Newtonian flight) or partial (rotation held, drift kept).
 - **Weapons** - gimbal-tracking main gun with lead prediction reticle, and physics-based guided missiles.
 - **Targeting** - target cycling, missile lock-on with gimbal-cone lock timer, lead indicator for guns.
 - **AI opponents** - complex-behavior fighters (pursue, evade, orbit, joust, flee) with obstacle avoidance.
@@ -30,7 +31,9 @@ and race through checkpoints - in your cockpit or from a cinematic external view
 | `Space` / `Alt` | Strafe up / down |
 | `Q` / `E` | Roll left / right |
 | `Tab` | Boost |
-| `X` | Precision stop |
+| `Shift` | Precision stop |
+| `Z` | Flight assist on / off |
+| `X` | Relative mouse on / off (aim cursor re-centres or stays put) |
 | Left mouse | Fire gatling |
 | Right mouse | Fire missile |
 | `T` | Cycle target |

@@ -20,6 +20,14 @@ albedo_color = Color(0.894118, 0.717647, 0.337255, 1)
 material = SubResource("StandardMaterial3D_fill")
 size = Vector2(1.25, 0.12)
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_marker"]
+shading_mode = 0
+albedo_color = Color(1, 0.96, 0.85, 1)
+
+[sub_resource type="QuadMesh" id="QuadMesh_marker"]
+material = SubResource("StandardMaterial3D_marker")
+size = Vector2(0.025, 0.2)
+
 [node name="CockpitBar" type="Node3D" unique_id=863530835]
 script = ExtResource("1_bar")
 Title = "TITLE"
@@ -42,6 +50,12 @@ transform = Transform3D(0.001, 0, 0, 0, 1, 0, 0, 0, 1, -0.625, -0.341, 0.002)
 visible = false
 cast_shadow = 0
 mesh = SubResource("QuadMesh_fill")
+
+[node name="Marker" type="MeshInstance3D" parent="." unique_id=1873420561]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.341, 0.004)
+visible = false
+cast_shadow = 0
+mesh = SubResource("QuadMesh_marker")
 
 [node name="Empty" type="Label3D" parent="." unique_id=1257769220]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.34, 0)

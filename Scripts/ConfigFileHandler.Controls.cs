@@ -117,9 +117,11 @@ public partial class ConfigFileHandler
 			}
 			else
 			{
+				// Saved by position, like the project's own input map, so a binding stays on
+				// the key that was pressed whatever the layout (QWERTZ swaps Y and Z).
 				inputEvent = new InputEventKey
 				{
-					Keycode = OS.FindKeycodeFromString(eventStr)
+					PhysicalKeycode = OS.FindKeycodeFromString(eventStr)
 				};
 			}
 

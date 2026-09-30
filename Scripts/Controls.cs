@@ -18,6 +18,7 @@ public partial class Controls : Control
 	private Label aimSensitivityValue;
 	private Label aimDeadzoneValue;
 	private Label autoCenterSpeedValue;
+	private const string Sections = "SettingsPanel/Margin/Sections/";
 	private const int KeybindRowBaseLeftMargin = 0;
 	private const int KeybindRowHoverLeftMargin = 20;
 	private static readonly Color KeybindRowNormalTextColor = new Color(0.894f, 0.718f, 0.337f, 1f);
@@ -45,13 +46,13 @@ public partial class Controls : Control
 	public override void _Ready()
 	{
 		InputButtonScene ??= GD.Load<PackedScene>("res://Scenes/InputButton.tscn");
-		ActionList = GetNode<VBoxContainer>("PanelContainer/MarginContainer/VBoxContainer/ScrollContainer/ActionList");
-		aimSensitivitySlider = GetNode<HSlider>("PanelContainer/MarginContainer/VBoxContainer/MouseSettings/AimSensitivityRow/AimSensitivitySlider");
-		aimDeadzoneSlider = GetNode<HSlider>("PanelContainer/MarginContainer/VBoxContainer/MouseSettings/AimDeadzoneRow/AimDeadzoneSlider");
-		autoCenterSpeedSlider = GetNode<HSlider>("PanelContainer/MarginContainer/VBoxContainer/MouseSettings/AutoCenterSpeedRow/AutoCenterSpeedSlider");
-		aimSensitivityValue = GetNode<Label>("PanelContainer/MarginContainer/VBoxContainer/MouseSettings/AimSensitivityRow/AimSensitivityValue");
-		aimDeadzoneValue = GetNode<Label>("PanelContainer/MarginContainer/VBoxContainer/MouseSettings/AimDeadzoneRow/AimDeadzoneValue");
-		autoCenterSpeedValue = GetNode<Label>("PanelContainer/MarginContainer/VBoxContainer/MouseSettings/AutoCenterSpeedRow/AutoCenterSpeedValue");
+		ActionList = GetNode<VBoxContainer>(Sections + "KeyboardSettings/KeybindScroll/ActionList");
+		aimSensitivitySlider = GetNode<HSlider>(Sections + "MouseSettings/AimSensitivityRow/AimSensitivitySlider");
+		aimDeadzoneSlider = GetNode<HSlider>(Sections + "MouseSettings/AimDeadzoneRow/AimDeadzoneSlider");
+		autoCenterSpeedSlider = GetNode<HSlider>(Sections + "MouseSettings/AutoCenterSpeedRow/AutoCenterSpeedSlider");
+		aimSensitivityValue = GetNode<Label>(Sections + "MouseSettings/AimSensitivityRow/AimSensitivityValue");
+		aimDeadzoneValue = GetNode<Label>(Sections + "MouseSettings/AimDeadzoneRow/AimDeadzoneValue");
+		autoCenterSpeedValue = GetNode<Label>(Sections + "MouseSettings/AutoCenterSpeedRow/AutoCenterSpeedValue");
 
 		LoadMouseSettings();
 		BindMouseSettingsSignals();
@@ -119,10 +120,7 @@ public partial class Controls : Control
 			actionLabel.Text = label;
 
 			var events = InputMap.ActionGetEvents(action);
-			if (events.Count > 0)
-				inputLabel.Text = events[0].AsText().TrimSuffix(" (Physical)");
-			else
-				inputLabel.Text = "";
+			inputLabel.Text = events.Count > 0 ? InputLabel(events[0]) : "";
 
 			ActionList.AddChild(button);
 			ApplyKeybindRowHoverBehavior(button);
@@ -203,7 +201,14 @@ public partial class Controls : Control
 	private void UpdateActionList(Button button, InputEvent @event)
 	{
 		if (button.FindChild("LabelInput") is Label label)
-			label.Text = @event.AsText().TrimSuffix(" (Physical)");
+			label.Text = InputLabel(@event);
+	}
+
+	private static string InputLabel(InputEvent @event)
+	{
+		if (@event is InputEventKey key && key.Keycode == Key.None && key.PhysicalKeycode != Key.None)
+			return OS.GetKeycodeString(DisplayServer.KeyboardGetKeycodeFromPhysical(key.PhysicalKeycode));
+		return @event.AsText().TrimSuffix(" (Physical)");
 	}
 
 	private void _on_back_btn_pressed()
@@ -211,7 +216,7 @@ public partial class Controls : Control
 		GetTree().ChangeSceneToFile("res://Scenes/Menu.tscn");
 	}
 
-	private void _on_apply_btn_pressed()
+	private void _on_reset_btn_pressed()
 	{
 		ConfigFileHandler.Instance.ResetControlSettings();
 		ConfigFileHandler.Instance.ApplyKeybindings();

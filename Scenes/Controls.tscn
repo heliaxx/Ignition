@@ -1,7 +1,6 @@
-[gd_scene load_steps=10 format=3 uid="uid://dxjkortbmyj2c"]
+[gd_scene format=3 uid="uid://dxjkortbmyj2c"]
 
 [ext_resource type="Script" uid="uid://dkj738m0u6bij" path="res://Scripts/Controls.cs" id="1_fdf8q"]
-[ext_resource type="PackedScene" uid="uid://xqr7geijbu8v" path="res://Scenes/InputButton.tscn" id="2_bhnol"]
 [ext_resource type="FontFile" uid="uid://dp75um7jdyrun" path="res://Imports/Fonts/Eurostile.ttf" id="3_oyrkr"]
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_kb_slider_bg"]
@@ -12,18 +11,18 @@ thickness = 4
 color = Color(0.894118, 0.717647, 0.337255, 1)
 thickness = 4
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qh4r2"]
-bg_color = Color(0.894118, 0.717647, 0.337255, 1)
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4e4ky"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5vkms"]
 bg_color = Color(0.894118, 0.717647, 0.337255, 1)
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4e4ky"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qh4r2"]
+bg_color = Color(0.894118, 0.717647, 0.337255, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rr2ug"]
 bg_color = Color(0.894118, 0.717647, 0.337255, 1)
 
-[node name="Controls" type="Control"]
+[node name="Controls" type="Control" unique_id=507746655]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -32,66 +31,69 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_fdf8q")
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="SettingsPanel" type="PanelContainer" parent="." unique_id=1394707793]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -500.0
-offset_top = -420.0
-offset_right = 500.0
-offset_bottom = 380.0
+offset_left = -710.5
+offset_top = -439.0
+offset_right = 710.5
+offset_bottom = 439.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+[node name="Margin" type="MarginContainer" parent="SettingsPanel" unique_id=1377806349]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/MarginContainer"]
+[node name="Sections" type="VBoxContainer" parent="SettingsPanel/Margin" unique_id=1078603715]
 layout_mode = 2
+theme_override_constants/separation = 32
 
-[node name="KeyboardSettingsTitle" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer"]
+[node name="KeyboardSettings" type="VBoxContainer" parent="SettingsPanel/Margin/Sections" unique_id=1459023817]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="KeyboardSettingsTitle" type="Label" parent="SettingsPanel/Margin/Sections/KeyboardSettings" unique_id=761203562]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "KEYBOARD SETTINGS"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+[node name="KeybindScroll" type="ScrollContainer" parent="SettingsPanel/Margin/Sections/KeyboardSettings" unique_id=913024068]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ActionList" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/ScrollContainer"]
+[node name="ActionList" type="VBoxContainer" parent="SettingsPanel/Margin/Sections/KeyboardSettings/KeybindScroll" unique_id=1310543235]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 
-[node name="TestButton" parent="PanelContainer/MarginContainer/VBoxContainer/ScrollContainer/ActionList" instance=ExtResource("2_bhnol")]
-layout_mode = 2
-
-[node name="MouseSettings" type="VBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
+[node name="MouseSettings" type="VBoxContainer" parent="SettingsPanel/Margin/Sections" unique_id=104805269]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="MouseSettingsTitle" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/MouseSettings"]
+[node name="MouseSettingsTitle" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings" unique_id=1787915022]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "MOUSE SETTINGS"
 
-[node name="AimSensitivityRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/MouseSettings"]
+[node name="AimSensitivityRow" type="HBoxContainer" parent="SettingsPanel/Margin/Sections/MouseSettings" unique_id=190805283]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="AimSensitivityLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/MouseSettings/AimSensitivityRow"]
+[node name="AimSensitivityLabel" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings/AimSensitivityRow" unique_id=1941686026]
 custom_minimum_size = Vector2(260, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -99,7 +101,7 @@ theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "Aim Sensitivity"
 
-[node name="AimSensitivitySlider" type="HSlider" parent="PanelContainer/MarginContainer/VBoxContainer/MouseSettings/AimSensitivityRow"]
+[node name="AimSensitivitySlider" type="HSlider" parent="SettingsPanel/Margin/Sections/MouseSettings/AimSensitivityRow" unique_id=217671540]
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -111,7 +113,7 @@ max_value = 3.0
 step = 0.01
 value = 1.2
 
-[node name="AimSensitivityValue" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/MouseSettings/AimSensitivityRow"]
+[node name="AimSensitivityValue" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings/AimSensitivityRow" unique_id=999955222]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -119,11 +121,11 @@ theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "1.20"
 
-[node name="AimDeadzoneRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/MouseSettings"]
+[node name="AimDeadzoneRow" type="HBoxContainer" parent="SettingsPanel/Margin/Sections/MouseSettings" unique_id=1266789265]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="AimDeadzoneLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/MouseSettings/AimDeadzoneRow"]
+[node name="AimDeadzoneLabel" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings/AimDeadzoneRow" unique_id=1440527663]
 custom_minimum_size = Vector2(260, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -131,7 +133,7 @@ theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "Aim Deadzone"
 
-[node name="AimDeadzoneSlider" type="HSlider" parent="PanelContainer/MarginContainer/VBoxContainer/MouseSettings/AimDeadzoneRow"]
+[node name="AimDeadzoneSlider" type="HSlider" parent="SettingsPanel/Margin/Sections/MouseSettings/AimDeadzoneRow" unique_id=730804622]
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -142,7 +144,7 @@ max_value = 0.5
 step = 0.005
 value = 0.05
 
-[node name="AimDeadzoneValue" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/MouseSettings/AimDeadzoneRow"]
+[node name="AimDeadzoneValue" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings/AimDeadzoneRow" unique_id=1424860582]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -150,11 +152,11 @@ theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "0.05"
 
-[node name="AutoCenterSpeedRow" type="HBoxContainer" parent="PanelContainer/MarginContainer/VBoxContainer/MouseSettings"]
+[node name="AutoCenterSpeedRow" type="HBoxContainer" parent="SettingsPanel/Margin/Sections/MouseSettings" unique_id=627908779]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="AutoCenterSpeedLabel" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/MouseSettings/AutoCenterSpeedRow"]
+[node name="AutoCenterSpeedLabel" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings/AutoCenterSpeedRow" unique_id=1475462429]
 custom_minimum_size = Vector2(260, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -162,7 +164,7 @@ theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "Auto-Center Speed"
 
-[node name="AutoCenterSpeedSlider" type="HSlider" parent="PanelContainer/MarginContainer/VBoxContainer/MouseSettings/AutoCenterSpeedRow"]
+[node name="AutoCenterSpeedSlider" type="HSlider" parent="SettingsPanel/Margin/Sections/MouseSettings/AutoCenterSpeedRow" unique_id=1476253028]
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -173,7 +175,7 @@ max_value = 20.0
 step = 0.1
 value = 8.0
 
-[node name="AutoCenterSpeedValue" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/MouseSettings/AutoCenterSpeedRow"]
+[node name="AutoCenterSpeedValue" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings/AutoCenterSpeedRow" unique_id=1661465330]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -181,147 +183,7 @@ theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "8.0"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
-visible = false
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -216.0
-offset_top = -200.0
-offset_right = 216.0
-offset_bottom = 200.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Labels" type="VBoxContainer" parent="HBoxContainer"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="HBoxContainer/Labels"]
-layout_mode = 2
-size_flags_vertical = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("3_oyrkr")
-theme_override_font_sizes/font_size = 30
-text = "Thrust Forward"
-
-[node name="Label2" type="Label" parent="HBoxContainer/Labels"]
-layout_mode = 2
-size_flags_vertical = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("3_oyrkr")
-theme_override_font_sizes/font_size = 30
-text = "Thrust Backward"
-
-[node name="Label4" type="Label" parent="HBoxContainer/Labels"]
-layout_mode = 2
-size_flags_vertical = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("3_oyrkr")
-theme_override_font_sizes/font_size = 30
-text = "Roll Right"
-
-[node name="Label3" type="Label" parent="HBoxContainer/Labels"]
-layout_mode = 2
-size_flags_vertical = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("3_oyrkr")
-theme_override_font_sizes/font_size = 30
-text = "Roll Left"
-
-[node name="Label7" type="Label" parent="HBoxContainer/Labels"]
-layout_mode = 2
-size_flags_vertical = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("3_oyrkr")
-theme_override_font_sizes/font_size = 30
-text = "Strafe Right"
-
-[node name="Label8" type="Label" parent="HBoxContainer/Labels"]
-layout_mode = 2
-size_flags_vertical = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("3_oyrkr")
-theme_override_font_sizes/font_size = 30
-text = "Strafe Left"
-
-[node name="Label5" type="Label" parent="HBoxContainer/Labels"]
-layout_mode = 2
-size_flags_vertical = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("3_oyrkr")
-theme_override_font_sizes/font_size = 30
-text = "Strafe Up"
-
-[node name="Label6" type="Label" parent="HBoxContainer/Labels"]
-layout_mode = 2
-size_flags_vertical = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("3_oyrkr")
-theme_override_font_sizes/font_size = 30
-text = "Strafe Down"
-
-[node name="Options" type="VBoxContainer" parent="HBoxContainer"]
-layout_mode = 2
-
-[node name="LineEdit" type="LineEdit" parent="HBoxContainer/Options"]
-layout_mode = 2
-size_flags_vertical = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("3_oyrkr")
-theme_override_font_sizes/font_size = 30
-text = "h"
-alignment = 1
-middle_mouse_paste_enabled = false
-
-[node name="LineEdit2" type="LineEdit" parent="HBoxContainer/Options"]
-layout_mode = 2
-size_flags_vertical = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("3_oyrkr")
-theme_override_font_sizes/font_size = 30
-text = "h"
-alignment = 1
-
-[node name="LineEdit3" type="LineEdit" parent="HBoxContainer/Options"]
-layout_mode = 2
-size_flags_vertical = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("3_oyrkr")
-theme_override_font_sizes/font_size = 30
-text = "h"
-alignment = 1
-
-[node name="LineEdit4" type="LineEdit" parent="HBoxContainer/Options"]
-layout_mode = 2
-size_flags_vertical = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("3_oyrkr")
-theme_override_font_sizes/font_size = 30
-text = "h"
-alignment = 1
-
-[node name="LineEdit5" type="LineEdit" parent="HBoxContainer/Options"]
-layout_mode = 2
-size_flags_vertical = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("3_oyrkr")
-theme_override_font_sizes/font_size = 30
-text = "h"
-alignment = 1
-
-[node name="LineEdit6" type="LineEdit" parent="HBoxContainer/Options"]
-layout_mode = 2
-size_flags_vertical = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("3_oyrkr")
-theme_override_font_sizes/font_size = 30
-text = "h"
-alignment = 1
-
-[node name="HBoxContainer2" type="HBoxContainer" parent="."]
+[node name="BottomButtons" type="HBoxContainer" parent="." unique_id=881451608]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
@@ -330,44 +192,44 @@ offset_top = -100.0
 offset_right = 400.0
 grow_vertical = 0
 
-[node name="BackBtn" type="Button" parent="HBoxContainer2"]
+[node name="BackBtn" type="Button" parent="BottomButtons" unique_id=950170675]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 40
-theme_override_styles/hover = SubResource("StyleBoxFlat_qh4r2")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_5vkms")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_4e4ky")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_5vkms")
+theme_override_styles/hover = SubResource("StyleBoxFlat_qh4r2")
 text = "BACK"
 
-[node name="ResetBtn" type="Button" parent="HBoxContainer2"]
+[node name="ResetBtn" type="Button" parent="BottomButtons" unique_id=1392982309]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 40
-theme_override_styles/hover = SubResource("StyleBoxFlat_qh4r2")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_5vkms")
 theme_override_styles/normal = SubResource("StyleBoxEmpty_4e4ky")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_5vkms")
+theme_override_styles/hover = SubResource("StyleBoxFlat_qh4r2")
 text = "RESET"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="Header" type="VBoxContainer" parent="." unique_id=1841744805]
 layout_mode = 0
 offset_right = 220.0
 offset_bottom = 101.0
 
-[node name="Options" type="Label" parent="VBoxContainer"]
+[node name="OptionsTitle" type="Label" parent="Header" unique_id=370101632]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
@@ -376,12 +238,12 @@ text = "OPTIONS"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
+[node name="HSeparator" type="HSeparator" parent="Header" unique_id=1642395469]
 layout_mode = 2
 theme_override_constants/separation = 5
 theme_override_styles/separator = SubResource("StyleBoxFlat_rr2ug")
 
-[node name="Controls" type="Label" parent="VBoxContainer"]
+[node name="ControlsTitle" type="Label" parent="Header" unique_id=1340157683]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
@@ -390,7 +252,7 @@ text = "CONTROLS"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=797455991]
 show_behind_parent = true
 layout_mode = 1
 anchors_preset = 15
@@ -401,5 +263,5 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
-[connection signal="pressed" from="HBoxContainer2/BackBtn" to="." method="_on_back_btn_pressed"]
-[connection signal="pressed" from="HBoxContainer2/ResetBtn" to="." method="_on_apply_btn_pressed"]
+[connection signal="pressed" from="BottomButtons/BackBtn" to="." method="_on_back_btn_pressed"]
+[connection signal="pressed" from="BottomButtons/ResetBtn" to="." method="_on_reset_btn_pressed"]

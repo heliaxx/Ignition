@@ -53,14 +53,6 @@ public partial class Graphics : Control
 		InitializeUpscalerDropdown();
 		InitializeCockpitFovSlider();
 
-		FixDropdownPopup(fpsDropdown);
-		FixDropdownPopup(modeDropdown);
-		FixDropdownPopup(vsyncDropdown);
-		FixDropdownPopup(msaaDropdown);
-		FixDropdownPopup(resolutionDropdown);
-		FixDropdownPopup(renderScaleDropdown);
-		FixDropdownPopup(upscalerDropdown);
-
 		LoadCurrentSettings();
 		SetupHints();
 		MenuUtils.AttachButtonSounds(this);
@@ -98,14 +90,6 @@ public partial class Graphics : Control
 		control.MouseEntered += () => hintLabel.Text = text;
 		// Only clear if another control's hint hasn't replaced this one already.
 		control.MouseExited += () => { if (hintLabel.Text == text) hintLabel.Text = ""; };
-	}
-
-	private void FixDropdownPopup(OptionButton dropdown)
-	{
-		var popup = dropdown.GetPopup();
-		popup.AddThemeFontSizeOverride("font_size", (int)dropdown.GetThemeFontSize("font_size"));
-		if (dropdown.HasThemeFontOverride("font"))
-			popup.AddThemeFontOverride("font", dropdown.GetThemeFont("font"));
 	}
 
 	private void InitializeFPSDropdown()

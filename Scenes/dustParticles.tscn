@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://b31csx7lnt5jb"]
+[gd_scene format=3 uid="uid://b31csx7lnt5jb"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ce2rn"]
 emission_enabled = true
@@ -18,14 +18,14 @@ gravity = Vector3(0, 0, 0)
 attractor_interaction_enabled = false
 
 [sub_resource type="SphereMesh" id="SphereMesh_abjj2"]
-radius = 0.01
-height = 1.5
+radius = 0.02
+height = 2.0
 
-[node name="Node3D" type="Node3D"]
+[node name="Node3D" type="Node3D" unique_id=1770138003]
 
-[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+[node name="GPUParticles3D" type="GPUParticles3D" parent="." unique_id=1951594945]
 material_override = SubResource("StandardMaterial3D_ce2rn")
-amount = 40
+amount = 50
 lifetime = 0.5
 randomness = 1.0
 process_material = SubResource("ParticleProcessMaterial_dp0xk")

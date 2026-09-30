@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dkj738m0u6bij" path="res://Scripts/Controls.cs" id="1_fdf8q"]
 [ext_resource type="FontFile" uid="uid://dp75um7jdyrun" path="res://Imports/Fonts/Eurostile.ttf" id="3_oyrkr"]
+[ext_resource type="Theme" path="res://theme_settings.tres" id="4_settings"]
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_kb_slider_bg"]
 color = Color(0.314316, 0.314316, 0.314316, 1)
@@ -29,6 +30,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("4_settings")
 script = ExtResource("1_fdf8q")
 
 [node name="SettingsPanel" type="PanelContainer" parent="." unique_id=1394707793]

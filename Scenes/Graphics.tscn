@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cfabqj87i6w7l" path="res://Scripts/Graphics.cs" id="1_script"]
 [ext_resource type="FontFile" uid="uid://dp75um7jdyrun" path="res://Imports/Fonts/Eurostile.ttf" id="2_ii5nb"]
+[ext_resource type="Theme" path="res://theme_settings.tres" id="3_settings"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ivqh8"]
 bg_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -36,6 +37,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("3_settings")
 script = ExtResource("1_script")
 
 [node name="Menu" type="HBoxContainer" parent="."]
@@ -162,8 +164,6 @@ theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
 
 [node name="ModeDropdown" type="OptionButton" parent="Menu/Options"]
 layout_mode = 2
@@ -173,8 +173,6 @@ theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
 
 [node name="VsyncDropdown" type="OptionButton" parent="Menu/Options"]
 layout_mode = 2
@@ -184,8 +182,6 @@ theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
 
 [node name="FXAACheck" type="CheckBox" parent="Menu/Options"]
 layout_mode = 2
@@ -224,8 +220,6 @@ theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
 
 [node name="ResolutionDropdown" type="OptionButton" parent="Menu/Options"]
 layout_mode = 2
@@ -233,8 +227,6 @@ theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
 
 [node name="RenderScaleDropdown" type="OptionButton" parent="Menu/Options"]
 layout_mode = 2
@@ -244,8 +236,6 @@ theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
 
 [node name="UpscalerDropdown" type="OptionButton" parent="Menu/Options"]
 layout_mode = 2
@@ -255,8 +245,6 @@ theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
 
 [node name="FPSMeterCheck" type="CheckBox" parent="Menu/Options"]
 layout_mode = 2

@@ -1,4 +1,5 @@
 using Godot;
+using System.Collections.Generic;
 
 // Every hit in the game passes through here. Weapons say who hit what; this decides
 // whether that is local business or the server's, and applies it. Gameplay scripts keep
@@ -7,7 +8,54 @@ public partial class DamageManager : Node
 {
 	public static DamageManager Instance { get; private set; }
 
+	// Both ships in a ram can detect it — each machine's own ship, or a fighter and the player
+	// on one machine — so a pair is only hurt once within this window.
+	private const ulong RamCooldownMsec = 500;
+	private readonly Dictionary<(ulong, ulong), ulong> _lastRam = new();
+
 	public override void _Ready() => Instance = this;
+
+	// A collision between two ships: both take the same damage, each credited to the other.
+	public void ReportRam(Node3D a, Node3D b, float amount)
+	{
+		int aId = Participants.IdOf(a);
+		int bId = Participants.IdOf(b);
+
+		if (!NetworkManager.Instance.IsActive || aId == Participants.None || bId == Participants.None)
+		{
+			if (RamOnCooldown(a.GetInstanceId(), b.GetInstanceId())) return;
+			Report(a, amount, null, b);
+			Report(b, amount, null, a);
+			return;
+		}
+
+		if (NetworkManager.Instance.IsServer)
+			ServerRam(aId, bId, amount);
+		else
+			RpcId(1, MethodName.RequestRam, bId, amount);
+	}
+
+	// Client -> server, for a ram the client's own ship detected. The sender is the other party.
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void RequestRam(int otherId, float amount) =>
+		ServerRam(Multiplayer.GetRemoteSenderId(), otherId, amount);
+
+	// Server only. Both players' machines usually see the same ram; the first report wins.
+	private void ServerRam(int aId, int bId, float amount)
+	{
+		if (RamOnCooldown((ulong)aId, (ulong)bId)) return;
+		Rpc(MethodName.ApplyDamage, aId, amount, bId);
+		Rpc(MethodName.ApplyDamage, bId, amount, aId);
+	}
+
+	private bool RamOnCooldown(ulong x, ulong y)
+	{
+		var pair = x < y ? (x, y) : (y, x);
+		ulong now = Time.GetTicksMsec();
+		if (_lastRam.TryGetValue(pair, out ulong last) && now - last < RamCooldownMsec) return true;
+		_lastRam[pair] = now;
+		return false;
+	}
 
 	public void Report(Node3D target, float amount, CollisionShape3D hitShape, Node3D source)
 	{

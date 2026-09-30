@@ -624,11 +624,9 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 
 		Vector3 normal = collision.GetNormal();
 
-		float impactSpeed = Mathf.Max(0.0f, -Velocity.Dot(normal));
-		if (impactSpeed > CollisionDamageSpeedThreshold)
-			DamageManager.Instance.Report(this,
-				(impactSpeed - CollisionDamageSpeedThreshold) * CollisionDamageMultiplier,
-				null, collision.GetCollider() as Node3D);
+		var other = collision.GetCollider() as Node3D;
+		Ramming.Report(this, other, Ramming.ClosingSpeed(Velocity, other, normal),
+			CollisionDamageSpeedThreshold, CollisionDamageMultiplier);
 
 		Velocity = Velocity.Slide(normal) * CollisionLinearDamping;
 		angularVelocity *= CollisionAngularDamping;

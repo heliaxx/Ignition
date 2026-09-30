@@ -43,6 +43,10 @@ public partial class Fighter : CharacterBody3D, IDamageable
     [Export(PropertyHint.Layers3DPhysics)]
     public uint ObstacleCollisionMask = 1; // Layer 1 only (environment/asteroids)
 
+    [ExportGroup("Collision")]
+    [Export] public float CollisionDamageSpeedThreshold = 50.0f;
+    [Export] public float CollisionDamageMultiplier = 1.0f;
+
     [ExportGroup("Combat")]
     [Export] public float DetectionRange = 600f;
     [Export] public float WeaponRange = 300f;
@@ -283,7 +287,9 @@ public partial class Fighter : CharacterBody3D, IDamageable
         }
 
         Velocity = SteeringBehaviors.ApplySteering(Velocity, steering, Speed, MaxSteeringForce, delta);
+        Vector3 velocityBeforeSlide = Velocity;
         MoveAndSlide();
+        ReportShipRams(velocityBeforeSlide);
 
         if (!skipFacing)
         {
@@ -313,6 +319,18 @@ public partial class Fighter : CharacterBody3D, IDamageable
         Vector3 newForward = currentForward.Lerp(direction.Normalized(), TurnSpeed * delta).Normalized();
         Basis newBasis = Basis.LookingAt(newForward, Vector3.Up);
         GlobalTransform = new Transform3D(newBasis, GlobalTransform.Origin);
+    }
+
+    // Only rams into other ships: a fighter brushing a rock is left to its obstacle avoidance.
+    private void ReportShipRams(Vector3 velocity)
+    {
+        for (int i = 0; i < GetSlideCollisionCount(); i++)
+        {
+            KinematicCollision3D collision = GetSlideCollision(i);
+            if (collision.GetCollider() is not Node3D other || !Ramming.IsShip(other)) continue;
+            Ramming.Report(this, other, Ramming.ClosingSpeed(velocity, other, collision.GetNormal()),
+                CollisionDamageSpeedThreshold, CollisionDamageMultiplier);
+        }
     }
 
     public void StopMoving()

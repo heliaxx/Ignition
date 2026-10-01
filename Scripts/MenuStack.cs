@@ -18,6 +18,10 @@ public partial class MenuStack : CanvasLayer
 
 	public bool IsEmpty => _panels.Count == 0;
 
+	// When the first panel opens and when the last one closes, so what lies under the stack
+	// can step aside while a panel is up.
+	[Signal] public delegate void CoveredChangedEventHandler(bool covered);
+
 	public override void _Ready()
 	{
 		var material = new ShaderMaterial { Shader = GD.Load<Shader>("res://Shaders/Blur.gdshader") };
@@ -41,6 +45,7 @@ public partial class MenuStack : CanvasLayer
 		var panel = panelScene.Instantiate<Control>();
 		AddChild(panel);
 		panel.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+		if (IsEmpty) EmitSignal(SignalName.CoveredChanged, true);
 		_panels.Add(panel);
 
 		_blur.Visible = true;
@@ -66,6 +71,7 @@ public partial class MenuStack : CanvasLayer
 		Control panel = _panels[^1];
 		_panels.RemoveAt(_panels.Count - 1);
 		bool lastOne = IsEmpty;
+		if (lastOne) EmitSignal(SignalName.CoveredChanged, false);
 
 		Tween tween = CreateTween();
 		tween.SetParallel(true);

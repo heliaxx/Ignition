@@ -40,6 +40,9 @@ public partial class MatchManager : Node
 
 	public bool IsReady(int peerId) => _ready.Contains(peerId);
 
+	// Advertised to the lobby browser, which cannot join a match already running.
+	public bool InMatch => GetTree().CurrentScene is LevelDeathmatch;
+
 	// Two ships make a match, and the host waits until the others say they are ready.
 	public bool CanStart => !NetworkManager.Instance.IsActive
 		|| (NetworkManager.Instance.Peers.Count >= 2

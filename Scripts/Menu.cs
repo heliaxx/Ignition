@@ -49,6 +49,7 @@ public partial class Menu : Control
 
 		menuStack = new MenuStack { Name = "MenuStack" };
 		AddChild(menuStack);
+		menuStack.CoveredChanged += FadeMenu;
 
 		pveChallengesButton.Pressed += OnPveChallengesPressed;
 		multiplayerButton.Pressed += OnMultiplayerPressed;
@@ -102,5 +103,13 @@ public partial class Menu : Control
 	private void OnButtonHovered()
 	{
 		clickSound.Play();
+	}
+
+	// The menu's own text would otherwise show through the blur behind an open panel.
+	private void FadeMenu(bool covered)
+	{
+		Tween tween = CreateTween().SetParallel(true);
+		foreach (Control part in new[] { pveChallengesButton.GetParent<Control>(), (Control)FindChild("Label") })
+			tween.TweenProperty(part, "modulate:a", covered ? 0.0f : 1.0f, menuStack.FadeTime);
 	}
 }

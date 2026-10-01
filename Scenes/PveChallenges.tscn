@@ -2,14 +2,12 @@
 
 [ext_resource type="Script" uid="uid://bo52yqh8carxy" path="res://Scripts/PveChallenges.cs" id="1_script"]
 [ext_resource type="Theme" uid="uid://brj8jmsa6vurj" path="res://theme.tres" id="2_theme"]
-[ext_resource type="FontFile" uid="uid://dp75um7jdyrun" path="res://Imports/Fonts/Eurostile.ttf" id="3_271sc"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_8xicv"]
-font = ExtResource("3_271sc")
-font_size = 80
-outline_color = Color(0, 0, 0, 1)
+[sub_resource type="Theme" id="Theme_scenarios"]
+Button/font_sizes/font_size = 32
+Label/font_sizes/font_size = 30
 
-[node name="PveChallenges" type="Control" unique_id=1808041471]
+[node name="PveChallenges" type="Control" unique_id=1034776849]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -19,70 +17,82 @@ grow_vertical = 2
 theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
-[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1935688321]
+[node name="Panel" type="PanelContainer" parent="." unique_id=292661440]
 layout_mode = 1
-anchors_preset = -1
-anchor_top = 0.21296297
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -800.0
+offset_top = -450.0
+offset_right = 800.0
+offset_bottom = 450.0
 grow_horizontal = 2
-grow_vertical = 0
-metadata/_edit_use_anchors_ = true
+grow_vertical = 2
+theme = SubResource("Theme_scenarios")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=1608129085]
+[node name="Margin" type="MarginContainer" parent="Panel" unique_id=1850728518]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
 
-[node name="FreeFlyButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1696901112]
+[node name="Columns" type="HBoxContainer" parent="Panel/Margin" unique_id=1845758019]
 layout_mode = 2
-mouse_default_cursor_shape = 2
-text = "FREE FLIGHT"
+theme_override_constants/separation = 32
 
-[node name="RushButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=257504557]
+[node name="Picker" type="VBoxContainer" parent="Panel/Margin/Columns" unique_id=2100311116]
 layout_mode = 2
-mouse_default_cursor_shape = 2
-text = "RUSH"
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
 
-[node name="WavesButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=121181907]
+[node name="Title" type="Label" parent="Panel/Margin/Columns/Picker" unique_id=683871020]
 layout_mode = 2
-mouse_default_cursor_shape = 2
-text = "WAVES"
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_font_sizes/font_size = 44
+text = "SCENARIOS"
 
-[node name="SkirmishButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=860048809]
-layout_mode = 2
-mouse_default_cursor_shape = 2
-text = "SKIRMISH"
-
-[node name="Space" type="Control" parent="CenterContainer/VBoxContainer" unique_id=1712646512]
-custom_minimum_size = Vector2(0, 100)
+[node name="ScenarioList" type="VBoxContainer" parent="Panel/Margin/Columns/Picker" unique_id=69564076]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 4
 
-[node name="BackButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1888025259]
+[node name="BackButton" type="Button" parent="Panel/Margin/Columns/Picker" unique_id=468811255]
 layout_mode = 2
+size_flags_horizontal = 0
 mouse_default_cursor_shape = 2
 text = "BACK"
 
-[node name="PanelContainer" type="PanelContainer" parent="." unique_id=2060894528]
-self_modulate = Color(1, 1, 1, 0)
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -600.0
-offset_right = 600.0
-offset_bottom = 220.0
-grow_horizontal = 2
+[node name="Divider" type="VSeparator" parent="Panel/Margin/Columns" unique_id=1979407348]
+layout_mode = 2
 
-[node name="Space" type="Control" parent="PanelContainer" unique_id=768509999]
-custom_minimum_size = Vector2(0, 40)
+[node name="Detail" type="VBoxContainer" parent="Panel/Margin/Columns" unique_id=1413276294]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="ScenarioName" type="Label" parent="Panel/Margin/Columns/Detail" unique_id=1384735841]
+layout_mode = 2
+theme_override_font_sizes/font_size = 44
+text = "SCENARIO"
+
+[node name="Description" type="Label" parent="Panel/Margin/Columns/Detail" unique_id=1570621873]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.82, 0.82, 1)
+autowrap_mode = 3
+
+[node name="TopScoreLabel" type="Label" parent="Panel/Margin/Columns/Detail" unique_id=1732577757]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+
+[node name="Spacer" type="Control" parent="Panel/Margin/Columns/Detail" unique_id=727225189]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Title" type="Label" parent="PanelContainer" unique_id=244772004]
+[node name="StartButton" type="Button" parent="Panel/Margin/Columns/Detail" unique_id=1058586527]
 layout_mode = 2
-theme_override_fonts/font = ExtResource("3_271sc")
-text = "CHALLENGE SCENARIOS"
-label_settings = SubResource("LabelSettings_8xicv")
-horizontal_alignment = 1
-vertical_alignment = 1
+size_flags_horizontal = 4
+mouse_default_cursor_shape = 2
+text = "START"

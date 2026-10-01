@@ -47,11 +47,11 @@ layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 mouse_default_cursor_shape = 2
-text = "PVE CHALLENGES"
+text = "PVE SCENARIOS"
 alignment = 0
 icon_alignment = 1
 
-[node name="MultiplayerButton" type="Button" parent="PanelContainer/VBoxContainer"]
+[node name="MultiplayerButton" type="Button" parent="PanelContainer/VBoxContainer" unique_id=2001401960]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0

@@ -25,4 +25,16 @@ public partial class ConfigFileHandler
 			return config.GetValue("scores", "wave_high_score").AsInt64();
 		return 0;
 	}
+
+	public void SaveSkirmishBestTime(double seconds)
+	{
+		SaveKey("scores", "skirmish_best_time", seconds);
+	}
+
+	public double LoadSkirmishBestTime()
+	{
+		if (config.HasSectionKey("scores", "skirmish_best_time"))
+			return config.GetValue("scores", "skirmish_best_time").AsDouble();
+		return 0;
+	}
 }

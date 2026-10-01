@@ -3,7 +3,14 @@
 [ext_resource type="Script" uid="uid://vkx8a4w7geby" path="res://Scripts/MultiplayerPanel.cs" id="1_script"]
 [ext_resource type="Theme" uid="uid://brj8jmsa6vurj" path="res://theme.tres" id="2_theme"]
 
-[node name="MultiplayerPanel" type="Control" unique_id=1377416800]
+[sub_resource type="Theme" id="Theme_lobby"]
+Button/font_sizes/font_size = 32
+Label/font_sizes/font_size = 30
+LineEdit/font_sizes/font_size = 30
+OptionButton/font_sizes/font_size = 30
+PopupMenu/font_sizes/font_size = 30
+
+[node name="MultiplayerPanel" type="Control" unique_id=974820331]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -13,124 +20,252 @@ grow_vertical = 2
 theme = ExtResource("2_theme")
 script = ExtResource("1_script")
 
-[node name="CenterContainer" type="CenterContainer" parent="." unique_id=316572091]
+[node name="Panel" type="PanelContainer" parent="." unique_id=1482007974]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -800.0
+offset_top = -450.0
+offset_right = 800.0
+offset_bottom = 450.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = SubResource("Theme_lobby")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=1505727804]
+[node name="Margin" type="MarginContainer" parent="Panel" unique_id=429946499]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
 
-[node name="Title" type="Label" parent="CenterContainer/VBoxContainer" unique_id=1482155295]
+[node name="Columns" type="HBoxContainer" parent="Panel/Margin" unique_id=1080124567]
 layout_mode = 2
+theme_override_constants/separation = 32
+
+[node name="Browser" type="VBoxContainer" parent="Panel/Margin/Columns" unique_id=144500812]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="BrowserHeader" type="HBoxContainer" parent="Panel/Margin/Columns/Browser" unique_id=1447615747]
+layout_mode = 2
+
+[node name="GamesTitle" type="Label" parent="Panel/Margin/Columns/Browser/BrowserHeader" unique_id=1759616595]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_font_sizes/font_size = 44
 text = "MULTIPLAYER"
 
-[node name="NameEdit" type="LineEdit" parent="CenterContainer/VBoxContainer" unique_id=572440441]
-custom_minimum_size = Vector2(320, 0)
-layout_mode = 2
-placeholder_text = "callsign"
-
-[node name="TransportOption" type="OptionButton" parent="CenterContainer/VBoxContainer"]
+[node name="RefreshButton" type="Button" parent="Panel/Margin/Columns/Browser/BrowserHeader" unique_id=886624148]
 layout_mode = 2
 mouse_default_cursor_shape = 2
+text = "REFRESH"
 
-[node name="HostButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1614124812]
+[node name="GamesScroll" type="ScrollContainer" parent="Panel/Margin/Columns/Browser" unique_id=42313972]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="GamesBox" type="VBoxContainer" parent="Panel/Margin/Columns/Browser/GamesScroll" unique_id=371330211]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="NoGamesLabel" type="Label" parent="Panel/Margin/Columns/Browser/GamesScroll/GamesBox" unique_id=2028706198]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.55, 0.55, 1)
+text = "no lobbies found"
+
+[node name="NameRow" type="HBoxContainer" parent="Panel/Margin/Columns/Browser" unique_id=1810135314]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="NameLabel" type="Label" parent="Panel/Margin/Columns/Browser/NameRow" unique_id=263224218]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+text = "CALLSIGN"
+
+[node name="NameEdit" type="LineEdit" parent="Panel/Margin/Columns/Browser/NameRow" unique_id=1229056337]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "callsign"
+
+[node name="HostRow" type="HBoxContainer" parent="Panel/Margin/Columns/Browser" unique_id=1612294410]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HostLabel" type="Label" parent="Panel/Margin/Columns/Browser/HostRow" unique_id=1075090340]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+text = "HOST ON"
+
+[node name="TransportOption" type="OptionButton" parent="Panel/Margin/Columns/Browser/HostRow" unique_id=685158992]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+
+[node name="HostButton" type="Button" parent="Panel/Margin/Columns/Browser/HostRow" unique_id=2079321052]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "HOST"
 
-[node name="AddressEdit" type="LineEdit" parent="CenterContainer/VBoxContainer" unique_id=1323081961]
-custom_minimum_size = Vector2(320, 0)
+[node name="JoinIpRow" type="HBoxContainer" parent="Panel/Margin/Columns/Browser" unique_id=1110036087]
 layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="IpLabel" type="Label" parent="Panel/Margin/Columns/Browser/JoinIpRow" unique_id=169062192]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+text = "ENET IP"
+
+[node name="AddressEdit" type="LineEdit" parent="Panel/Margin/Columns/Browser/JoinIpRow" unique_id=474539171]
+layout_mode = 2
+size_flags_horizontal = 3
 text = "127.0.0.1"
 placeholder_text = "host address"
 
-[node name="JoinButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=276560043]
+[node name="JoinIpButton" type="Button" parent="Panel/Margin/Columns/Browser/JoinIpRow" unique_id=1767853109]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "JOIN"
 
-[node name="GamesTitle" type="Label" parent="CenterContainer/VBoxContainer"]
+[node name="BackButton" type="Button" parent="Panel/Margin/Columns/Browser" unique_id=754194525]
+layout_mode = 2
+size_flags_horizontal = 0
+mouse_default_cursor_shape = 2
+text = "BACK"
+
+[node name="Divider" type="VSeparator" parent="Panel/Margin/Columns" unique_id=228506066]
+layout_mode = 2
+
+[node name="Detail" type="VBoxContainer" parent="Panel/Margin/Columns" unique_id=354057391]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="Placeholder" type="Label" parent="Panel/Margin/Columns/Detail" unique_id=900283619]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.55, 0.55, 0.55, 1)
+text = "Select a lobby to see it's members, or host your own."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Info" type="VBoxContainer" parent="Panel/Margin/Columns/Detail" unique_id=565336378]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="TitleRow" type="HBoxContainer" parent="Panel/Margin/Columns/Detail/Info" unique_id=1492764061]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="HostName" type="Label" parent="Panel/Margin/Columns/Detail/Info/TitleRow" unique_id=260230530]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 44
+text = "Host"
+clip_text = true
+
+[node name="TypeLabel" type="Label" parent="Panel/Margin/Columns/Detail/Info/TitleRow" unique_id=1390431675]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-text = "GAMES"
+text = "STEAM"
 
-[node name="GamesBox" type="VBoxContainer" parent="CenterContainer/VBoxContainer"]
-custom_minimum_size = Vector2(320, 0)
+[node name="StateLabel" type="Label" parent="Panel/Margin/Columns/Detail/Info" unique_id=1836121563]
 layout_mode = 2
-theme_override_constants/separation = 2
+theme_override_colors/font_color = Color(0.55, 0.55, 0.55, 1)
+text = "IN LOBBY"
 
-[node name="RefreshButton" type="Button" parent="CenterContainer/VBoxContainer"]
-layout_mode = 2
-mouse_default_cursor_shape = 2
-text = "REFRESH LIST"
-
-[node name="PlayersTitle" type="Label" parent="CenterContainer/VBoxContainer" unique_id=1529759017]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-text = "PLAYERS"
-
-[node name="PlayersBox" type="VBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=1302339901]
-custom_minimum_size = Vector2(320, 0)
-layout_mode = 2
-theme_override_constants/separation = 2
-
-[node name="InviteButton" type="Button" parent="CenterContainer/VBoxContainer"]
-layout_mode = 2
-mouse_default_cursor_shape = 2
-text = "INVITE FRIENDS"
-
-[node name="ModeLabel" type="Label" parent="CenterContainer/VBoxContainer" unique_id=307276314]
+[node name="ModeLabel" type="Label" parent="Panel/Margin/Columns/Detail/Info" unique_id=1618176048]
 layout_mode = 2
 text = "PVP ARENA〡DEATHMATCH"
 
-[node name="KillRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=673321798]
+[node name="KillRow" type="HBoxContainer" parent="Panel/Margin/Columns/Detail/Info" unique_id=1228857503]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/KillRow" unique_id=1608782677]
+[node name="Label" type="Label" parent="Panel/Margin/Columns/Detail/Info/KillRow" unique_id=535558569]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "KILL LIMIT"
 
-[node name="KillLimitOption" type="OptionButton" parent="CenterContainer/VBoxContainer/KillRow" unique_id=662478463]
+[node name="KillLimitOption" type="OptionButton" parent="Panel/Margin/Columns/Detail/Info/KillRow" unique_id=485833358]
+custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 
-[node name="TimeRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer" unique_id=663004319]
+[node name="TimeRow" type="HBoxContainer" parent="Panel/Margin/Columns/Detail/Info" unique_id=1896921189]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/TimeRow" unique_id=1844976542]
+[node name="Label" type="Label" parent="Panel/Margin/Columns/Detail/Info/TimeRow" unique_id=1379511313]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "TIME LIMIT"
 
-[node name="TimeLimitOption" type="OptionButton" parent="CenterContainer/VBoxContainer/TimeRow" unique_id=1876063687]
+[node name="TimeLimitOption" type="OptionButton" parent="Panel/Margin/Columns/Detail/Info/TimeRow" unique_id=1269206201]
+custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 
-[node name="ReadyButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=139191595]
+[node name="PlayersTitle" type="Label" parent="Panel/Margin/Columns/Detail/Info" unique_id=740390780]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+text = "PLAYERS"
+
+[node name="PlayersScroll" type="ScrollContainer" parent="Panel/Margin/Columns/Detail/Info" unique_id=1108764912]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="PlayersBox" type="VBoxContainer" parent="Panel/Margin/Columns/Detail/Info/PlayersScroll" unique_id=1543797857]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="ActionRow" type="HBoxContainer" parent="Panel/Margin/Columns/Detail/Info" unique_id=1610234104]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="JoinLobbyButton" type="Button" parent="Panel/Margin/Columns/Detail/Info/ActionRow" unique_id=252485244]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "JOIN"
+
+[node name="ReadyButton" type="Button" parent="Panel/Margin/Columns/Detail/Info/ActionRow" unique_id=532032044]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 toggle_mode = true
 text = "READY"
 
-[node name="StartButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=1107573832]
+[node name="StartButton" type="Button" parent="Panel/Margin/Columns/Detail/Info/ActionRow" unique_id=891741116]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "START MATCH"
 
-[node name="StatusLabel" type="Label" parent="CenterContainer/VBoxContainer" unique_id=1119620994]
-layout_mode = 2
-text = "offline"
-
-[node name="BackButton" type="Button" parent="CenterContainer/VBoxContainer" unique_id=383124443]
+[node name="InviteButton" type="Button" parent="Panel/Margin/Columns/Detail/Info/ActionRow" unique_id=85849097]
 layout_mode = 2
 mouse_default_cursor_shape = 2
-text = "BACK"
+text = "INVITE"
+
+[node name="LeaveButton" type="Button" parent="Panel/Margin/Columns/Detail/Info/ActionRow" unique_id=1254126882]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "LEAVE"
+
+[node name="StatusLabel" type="Label" parent="Panel/Margin/Columns/Detail" unique_id=1546718676]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
+horizontal_alignment = 1
+autowrap_mode = 3

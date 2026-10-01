@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Linq;
 using Godot;
 
@@ -19,6 +20,8 @@ public partial class LevelSkirmish : BaseLevel
 	private Button _freeRoamButton;
 	private Button _restartButton;
 	private bool _over;
+
+	private double _elapsed;
 	private AudioStreamPlayer _clickSound;
 
 	public override void _Ready()
@@ -117,6 +120,8 @@ public partial class LevelSkirmish : BaseLevel
 	{
 		base._Process(delta);
 
+		if (_killsRemaining > 0) _elapsed += delta;
+
 		// Out of ammo with targets left is a lost mission, once nothing already fired can still hit.
 		if (!_over && _killsRemaining > 0 && PlayerShip != null && PlayerShip.OutOfAmmo
 			&& !GetChildren().OfType<FlightModelMissile>().Any(m => !m.IsSpent))
@@ -141,6 +146,19 @@ public partial class LevelSkirmish : BaseLevel
 		GetTree().CreateTimer(EndScreenDelay).Timeout += ShowEndScreen;
 	}
 
+	private string ClearedText()
+	{
+		double best = ConfigFileHandler.Instance.LoadSkirmishBestTime();
+		bool record = best <= 0 || _elapsed < best;
+		if (record) ConfigFileHandler.Instance.SaveSkirmishBestTime(_elapsed);
+
+		return $"LEVEL COMPLETE!\nTIME {FormatTime(_elapsed)}\n"
+			+ (record ? "NEW TOP SCORE" : $"TOP SCORE {FormatTime(best)}");
+	}
+
+	public static string FormatTime(double seconds) =>
+		$"{(int)(seconds / 60)}:{(seconds % 60).ToString("00.0", CultureInfo.InvariantCulture)}";
+
 	private void UpdateKillHUD()
 	{
 		if (_killLabel != null)
@@ -150,7 +168,7 @@ public partial class LevelSkirmish : BaseLevel
 	private void ShowEndScreen()
 	{
 		bool won = _killsRemaining <= 0;
-		if (!won) _resultLabel.Text = "MISSION FAILED\nOUT OF AMMO";
+		_resultLabel.Text = won ? ClearedText() : "MISSION FAILED\nOUT OF AMMO";
 		_freeRoamButton.Visible = won;
 		_restartButton.Visible = !won;
 

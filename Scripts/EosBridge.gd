@@ -16,19 +16,23 @@ const SECRET_PATH := "res://Scripts/EosSecret.gd"
 ## Lobbies are searched by bucket, so only this game's turn up.
 const BUCKET_ID := "ignition-pvp"
 
-## EOS upper-cases attribute keys, so searches only match when we ask for it that way.
-const HOST_KEY := "HOST"
-
 signal became_available()
-## Each entry: {id: String, host: String, players: int}
+## Each entry: {id: String, data: the lobby's attributes, key to value}
 signal lobbies_found(lobbies: Array)
 signal lobby_opened(host_product_user_id: String, is_host: bool)
 signal lobby_failed(reason: String)
 
 var available := false
 
+var _platform_up := false
+
+## EOS calls still waiting for an answer. Shutting the SDK down under one crashes it.
+var _in_flight := 0
+
 var _lobby: HLobby = null
 var _found := {}
+var _pending := {}
+var _publishing := false
 
 
 func _ready() -> void:
@@ -47,6 +51,7 @@ func _ready() -> void:
 	if not await HPlatform.setup_eos_async(creds):
 		print("EosBridge: EOS unavailable")
 		return
+	_platform_up = true
 
 	if not await _login_async():
 		print("EosBridge: EOS login failed")
@@ -57,10 +62,16 @@ func _ready() -> void:
 	became_available.emit()
 
 func _exit_tree() -> void:
-	if not available:
+	if not _platform_up:
 		return
 
+	_platform_up = false
 	available = false
+	# Bounded, so a call that never answers cannot hold the game open.
+	var give_up := Time.get_ticks_msec() + 2000
+	while _in_flight > 0 and Time.get_ticks_msec() < give_up:
+		IEOS.tick()
+		OS.delay_msec(10)
 	EOS.Platform.PlatformInterface.release()
 	EOS.Platform.PlatformInterface.shutdown()
 
@@ -73,14 +84,12 @@ func host_lobby(max_players: int) -> void:
 	opts.bucket_id = BUCKET_ID
 	opts.max_lobby_members = max_players
 
-	var lobby: HLobby = await HLobbies.create_lobby_async(opts)
+	var lobby: HLobby = await _counted(HLobbies.create_lobby_async.bind(opts))
 	if lobby == null:
 		lobby_failed.emit("EOS could not create the lobby")
 		return
 
 	_lobby = lobby
-	lobby.add_attribute(HOST_KEY, _player_name())
-	await lobby.update_async()
 	lobby_opened.emit(HAuth.product_user_id, true)
 
 
@@ -93,7 +102,7 @@ func join_lobby(lobby_id: String) -> void:
 		lobby_failed.emit("that game is gone")
 		return
 
-	var lobby: HLobby = await HLobbies.join_async(found)
+	var lobby: HLobby = await _counted(HLobbies.join_async.bind(found))
 	if lobby == null:
 		lobby_failed.emit("could not join that game")
 		return
@@ -106,19 +115,37 @@ func refresh_lobbies() -> void:
 	if not available:
 		return
 
-	var results = await HLobbies.search_by_bucket_id_async(BUCKET_ID)
+	var results = await _counted(HLobbies.search_by_bucket_id_async.bind(BUCKET_ID))
 	_found.clear()
 	var lobbies := []
 	for lobby in results if results != null else []:
 		_found[lobby.lobby_id] = lobby
-		var host = lobby.get_attribute(HOST_KEY)
-		lobbies.append({
-			id = lobby.lobby_id,
-			host = host.value if host.has("value") else "?",
-			players = lobby.max_members - lobby.available_slots,
-		})
+		var data := {}
+		for attribute in lobby.attributes:
+			data[attribute.key] = str(attribute.value)
+		lobbies.append({id = lobby.lobby_id, data = data})
 
 	lobbies_found.emit(lobbies)
+
+
+## Rewrites the lobby's attributes. Calls that land while an update is still in flight are
+## folded into the next one, so only the latest data goes out.
+func publish(data: Dictionary) -> void:
+	if _lobby == null or not _lobby.is_owner():
+		return
+
+	_pending = data
+	if _publishing:
+		return
+
+	_publishing = true
+	while not _pending.is_empty() and _lobby != null:
+		var next := _pending
+		_pending = {}
+		for key in next:
+			_lobby.add_attribute(key, next[key])
+		await _counted(_lobby.update_async)
+	_publishing = false
 
 
 func leave_lobby() -> void:
@@ -128,9 +155,17 @@ func leave_lobby() -> void:
 	var lobby := _lobby
 	_lobby = null
 	if lobby.is_owner():
-		await lobby.destroy_async()
+		await _counted(lobby.destroy_async)
 	else:
-		await lobby.leave_async()
+		await _counted(lobby.leave_async)
+
+## Runs an EOS call that answers later, counted so that shutting down can wait for it.
+func _counted(call: Callable):
+	_in_flight += 1
+	var result = await call.call()
+	_in_flight -= 1
+	return result
+
 
 func _login_async() -> bool:
 	if await HAuth.login_game_services_async(_login_options()):

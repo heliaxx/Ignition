@@ -18,7 +18,7 @@ public partial class SteamManager : Node
 	private const int ResultOk = 1;
 	private const int JoinedOk = 1;
 
-	public record Lobby(ulong Id, string Host, int Players);
+	public record Lobby(ulong Id, LobbyInfo Info);
 
 	public static SteamManager Instance { get; private set; }
 
@@ -34,6 +34,8 @@ public partial class SteamManager : Node
 
 	private readonly List<Lobby> _lobbies = new();
 	private GodotObject _steam;
+
+	private string _published = "";
 
 	public override void _Ready()
 	{
@@ -68,6 +70,19 @@ public partial class SteamManager : Node
 
 	public string PersonaName => IsAvailable ? _steam.Call("getPersonaName").AsString() : "";
 
+	public override void _Process(double delta)
+	{
+		if (LobbyId == 0 || !NetworkManager.Instance.IsActive || !NetworkManager.Instance.IsServer) return;
+
+		Dictionary<string, string> data = LobbyInfo.Current().ToData();
+		string snapshot = string.Join("\n", data.Values);
+		if (snapshot == _published) return;
+
+		_published = snapshot;
+		foreach (var (key, value) in data)
+			_steam.Call("setLobbyData", LobbyId, key, value);
+	}
+
 	public void HostLobby()
 	{
 		if (!IsAvailable) return;
@@ -99,6 +114,7 @@ public partial class SteamManager : Node
 		if (!IsAvailable || LobbyId == 0) return;
 		_steam.Call("leaveLobby", LobbyId);
 		LobbyId = 0;
+		_published = "";
 	}
 
 	private void OnLobbyCreated(long result, long lobbyId)
@@ -111,7 +127,6 @@ public partial class SteamManager : Node
 
 		LobbyId = (ulong)lobbyId;
 		_steam.Call("setLobbyData", lobbyId, "game", GameTag);
-		_steam.Call("setLobbyData", lobbyId, "host", ConfigFileHandler.Instance.LoadPlayerName());
 
 		NetworkManager.Instance.PeerFactory = new SteamPeerFactory(LobbyId);
 		if (NetworkManager.Instance.Host())
@@ -151,8 +166,7 @@ public partial class SteamManager : Node
 		{
 			long id = entry.AsInt64();
 			_lobbies.Add(new Lobby((ulong)id,
-				_steam.Call("getLobbyData", id, "host").AsString(),
-				_steam.Call("getNumLobbyMembers", id).AsInt32()));
+				LobbyInfo.FromData(key => _steam.Call("getLobbyData", id, key).AsString())));
 		}
 
 		EmitSignal(SignalName.LobbiesFound);

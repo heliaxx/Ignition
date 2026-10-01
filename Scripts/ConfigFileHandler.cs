@@ -64,6 +64,7 @@ public partial class ConfigFileHandler : Node
 	{
 		config.SetValue("controls", "relative_mouse",    DefaultRelativeMouse);
 		config.SetValue("controls", "aim_sensitivity",   DefaultAimSensitivity);
+		config.SetValue("controls", "aim_power_curve",   DefaultAimPowerCurve);
 		config.SetValue("controls", "aim_deadzone",      DefaultAimDeadzone);
 		config.SetValue("controls", "auto_center_speed", DefaultAutoCenterSpeed);
 	}

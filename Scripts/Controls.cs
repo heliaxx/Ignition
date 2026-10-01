@@ -14,9 +14,11 @@ public partial class Controls : Control
 	private AudioStreamPlayer _menuClick;
 	private HSlider aimSensitivitySlider;
 	private HSlider aimDeadzoneSlider;
+	private HSlider aimPowerCurveSlider;
 	private HSlider autoCenterSpeedSlider;
 	private Label aimSensitivityValue;
 	private Label aimDeadzoneValue;
+	private Label aimPowerCurveValue;
 	private Label autoCenterSpeedValue;
 	private OptionButton flightAssistToggleDropdown;
 	private const int FlightAssistToggleOff = 0;
@@ -57,9 +59,11 @@ public partial class Controls : Control
 		ActionList = GetNode<VBoxContainer>(Sections + "KeyboardSettings/KeybindScroll/ActionList");
 		aimSensitivitySlider = GetNode<HSlider>(Sections + "MouseSettings/AimSensitivityRow/AimSensitivitySlider");
 		aimDeadzoneSlider = GetNode<HSlider>(Sections + "MouseSettings/AimDeadzoneRow/AimDeadzoneSlider");
+		aimPowerCurveSlider = GetNode<HSlider>(Sections + "MouseSettings/AimPowerCurveRow/AimPowerCurveSlider");
 		autoCenterSpeedSlider = GetNode<HSlider>(Sections + "MouseSettings/AutoCenterSpeedRow/AutoCenterSpeedSlider");
 		aimSensitivityValue = GetNode<Label>(Sections + "MouseSettings/AimSensitivityRow/AimSensitivityValue");
 		aimDeadzoneValue = GetNode<Label>(Sections + "MouseSettings/AimDeadzoneRow/AimDeadzoneValue");
+		aimPowerCurveValue = GetNode<Label>(Sections + "MouseSettings/AimPowerCurveRow/AimPowerCurveValue");
 		autoCenterSpeedValue = GetNode<Label>(Sections + "MouseSettings/AutoCenterSpeedRow/AutoCenterSpeedValue");
 		flightAssistToggleDropdown = GetNode<OptionButton>(Sections + "FlightSettings/FlightAssistToggleRow/FlightAssistToggleDropdown");
 		flightAssistToggleDropdown.AddItem("Full / Off", FlightAssistToggleOff);
@@ -78,8 +82,9 @@ public partial class Controls : Control
 	{
 		var settings = ConfigFileHandler.Instance.LoadControlSettings();
 
-		aimSensitivitySlider.Value = settings.ContainsKey("aim_sensitivity") ? settings["aim_sensitivity"].AsSingle() : 1.2f;
+		aimSensitivitySlider.Value = settings.ContainsKey("aim_sensitivity") ? settings["aim_sensitivity"].AsSingle() : 0.5f;
 		aimDeadzoneSlider.Value = settings.ContainsKey("aim_deadzone") ? settings["aim_deadzone"].AsSingle() : 0.05f;
+		aimPowerCurveSlider.Value = settings.ContainsKey("aim_power_curve") ? settings["aim_power_curve"].AsSingle() : 2.0f;
 		autoCenterSpeedSlider.Value = settings.ContainsKey("auto_center_speed") ? settings["auto_center_speed"].AsSingle() : 8.0f;
 		bool partial = settings.ContainsKey("toggle_partial") && settings["toggle_partial"].AsBool();
 		flightAssistToggleDropdown.Select(partial ? FlightAssistTogglePartial : FlightAssistToggleOff);
@@ -93,6 +98,7 @@ public partial class Controls : Control
 	{
 		aimSensitivitySlider.ValueChanged += OnAimSensitivityChanged;
 		aimDeadzoneSlider.ValueChanged += OnAimDeadzoneChanged;
+		aimPowerCurveSlider.ValueChanged += OnAimPowerCurveChanged;
 		autoCenterSpeedSlider.ValueChanged += OnAutoCenterSpeedChanged;
 		flightAssistToggleDropdown.ItemSelected += OnFlightAssistToggleSelected;
 		flightAssistModeDropdown.ItemSelected += OnFlightAssistModeSelected;
@@ -122,6 +128,12 @@ public partial class Controls : Control
 		UpdateMouseSettingsUi();
 	}
 
+	private void OnAimPowerCurveChanged(double value)
+	{
+		ConfigFileHandler.Instance.SaveControlSettings("aim_power_curve", (float)value);
+		UpdateMouseSettingsUi();
+	}
+
 	private void OnAutoCenterSpeedChanged(double value)
 	{
 		ConfigFileHandler.Instance.SaveControlSettings("auto_center_speed", (float)value);
@@ -132,6 +144,7 @@ public partial class Controls : Control
 	{
 		aimSensitivityValue.Text = aimSensitivitySlider.Value.ToString("0.00");
 		aimDeadzoneValue.Text = aimDeadzoneSlider.Value.ToString("0.000");
+		aimPowerCurveValue.Text = aimPowerCurveSlider.Value.ToString("0.0");
 		autoCenterSpeedValue.Text = autoCenterSpeedSlider.Value.ToString("0.0");
 	}
 

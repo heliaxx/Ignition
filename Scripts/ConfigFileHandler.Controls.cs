@@ -5,7 +5,9 @@ using System.Collections.Generic;
 public partial class ConfigFileHandler
 {
 	private const bool  DefaultRelativeMouse   = true;
-	private const float DefaultAimSensitivity  = 1.2f;
+	// About 6 mm of hand travel to full deflection with a 1200 DPI mouse.
+	private const float DefaultAimSensitivity  = 0.5f;
+	private const float DefaultAimPowerCurve   = 2.0f;
 	private const float DefaultAimDeadzone     = 0.05f;
 	private const float DefaultAutoCenterSpeed = 8.0f;
 	private const bool  DefaultThrottleMode    = false;
@@ -38,6 +40,7 @@ public partial class ConfigFileHandler
 	{
 		config.SetValue("controls", "relative_mouse",    DefaultRelativeMouse);
 		config.SetValue("controls", "aim_sensitivity",   DefaultAimSensitivity);
+		config.SetValue("controls", "aim_power_curve",   DefaultAimPowerCurve);
 		config.SetValue("controls", "aim_deadzone",      DefaultAimDeadzone);
 		config.SetValue("controls", "auto_center_speed", DefaultAutoCenterSpeed);
 		config.SetValue("controls", "throttle_mode", DefaultThrottleMode);
@@ -58,6 +61,7 @@ public partial class ConfigFileHandler
 		}
 		Ensure("controls", "relative_mouse",    DefaultRelativeMouse);
 		Ensure("controls", "aim_sensitivity",   DefaultAimSensitivity);
+		Ensure("controls", "aim_power_curve",   DefaultAimPowerCurve);
 		Ensure("controls", "aim_deadzone",      DefaultAimDeadzone);
 		Ensure("controls", "auto_center_speed", DefaultAutoCenterSpeed);
 		Ensure("controls", "throttle_mode", DefaultThrottleMode);

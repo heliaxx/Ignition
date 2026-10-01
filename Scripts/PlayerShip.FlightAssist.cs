@@ -174,9 +174,8 @@ public partial class PlayerShip
 		Velocity = Transform.Basis * after;
 	}
 
-	// Pitch and yaw intent as a share of full deflection. It peaks at the base mouse sensitivity
-	// scaled by the pilot's own, so a higher sensitivity reaches full deflection short of the
-	// aim circle's edge. Assisted or not, full deflection spends the same angular thrust.
+	// Pitch and yaw intent as a share of full deflection, which the widget reaches at the aim
+	// circle's edge. Assisted or not, full deflection spends the same angular thrust.
 	private static float AimDeflection(float aim) =>
 		Mathf.Clamp(aim / MOUSE_SENSITIVITY, -1.0f, 1.0f);
 

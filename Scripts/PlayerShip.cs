@@ -25,7 +25,10 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 	[ExportGroup("Aim")]
 	[Export] public float AimRadius = 100.0f;
 	[Export] public float AimDeadzone = 0.05f;
-	[Export] public float AimSensitivity = 1.2f;
+	[Export] public float AimSensitivity = 0.5f;
+	// Exponent on the widget's distance from centre: 1 is linear, higher calms small offsets
+	// while the edge still turns at full rate.
+	[Export] public float AimPowerCurve = 2.0f;
 	[Export] public bool AutoCenterCursor = true;
 	[Export] public float AutoCenterDelay = 0f;
 	[Export] public float AutoCenterSpeed = 8.0f;
@@ -192,6 +195,8 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		var settings = ConfigFileHandler.Instance.LoadControlSettings();
 		if (settings.ContainsKey("aim_sensitivity"))
 			AimSensitivity = settings["aim_sensitivity"].AsSingle();
+		if (settings.ContainsKey("aim_power_curve"))
+			AimPowerCurve = settings["aim_power_curve"].AsSingle();
 		if (settings.ContainsKey("aim_deadzone"))
 			AimDeadzone = settings["aim_deadzone"].AsSingle();
 		if (settings.ContainsKey("auto_center_speed"))
@@ -334,7 +339,8 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 				widgetCursorInitialized = true;
 			}
 
-			widgetCursor += mouseEvent.Relative;
+			// Sensitivity is how fast the widget travels; where it sits alone decides the turn.
+			widgetCursor += mouseEvent.Relative * AimSensitivity;
 			Vector2 center = GetViewport().GetVisibleRect().Size / 2.0f;
 			Vector2 offset = widgetCursor - center;
 			if (offset.Length() > AimRadius)
@@ -545,8 +551,10 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		}
 		else
 		{
-			aimTargetYaw = -Mathf.Clamp(norm.X, -1.0f, 1.0f) * MOUSE_SENSITIVITY * AimSensitivity;
-			aimTargetPitch = Mathf.Clamp(-norm.Y, -1.0f, 1.0f) * MOUSE_SENSITIVITY * AimSensitivity;
+			// Curved on the distance, not per axis, so a diagonal offset keeps its direction.
+			Vector2 shaped = norm * Mathf.Pow(mag, AimPowerCurve - 1.0f);
+			aimTargetYaw = -Mathf.Clamp(shaped.X, -1.0f, 1.0f) * MOUSE_SENSITIVITY;
+			aimTargetPitch = Mathf.Clamp(-shaped.Y, -1.0f, 1.0f) * MOUSE_SENSITIVITY;
 		}
 
 		aimYaw = Mathf.Lerp(aimYaw, aimTargetYaw, AIM_RESPONSIVENESS * delta);

@@ -1,35 +1,62 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://bv3ecrco5psf3"]
 
-[ext_resource type="Script" path="res://Scripts/Scoreboard.cs" id="1_script"]
+[ext_resource type="Script" uid="uid://dcehnitcwemfn" path="res://Scripts/Scoreboard.cs" id="1_script"]
+[ext_resource type="Shader" uid="uid://bpw1j1bra6qns" path="res://Shaders/Blur.gdshader" id="2_blur"]
 
-[node name="Scoreboard" type="CanvasLayer"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fog"]
+shader = ExtResource("2_blur")
+shader_parameter/blur = 0.0
+shader_parameter/brightness = 1.0
+
+[node name="Scoreboard" type="CanvasLayer" unique_id=1419453218]
 layer = 2
 script = ExtResource("1_script")
 
-[node name="Panel" type="PanelContainer" parent="."]
+[node name="Fog" type="ColorRect" parent="." unique_id=445340787]
+visible = false
+material = SubResource("ShaderMaterial_fog")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="." unique_id=1650900068]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
+offset_left = -500.0
+offset_top = -200.0
+offset_right = 500.0
+offset_bottom = 200.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Layout" type="VBoxContainer" parent="Panel"]
+[node name="Margin" type="MarginContainer" parent="Panel" unique_id=922228529]
+layout_mode = 2
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 36
+
+[node name="Layout" type="VBoxContainer" parent="Panel/Margin" unique_id=834760813]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="Title" type="Label" parent="Panel/Layout"]
+[node name="Title" type="Label" parent="Panel/Margin/Layout" unique_id=1897760280]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_font_sizes/font_size = 40
 text = "SCOREBOARD"
 horizontal_alignment = 1
 
-[node name="Rows" type="VBoxContainer" parent="Panel/Layout"]
+[node name="Rows" type="VBoxContainer" parent="Panel/Margin/Layout" unique_id=2114699839]
 custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 
-[node name="LeaveButton" type="Button" parent="Panel/Layout"]
+[node name="LeaveButton" type="Button" parent="Panel/Margin/Layout" unique_id=1319703017]
 layout_mode = 2
 mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 30
 text = "LEAVE MATCH"

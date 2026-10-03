@@ -7,8 +7,8 @@
 render_priority = 0
 shader = ExtResource("2_bullet")
 shader_parameter/base_color = Color(1, 0.83, 0.48, 1)
-shader_parameter/emission_strength = 400.0
-shader_parameter/inflate_amount = 0.02
+shader_parameter/emission_strength = 200.0
+shader_parameter/inflate_amount = 0.015
 shader_parameter/near_dim_floor = 0.05
 shader_parameter/near_dim_distance = 200.0
 
@@ -46,6 +46,56 @@ scale_max = 0.5
 radius = 0.2
 height = 0.4
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spark"]
+albedo_color = Color(1, 0.92, 0.75, 1)
+emission_enabled = true
+emission = Color(1, 0.9, 0.65, 1)
+emission_energy_multiplier = 70.0
+
+[sub_resource type="Curve" id="Curve_shrink"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_shrink"]
+curve = SubResource("Curve_shrink")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_sparks"]
+particle_flag_align_y = true
+direction = Vector3(0, 0, 1)
+spread = 70.0
+initial_velocity_min = 20.0
+initial_velocity_max = 45.0
+gravity = Vector3(0, 0, 0)
+damping_min = 20.0
+damping_max = 40.0
+scale_min = 0.6
+scale_max = 1.2
+scale_curve = SubResource("CurveTexture_shrink")
+
+[sub_resource type="BoxMesh" id="BoxMesh_spark"]
+size = Vector3(0.05, 0.9, 0.05)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flash"]
+albedo_color = Color(1, 0.95, 0.85, 1)
+emission_enabled = true
+emission = Color(1, 0.88, 0.6, 1)
+emission_energy_multiplier = 25.0
+
+[sub_resource type="Curve" id="Curve_flash"]
+_data = [Vector2(0, 0.4), 0.0, 0.0, 0, 0, Vector2(0.25, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_flash"]
+curve = SubResource("Curve_flash")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_flash"]
+gravity = Vector3(0, 0, 0)
+scale_curve = SubResource("CurveTexture_flash")
+
+[sub_resource type="SphereMesh" id="SphereMesh_flash"]
+radius = 0.35
+height = 0.7
+
 [node name="Bullet" type="Node3D" unique_id=1638792574]
 script = ExtResource("1_xjght")
 
@@ -61,11 +111,35 @@ mesh = SubResource("CapsuleMesh_feq03")
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0, 1)
 material_override = SubResource("StandardMaterial3D_q7uhu")
 emitting = false
-amount = 16
+amount = 10
 lifetime = 1.5
 one_shot = true
 speed_scale = 4.0
 explosiveness = 1.0
 randomness = 0.4
+local_coords = true
 process_material = SubResource("ParticleProcessMaterial_ioxm1")
 draw_pass_1 = SubResource("SphereMesh_ulyuc")
+
+[node name="HullSparks" type="GPUParticles3D" parent="." unique_id=125919960]
+material_override = SubResource("StandardMaterial3D_spark")
+emitting = false
+amount = 28
+lifetime = 0.35
+one_shot = true
+explosiveness = 1.0
+randomness = 0.3
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_sparks")
+draw_pass_1 = SubResource("BoxMesh_spark")
+
+[node name="HitFlash" type="GPUParticles3D" parent="." unique_id=1042452188]
+material_override = SubResource("StandardMaterial3D_flash")
+emitting = false
+amount = 1
+lifetime = 0.12
+one_shot = true
+explosiveness = 1.0
+local_coords = true
+process_material = SubResource("ParticleProcessMaterial_flash")
+draw_pass_1 = SubResource("SphereMesh_flash")

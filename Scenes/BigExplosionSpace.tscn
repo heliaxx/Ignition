@@ -1,8 +1,9 @@
-[gd_scene load_steps=24 format=3 uid="uid://duvmffx5gj5xg"]
+[gd_scene load_steps=25 format=3 uid="uid://duvmffx5gj5xg"]
 
 [ext_resource type="Material" uid="uid://hgi0nqa0v3vb" path="res://Resources/Materials/ExplosionCloudMaterial.tres" id="1_cloud"]
 [ext_resource type="Material" uid="uid://bpmnxqfygods0" path="res://Resources/Materials/ExplosionStreakMaterial.tres" id="2_streak"]
 [ext_resource type="Material" path="res://Resources/Materials/ExplosionFlareMaterial.tres" id="3_flare"]
+[ext_resource type="AudioStream" uid="uid://bpsq1cb2gvun2" path="res://Imports/Sounds/Combat/244394__werra__bangexplosion-metallic.wav" id="4_destroyed"]
 
 [sub_resource type="Gradient" id="Grad_cloud"]
 offsets = PackedFloat32Array(0, 0.15, 0.5, 1)
@@ -197,3 +198,9 @@ libraries = {
 &"": SubResource("AnimLib")
 }
 autoplay = "explode_space"
+
+[node name="DestroyedSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("4_destroyed")
+unit_size = 100.0
+max_db = 0.0
+bus = &"SFX"

@@ -50,7 +50,8 @@ public partial class Controls : Control
 		{ "camera_switch", "Switch camera" },
 		{ "target_cycle", "Select target ahead" },
 		{ "target_cycle_all", "Cycle targets" },
-		{ "free_look", "Look around" }
+		{ "free_look", "Look around" },
+		{ "scoreboard", "Scoreboard" }
 	};
 
 	public override void _Ready()

@@ -7,7 +7,8 @@ public static class Explosion
 
     private static PackedScene _scene;
 
-    public static void SpawnAt(Node context, Vector3 worldPos, float scale = 1.0f)
+    // The destroyed sound is opt-in: missiles blast with this too but carry their own sound.
+    public static void SpawnAt(Node context, Vector3 worldPos, float scale = 1.0f, bool shipDestroyed = false)
     {
         _scene ??= GD.Load<PackedScene>(ScenePath);
         if (_scene == null || context == null) return;
@@ -21,6 +22,8 @@ public static class Explosion
         explosion.GlobalPosition = worldPos;
         if (!Mathf.IsEqualApprox(scale, 1.0f))
             explosion.Scale = Vector3.One * scale;
+        if (shipDestroyed)
+            explosion.GetNode<AudioStreamPlayer3D>("DestroyedSound").Play();
 
         context.GetTree().CreateTimer(Lifetime).Timeout += () =>
         {

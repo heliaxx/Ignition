@@ -35,7 +35,19 @@ public partial class LevelDeathmatch : BaseLevel
 		_startOrder = ShuffledSpawnPoints(MatchManager.Instance.SpawnSeed);
 		Player.GlobalTransform = StartTransform(NetworkManager.Instance.LocalPeerId);
 		SpawnRemoteShips();
+
+		MatchManager.Instance.MatchEnded += OnMatchEnded;
 	}
+
+	// MatchManager outlives this level, so its signal must not keep pointing here.
+	public override void _ExitTree()
+	{
+		if (MatchManager.Instance != null)
+			MatchManager.Instance.MatchEnded -= OnMatchEnded;
+	}
+
+	// Every machine parks the ship it flies; the others stop with it through the usual sync.
+	private void OnMatchEnded(int winnerId) => PlayerShip?.Park();
 
 	private void SpawnRemoteShips()
 	{

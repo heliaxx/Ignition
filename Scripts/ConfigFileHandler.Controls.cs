@@ -34,6 +34,7 @@ public partial class ConfigFileHandler
 		{ "target_cycle",    "T"       },
 		{ "target_cycle_all", "F"      },
 		{ "free_look",       "mouse_3" },
+		{ "scoreboard",      "F1"      },
 	};
 
 	public void ResetControlSettings()

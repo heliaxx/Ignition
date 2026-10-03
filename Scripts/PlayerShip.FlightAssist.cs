@@ -56,12 +56,12 @@ public partial class PlayerShip
 		WriteAssist(ref input);
 	}
 
-	// Hands off the controls: in throttle mode the lever stays where it was left.
 	private ShipInput HandsOffInput()
 	{
 		if (!_throttleMode) _throttleLever = 0.0f;
 		ShipInput input = default;
 		WriteAssist(ref input);
+		input.Stop = _parked;
 		return input;
 	}
 

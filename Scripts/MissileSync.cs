@@ -53,10 +53,10 @@ public partial class MissileSync : Node
 		_owned[seq] = missile;
 		// Detonation ends the copy; TreeExiting covers the missile that expires without ever
 		// hitting anything. ReportDespawn ignores the second of the two.
-		missile.Detonated += at => ReportDespawn(seq, at);
+		missile.Detonated += at => ReportDespawn(seq, at, detonated: true);
 		// TreeExiting, not TreeExited: the position has to be read while the node is still
 		// in the tree.
-		missile.TreeExiting += () => ReportDespawn(seq, missile.GlobalPosition);
+		missile.TreeExiting += () => ReportDespawn(seq, missile.GlobalPosition, detonated: false);
 
 		if (NetworkManager.Instance.IsServer)
 			Rpc(MethodName.SpawnCopy, NetworkManager.Instance.LocalPeerId, seq, spawn);
@@ -74,15 +74,15 @@ public partial class MissileSync : Node
 		}
 	}
 
-	private void ReportDespawn(int seq, Vector3 at)
+	private void ReportDespawn(int seq, Vector3 at, bool detonated)
 	{
 		if (!_owned.Remove(seq)) return;
 		if (!NetworkManager.Instance.IsActive) return;
 
 		if (NetworkManager.Instance.IsServer)
-			Rpc(MethodName.DespawnCopy, NetworkManager.Instance.LocalPeerId, seq, at);
+			Rpc(MethodName.DespawnCopy, NetworkManager.Instance.LocalPeerId, seq, at, detonated);
 		else
-			RpcId(1, MethodName.SubmitDespawn, seq, at);
+			RpcId(1, MethodName.SubmitDespawn, seq, at, detonated);
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -127,8 +127,8 @@ public partial class MissileSync : Node
 		Rpc(MethodName.ApplyState, Multiplayer.GetRemoteSenderId(), seq, state);
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	private void SubmitDespawn(int seq, Vector3 at) =>
-		Rpc(MethodName.DespawnCopy, Multiplayer.GetRemoteSenderId(), seq, at);
+	private void SubmitDespawn(int seq, Vector3 at, bool detonated) =>
+		Rpc(MethodName.DespawnCopy, Multiplayer.GetRemoteSenderId(), seq, at, detonated);
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	private void SpawnCopy(int owner, int seq, Transform3D spawn)
@@ -159,14 +159,13 @@ public partial class MissileSync : Node
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	private void DespawnCopy(int owner, int seq, Vector3 at)
+	private void DespawnCopy(int owner, int seq, Vector3 at, bool detonated)
 	{
 		if (!_remotes.Remove((owner, seq), out Remote remote)) return;
 		if (!IsInstanceValid(remote.Missile)) return;
 
-		// The copy never detonated, so it plays the blast rather than the launcher's full
-		// impact sequence.
-		Explosion.SpawnAt(remote.Missile, at);
-		remote.Missile.Vanish();
+		// A missile that expired disappears, as it did for its owner.
+		if (detonated) remote.Missile.DetonateCopy(at);
+		else remote.Missile.Vanish();
 	}
 }

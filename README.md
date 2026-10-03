@@ -1,15 +1,16 @@
 # Ignition
 
 A 3D space combat game built with **Godot 4**. Fly a fully Newtonian
-6-DOF fighter through asteroid fields, dogfight AI enemies (and in future other players!)
+6-DOF fighter through asteroid fields, dogfight AI enemies or other players
 and race through checkpoints - in your cockpit or from a cinematic external view.
 
 ## Game modes
 
 - **Free Flight** - open sandbox with station, asteroid fields and unlimited ammo.
 - **Rush** - high-speed scoring run: chase rings through a dense, endless asteroid field.
-- **Waves** - survive escalating waves of enemy fighters.
-- **Skirmish** -  Attack on a squadron of enemy fighters guarding their base.
+- **Waves** - survive escalating waves of enemy fighters; scored by kills.
+- **Skirmish** - attack a squadron of enemy fighters guarding their base; scored by how fast you take care of them.
+- **Multiplayer deathmatch** - up to 12 player lobbies. The host picks a networking option, and sets kill (5-25) and time limits (5-20 min). When all players ready up, he can start the game.
 
 ## Features
 
@@ -19,7 +20,8 @@ and race through checkpoints - in your cockpit or from a cinematic external view
 - **Targeting** - target cycling, missile lock-on with gimbal-cone lock timer, lead indicator for guns.
 - **AI opponents** - complex-behavior fighters (pursue, evade, orbit, joust, flee) with obstacle avoidance.
 - **Procedural world** - Endless asteroid field realised with Poisson Disc Sampling, GPU instancing , destructible asteroids, and priority chunk loading for maximum performance and immersion.
-- **Settings** - rebindable controls, graphics options (window mode, resolution, render scale, AntiAliasing, VSync etc.), and audio volumes; persistent in a `user://settings.ini`.
+- **Multiplayer** - server-authoritative netcode with a lobby browser. Lobbies run over **Steam** or **Epic Online Services (EOS)**. You can also host and join directly over IP (ENET, port 30500).
+- **Settings** - rebindable controls, mouse and flight assist options, graphics options (window mode, resolution, render scale, AntiAliasing, VSync etc.), and audio volumes - all persistent in `user://settings.ini`.
 
 ## Default controls
 
@@ -36,9 +38,12 @@ and race through checkpoints - in your cockpit or from a cinematic external view
 | `X` | Relative mouse on / off (aim cursor re-centres or stays put) |
 | Left mouse | Fire gatling |
 | Right mouse | Fire missile |
-| `T` | Cycle target |
+| Middle mouse (hold) | Look around |
+| `T` | Select target ahead |
+| `F` | Cycle targets |
 | `C` | Switch camera (cockpit / external) |
 | `L` | Toggle lights |
+| `F1` (hold) | Scoreboard (multiplayer) |
 | `Esc` | Pause menu |
 
 Controls are rebindable in **Options -> Controls**.
@@ -50,15 +55,28 @@ Controls are rebindable in **Options -> Controls**.
 3. Build the C# solution (Godot prompts on first run, or use `dotnet build Ignition.csproj`).
 4. Run with <kbd>F5 / Launch project</kbd>.
 
+Multiplayer transports:
+
+- **ENET** (direct IP) always works.
+- **Steam** lobbies appear when the Steam client is running.
+- **EOS** lobbies need the EOS client secret, which is not in the repository. Put it in an untracked `Scripts/EosSecret.gd`:
+
+  ```gdscript
+  const CLIENT_SECRET := "your-client-secret"
+  ```
+
+  Without it, the game runs normally and simply does not offer EOS option.
+
 ## Project layout
 
 ```
 Scenes/     Game scenes (levels, menus, ships, weapons, structures)
-Scripts/    C# Game code
-States/     AI Enemies state machine
+Scripts/    Game code (mainly C#)
+States/     NPC state machine
 Shaders/    Visual shaders
+Resources/  Shared materials and collision shapes
 Imports/    Third-party models, textures, sounds, fonts etc.
-addons/     Godot addons if any in use
+addons/     Current Godot addons: GodotSteam and Epic Online Services
 ```
 
 ## License

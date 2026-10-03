@@ -22,8 +22,35 @@ public partial class PlayerShip
     [Export] public int GatlingAmmo = 800;
 
     private GatlingWeapon[] _gatlings = Array.Empty<GatlingWeapon>();
+    private const float HitSoundGap = 0.0f;
+    private float _sinceHitSound = HitSoundGap;
+
+    // A gatling lands many rounds a second and the impact rings on for a second, so they are spaced out.
+    private const float StruckSoundGap = 0.12f;
+    private float _sinceStruckSound = StruckSoundGap;
 
     private bool UnlimitedAmmo => _gatlings.Length > 0 && _gatlings[0].UnlimitedAmmo;
+
+    // One of this ship's bullets struck another ship. Played to the pilot alone, as a confirmation
+    // that carries at any range.
+    public void ConfirmHit(Node3D target)
+    {
+        if (!IsLocallyControlled || target is not (Fighter or PlayerShip)) return;
+        if (_hitSound == null || _sinceHitSound < HitSoundGap) return;
+
+        _sinceHitSound = 0f;
+        _hitSound.PitchScale = (float)GD.RandRange(0.92, 1.08);
+        _hitSound.Play();
+    }
+
+    public void StruckByBullet()
+    {
+        if (!IsLocallyControlled || _struckSound == null || _sinceStruckSound < StruckSoundGap) return;
+
+        _sinceStruckSound = 0f;
+        _struckSound.PitchScale = (float)GD.RandRange(0.9, 1.1);
+        _struckSound.Play();
+    }
     private int _currentAmmo  => _gatlings.Sum(gun => gun.CurrentAmmo);
 
     // Nothing left to shoot with: every gun dry and no missiles.

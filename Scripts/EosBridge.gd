@@ -160,9 +160,9 @@ func leave_lobby() -> void:
 		await _counted(lobby.leave_async)
 
 ## Runs an EOS call that answers later, counted so that shutting down can wait for it.
-func _counted(call: Callable):
+func _counted(request: Callable):
 	_in_flight += 1
-	var result = await call.call()
+	var result = await request.call()
 	_in_flight -= 1
 	return result
 

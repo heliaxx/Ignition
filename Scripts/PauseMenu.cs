@@ -52,7 +52,10 @@ public partial class PauseMenu : ColorRect
 		animator.Play("Unpause");
 		GetTree().Paused = false;
 		if (LocalShip != null) LocalShip.InputSuspended = false;
-		Input.MouseMode = Input.MouseModeEnum.Captured;
+		// A ship parked at the end of a match stays suspended and leaves the cursor to the scoreboard.
+		Input.MouseMode = LocalShip is { InputSuspended: true }
+			? Input.MouseModeEnum.Visible
+			: Input.MouseModeEnum.Captured;
 		SetProcess(false);
 		Visible = false;
 	}

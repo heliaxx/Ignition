@@ -7,13 +7,13 @@
 [ext_resource type="PackedScene" uid="uid://brlfy145vlmbn" path="res://Scenes/GatlingWeapon.tscn" id="5_gatling"]
 [ext_resource type="PackedScene" uid="uid://d0x8ba3p47i5m" path="res://Scenes/Bullet.tscn" id="6_bullet"]
 [ext_resource type="PackedScene" uid="uid://d3whxnv6xs53i" path="res://Scenes/CockpitReadout.tscn" id="7_readout"]
-[ext_resource type="PackedScene" uid="uid://b31csx7lnt5jb" path="res://Scenes/DustParticles.tscn" id="8_dust"]
+[ext_resource type="PackedScene" uid="uid://b31csx7lnt5jb" path="res://Scenes/dustParticles.tscn" id="8_dust"]
 [ext_resource type="PackedScene" uid="uid://cu2tlich0yrj7" path="res://Scenes/CockpitHUD.tscn" id="9_hud"]
 [ext_resource type="Script" uid="uid://bdgluvaq1xpbk" path="res://Scripts/HealthComponent.cs" id="10_health"]
 [ext_resource type="PackedScene" uid="uid://086mbplltvr6" path="res://Scenes/DeathScreen.tscn" id="11_death"]
 [ext_resource type="Script" uid="uid://b6pqt1p3yf8sg" path="res://Scripts/FreeLook.cs" id="12_look"]
 [ext_resource type="PackedScene" uid="uid://yvagcpnbd5be" path="res://Scenes/Light.tscn" id="13_light"]
-[ext_resource type="PackedScene" path="res://Scenes/CockpitBar.tscn" id="14_bar"]
+[ext_resource type="PackedScene" uid="uid://djwlk8w3lms7i" path="res://Scenes/CockpitBar.tscn" id="14_bar"]
 [ext_resource type="PackedScene" uid="uid://fwtipcqqy2mu" path="res://Scenes/CockpitRadar.tscn" id="15_radar"]
 [ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull01.tres" id="20_hull01"]
 [ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull02.tres" id="20_hull02"]
@@ -27,6 +27,12 @@
 [ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull10.tres" id="20_hull10"]
 [ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull11.tres" id="20_hull11"]
 [ext_resource type="Shape3D" path="res://Resources/Collision/BengalHull12.tres" id="20_hull12"]
+[ext_resource type="AudioStream" uid="uid://b6urpqijk3f25" path="res://Imports/Sounds/Combat/impactMetal_002.ogg" id="21_hitsound"]
+[ext_resource type="AudioStream" uid="uid://b3rn20cmrjyxd" path="res://Imports/Sounds/Engine/584181__unfa__thrust-loop.wav" id="22_engine"]
+[ext_resource type="AudioStream" uid="uid://d07w13wbr5aut" path="res://Imports/Sounds/Engine/774270__thelittlecrow__rocket-launch-boost-and-burning-version-b_crackle_loop.wav" id="23_crackle"]
+[ext_resource type="AudioStream" uid="uid://boorcnmmcy4j6" path="res://Imports/Sounds/Engine/273357__profmegavolt__hyperdrive-sound-effect-1_boost.wav" id="24_boost"]
+[ext_resource type="AudioStream" uid="uid://dl22dspn0ik6b" path="res://Imports/Sounds/Engine/273357__profmegavolt__hyperdrive-sound-effect-1_boost_end.wav" id="25_boost_end"]
+[ext_resource type="AudioStream" uid="uid://dno3o855ksmis" path="res://Imports/Sounds/Combat/157609__qubodup__hollow-bang.wav" id="26_struck"]
 
 [node name="PlayerShip" type="CharacterBody3D" unique_id=1409995575 groups=["Player"]]
 script = ExtResource("1_ship")
@@ -127,12 +133,12 @@ transform = Transform3D(0.16891447, -0.03458704, 0.058273617, 0.011828488, 0.169
 Title = ""
 
 [node name="SpeedBar" parent="." unique_id=699686121 instance=ExtResource("14_bar")]
-transform = Transform3D(0.16743131, 0.035824552, -0.061705172, -0.01182848, 0.16915499, 0.0661117, 0.07036364, -0.05680921, 0.15794204, 0.5916213, -0.3173242, -4.5546295)
+transform = Transform3D(0.16743131, 0.035824552, -0.061705172, -0.01182848, 0.16915499, 0.0661117, 0.07036364, -0.05680921, 0.15794204, 0.5916213, -0.3173242, -4.5546293)
 Title = "SPEED"
 TitleAlignment = 0
 
 [node name="HealthBar" parent="." unique_id=233706102 instance=ExtResource("14_bar")]
-transform = Transform3D(0.1677242, 0.03558656, -0.06104384, -0.011828485, 0.16915499, 0.06611169, 0.06966253, -0.056958597, 0.1581988, 0.5741229, -0.4109107, -4.5250946)
+transform = Transform3D(0.1677242, 0.03558656, -0.06104384, -0.011828485, 0.16915499, 0.06611169, 0.06966253, -0.056958597, 0.1581988, 0.5741229, -0.4109107, -4.5250945)
 Title = "HEALTH"
 
 [node name="AmmoReadout" parent="." unique_id=1682387511 instance=ExtResource("7_readout")]
@@ -158,6 +164,40 @@ transform = Transform3D(1, 0, 0, 0, 0.941129, 0.338046, 0, -0.338046, 0.941129, 
 transform = Transform3D(0, 0, 1, 1, -4.37114e-08, 0, 4.37114e-08, 1, 0, 0, -2.1265, -17.203)
 
 [node name="HUD" parent="." unique_id=382321980 instance=ExtResource("9_hud")]
+
+[node name="HitSound" type="AudioStreamPlayer" parent="." unique_id=1087976558]
+stream = ExtResource("21_hitsound")
+volume_db = 2.0
+max_polyphony = 4
+bus = &"SFX"
+
+[node name="StruckSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("26_struck")
+volume_db = -4.0
+max_polyphony = 3
+bus = &"SFX"
+
+[node name="RamSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("26_struck")
+bus = &"SFX"
+
+[node name="EngineSound" type="AudioStreamPlayer" parent="." unique_id=2029500269]
+stream = ExtResource("22_engine")
+bus = &"SFX"
+
+[node name="EngineCrackle" type="AudioStreamPlayer" parent="." unique_id=15164035]
+stream = ExtResource("23_crackle")
+bus = &"SFX"
+
+[node name="BoostSound" type="AudioStreamPlayer" parent="." unique_id=899373725]
+stream = ExtResource("24_boost")
+volume_db = -8.0
+bus = &"SFX"
+
+[node name="BoostEndSound" type="AudioStreamPlayer" parent="." unique_id=1729198656]
+stream = ExtResource("25_boost_end")
+volume_db = -8.0
+bus = &"SFX"
 
 [node name="HealthComponent" type="Node" parent="." unique_id=1650153027]
 script = ExtResource("10_health")

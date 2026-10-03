@@ -14,6 +14,9 @@ public static class Ramming
 		// A missile deals its own impact damage.
 		if (other is FlightModelMissile || closingSpeed <= threshold) return;
 
+		(rammer as PlayerShip)?.Rammed();
+		(other as PlayerShip)?.Rammed();
+
 		float damage = (closingSpeed - threshold) * multiplier;
 		if (IsShip(other))
 			DamageManager.Instance.ReportRam(rammer, other, damage);

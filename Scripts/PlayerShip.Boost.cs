@@ -9,8 +9,8 @@ public partial class PlayerShip
 	[Export] public float BoostDuration = 3.0f;
 	[Export] public float BoostCooldown = 1.0f;
 	// Seconds between pressing boost button and the boost actually starting
-	[Export] public float BoostDelay = 0.8f;
-	[Export] public float BoostSpoolUpTime = 0.3f;
+	[Export] public float BoostDelay = 0.6f;
+	[Export] public float BoostSpoolUpTime = 0.5f;
 	[Export] public float BoostDecayTime = 1.5f;
 
 	private bool _isBoostCharging = false;
@@ -39,6 +39,27 @@ public partial class PlayerShip
 	{
 		_isBoostCharging = true;
 		_boostChargeTimer = BoostDelay;
+		// Windup peaks as the boost reaches full power after
+		// BoostDelay and BoostSpoolUpTime.
+		_boostSound?.Play();
+		FadeOutBoostEndSound();
+	}
+
+	private const float BoostEndFadeTime = 0.15f;
+
+	// A boost can start again while the last one's wind-down still plays; the new windup takes over.
+	private void FadeOutBoostEndSound()
+	{
+		if (_boostEndSound is not { Playing: true }) return;
+
+		float volume = _boostEndSound.VolumeDb;
+		Tween fade = CreateTween();
+		fade.TweenProperty(_boostEndSound, "volume_db", -60.0f, BoostEndFadeTime);
+		fade.TweenCallback(Callable.From(() =>
+		{
+			_boostEndSound.Stop();
+			_boostEndSound.VolumeDb = volume;
+		}));
 	}
 
 	private void ProcessBoost(float delta)
@@ -79,6 +100,7 @@ public partial class PlayerShip
 				_boostDecayTimer = BoostDecayTime;
 				_boostCooldownTimer = BoostCooldown;
 				_speedAtBoostEnd = Velocity.Length();
+				_boostEndSound?.Play();
 			}
 		}
 

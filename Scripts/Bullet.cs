@@ -23,6 +23,18 @@ public partial class Bullet : Node3D
 	private MeshInstance3D mesh;
 	private RayCast3D ray;
 	private GpuParticles3D particles;
+	private GpuParticles3D hullSparks;
+	private GpuParticles3D hitFlash;
+
+	// An impact is drawn at its own size up to this camera distance and grown beyond it, by
+	// (distance / start distance) ^ exponent. An exponent of 0 never grows it, 1 holds its size on screen.
+	private const float ScalingStartDistance = 100f;
+	private const float HullSparksScaleExponent = 0.60f;
+	private const float ParticlesScaleExponent = 0.40f;
+	private const float ImpactMaxScale = 12f;
+	// The pilot in a ship that's been hit sits right behind the impact, where the full burst would blind them, so hits
+	// on their own ship are drawn at this scale and without flash.
+	private const float OwnShipImpactScale = 0.2f;
 
 	public override void _Ready()
 	{
@@ -33,10 +45,13 @@ public partial class Bullet : Node3D
 		if (Source is CollisionObject3D shooter)
 			ray.AddException(shooter);
 		particles = GetNode<GpuParticles3D>("GPUParticles3D");
+		hullSparks = GetNode<GpuParticles3D>("HullSparks");
+		hitFlash = GetNode<GpuParticles3D>("HitFlash");
 		velocity = new Vector3(0, 0, -Speed);
 
-		// Automatic self-destruction after lifetime expiry
-		GetTree().CreateTimer(LIFETIME).Timeout += QueueFree;
+		// Automatic self-destruction after lifetime expiry. A bullet that has hit is left to its
+		// collision timer, or a hit late in its flight would vanish with its impact barely shown.
+		GetTree().CreateTimer(LIFETIME).Timeout += () => { if (!_hasHit) QueueFree(); };
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -58,10 +73,13 @@ public partial class Bullet : Node3D
 			// The hit can be most of a tick ahead; the sparks belong where it landed.
 			GlobalPosition = ray.GetCollisionPoint();
 			mesh.Visible = false;
-			particles.Emitting = true;
 			velocity = Vector3.Zero;
+			InheritedVelocity = Vector3.Zero;
 
 			var collider = ray.GetCollider();
+			ShowImpact(hitShip: collider is Fighter or PlayerShip,
+				ownShip: collider is PlayerShip { IsLocallyControlled: true });
+			(collider as PlayerShip)?.StruckByBullet();
 
 			if (HasAuthority && collider is IDamageable && collider is Node3D target)
 			{
@@ -72,6 +90,7 @@ public partial class Bullet : Node3D
 					hitShape = body.ShapeOwnerGetOwner(ownerId) as CollisionShape3D;
 				}
 				DamageManager.Instance.Report(target, Damage, hitShape, Source);
+				(Source as PlayerShip)?.ConfirmHit(target);
 			}
 			GetTree().CreateTimer(COLLISION_DESTROY_DELAY).Timeout += QueueFree;
 		}
@@ -80,4 +99,34 @@ public partial class Bullet : Node3D
 			Position += motion;
 		}
 	}
+
+	// A ship struck also gets bright streaks and a flash, so a hit that lands stands out from rounds
+	// that only clip another object.
+	private void ShowImpact(bool hitShip, bool ownShip)
+	{
+		Camera3D camera = GetViewport().GetCamera3D();
+		float distance = camera != null ? camera.GlobalPosition.DistanceTo(GlobalPosition) : 0f;
+		float distanceRatio = Mathf.Max(distance / ScalingStartDistance, 1f);
+
+		if (hitShip)
+		{
+			Vector3 size = ownShip
+				? Vector3.One * OwnShipImpactScale
+				: ImpactSize(distanceRatio, HullSparksScaleExponent);
+			particles.Scale = size;
+			hullSparks.Scale = size;
+			hitFlash.Scale = size;
+			particles.Emitting = true;
+			hullSparks.Emitting = true;
+			hitFlash.Emitting = !ownShip;
+		}
+		else
+		{
+			particles.Scale = ImpactSize(distanceRatio, ParticlesScaleExponent);
+			particles.Emitting = true;
+		}
+	}
+
+	private static Vector3 ImpactSize(float distanceRatio, float exponent) =>
+		Vector3.One * Mathf.Min(Mathf.Pow(distanceRatio, exponent), ImpactMaxScale);
 }

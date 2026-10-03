@@ -179,6 +179,15 @@ public partial class FlightModelMissile : RigidBody3D
 		};
 	}
 
+	// Ends a copy whose owner's missile detonated. The copy never hits anything itself, so it
+	// plays the blast and its sound for the impact reported at the given point.
+	public void DetonateCopy(Vector3 at)
+	{
+		GetNode<AudioStreamPlayer3D>("explosion").Play();
+		Explosion.SpawnAt(this, at);
+		Vanish();
+	}
+
 	private void SetSmokeTrail(bool emitting)
 	{
 		if (_smokeTrail != null)

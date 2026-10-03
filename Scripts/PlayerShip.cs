@@ -73,10 +73,10 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 	private bool _justUnpaused = false;
 
 	// Set while a menu is open in a match, which cannot pause: the ship flies on as if the
-	// pilot had let go of the controls until the menu closes.
+	// pilot had let go of the controls until the menu closes. A parked ship stays suspended.
 	public bool InputSuspended
 	{
-		get => _inputSuspended;
+		get => _inputSuspended || _parked;
 		set
 		{
 			// A key still held from the menu must not act on the first tick back.
@@ -85,6 +85,10 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		}
 	}
 	private bool _inputSuspended;
+
+	// At the end of a match: ship brakes to a halt.
+	public void Park() => _parked = true;
+	private bool _parked;
 	private float _currentMaxSpeed;
 	private float _currentAcceleration;
 	private float _currentReverseAcceleration;
@@ -104,6 +108,15 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 	private Camera3D _externalCamera;
 	private bool _isExternalView = false;
 	private CockpitBar _healthBar;
+	private AudioStreamPlayer _hitSound;
+	private AudioStreamPlayer _struckSound;
+	private AudioStreamPlayer _ramSound;
+	private AudioStreamPlayer _engineSound;
+	private AudioStreamPlayer _engineCrackle;
+	private AudioStreamPlayer _boostSound;
+	private AudioStreamPlayer _boostEndSound;
+	private float _engineLevel;
+	private float _engineSoundLevel;
 	private CockpitBar _speedBar;
 	private HealthComponent health;
 	private bool _isDead = false;
@@ -136,6 +149,13 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		canvasLayer = GetNode<CanvasLayer>("HUD");
 		_scoreHud = GetParent().GetParent().GetNodeOrNull<CanvasLayer>("ScoreHUD");
 		_healthBar = GetNodeOrNull<CockpitBar>("HealthBar");
+		_hitSound = GetNodeOrNull<AudioStreamPlayer>("HitSound");
+		_struckSound = GetNodeOrNull<AudioStreamPlayer>("StruckSound");
+		_ramSound = GetNodeOrNull<AudioStreamPlayer>("RamSound");
+		_engineSound = GetNodeOrNull<AudioStreamPlayer>("EngineSound");
+		_engineCrackle = GetNodeOrNull<AudioStreamPlayer>("EngineCrackle");
+		_boostSound = GetNodeOrNull<AudioStreamPlayer>("BoostSound");
+		_boostEndSound = GetNodeOrNull<AudioStreamPlayer>("BoostEndSound");
 		_speedBar = GetNodeOrNull<CockpitBar>("SpeedBar");
 		health = GetNode<HealthComponent>("HealthComponent");
 		health.HealthChanged += OnHealthChanged;
@@ -230,7 +250,10 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		ClearTarget();
 		foreach (GatlingWeapon gun in _gatlings)
 			gun.Silence();
-		Explosion.SpawnAt(this, GlobalPosition);
+		_engineSound?.Stop();
+		_engineCrackle?.Stop();
+		_engineSoundLevel = 0.0f;
+		Explosion.SpawnAt(this, GlobalPosition, shipDestroyed: true);
 		ApplyActivation();
 
 		// Only for the ship this machine flies: without the guard, killing somebody released
@@ -358,6 +381,10 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		// Everything below is for the pilot alone: dust is a cockpit effect, the rest is HUD.
 		if (!IsLocallyControlled) return;
 
+		_sinceHitSound += (float)delta;
+		_sinceStruckSound += (float)delta;
+		_sinceRamSound += (float)delta;
+		UpdateEngineSound((float)delta);
 		UpdateDustSpawnBySpeed();
 		AlignDustSpawnToVelocity((float)delta);
 		UpdateAutoCenterCursor((float)delta);
@@ -643,6 +670,20 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 			GlobalPosition += normal * CollisionPushOutDistance;
 	}
 
+	// A fighter and this ship can both detect the same ram, in the same instant.
+	private const float RamSoundGap = 0.25f;
+	private float _sinceRamSound = RamSoundGap;
+
+	// A collision hard enough to do damage, whatever side detected it. Heard by the pilot alone.
+	public void Rammed()
+	{
+		if (!IsLocallyControlled || _ramSound == null || _sinceRamSound < RamSoundGap) return;
+
+		_sinceRamSound = 0f;
+		_ramSound.PitchScale = (float)GD.RandRange(0.9, 1.1);
+		_ramSound.Play();
+	}
+
 	private void ApplyRotation(float delta)
 	{
 		RotateObjectLocal(Vector3.Right, angularVelocity.X * delta);
@@ -726,7 +767,7 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 
 		float forward;
 		if (_isBoosting)
-			forward = 1.5f;
+			forward = BoostFlame;
 		else if (_engineForward)
 			forward = 0.6f + _currentBoostPower * 0.4f;
 		else if (Velocity.LengthSquared() > 1f)
@@ -735,6 +776,28 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 			forward = 0.0f;
 
 		float reverse = _engineBackward && !_isBoosting ? 0.6f : 0.0f;
+		_engineLevel = Mathf.Max(forward, reverse);
 		_model.SetThrottle(forward, reverse);
+	}
+
+	private const float BoostFlame = 1.5f;
+	// The thrust recording is very quiet so full volume needs gain.
+	private const float EngineSoundFullDb = 8.0f;
+	private const float EngineCrackleFullDb = 0.0f;
+	private const float EngineSoundResponse = 8.0f;
+
+	// The pilot hears their own engines as hard as the flame burns: quiet while coasting,
+	// loudest and a little higher under boost. Engine crackle runs at the same volume.
+	private void UpdateEngineSound(float delta)
+	{
+		if (_engineSound == null || _engineCrackle == null) return;
+
+		_engineSoundLevel = Mathf.Lerp(_engineSoundLevel, _engineLevel / BoostFlame, EngineSoundResponse * delta);
+		float levelDb = Mathf.LinearToDb(Mathf.Max(_engineSoundLevel, 0.001f));
+		_engineSound.VolumeDb = EngineSoundFullDb + levelDb;
+		_engineSound.PitchScale = 0.7f + 0.2f * _engineSoundLevel;
+		_engineCrackle.VolumeDb = EngineCrackleFullDb + levelDb;
+		if (!_engineSound.Playing) _engineSound.Play();
+		if (!_engineCrackle.Playing) _engineCrackle.Play();
 	}
 }

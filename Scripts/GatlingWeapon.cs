@@ -41,7 +41,6 @@ public partial class GatlingWeapon : WeaponBase
     private double _autoTimer;
 
     private AudioStreamPlayer3D _fireLoop;
-    private AudioStreamPlayer3D _fireEnd;
     private double _sinceLastShot;
 
     public override void _Ready()
@@ -49,7 +48,6 @@ public partial class GatlingWeapon : WeaponBase
         CurrentAmmo = MaxAmmo;
         _autoTimer = 1.0 / FireRate;
         _fireLoop = GetNodeOrNull<AudioStreamPlayer3D>("Shooting");
-        _fireEnd = GetNodeOrNull<AudioStreamPlayer3D>("ShootingEnd");
     }
 
     // Sets the magazine size and fills it.
@@ -72,11 +70,10 @@ public partial class GatlingWeapon : WeaponBase
         EndFiringSound();
     }
 
-    // Cuts the firing sound without its tail, for a ship that is gone mid-burst.
+    // Cuts the firing sound, for a ship that is gone mid-burst.
     public void Silence()
     {
         _fireLoop?.Stop();
-        _fireEnd?.Stop();
     }
 
     public override void _PhysicsProcess(double delta)
@@ -167,6 +164,5 @@ public partial class GatlingWeapon : WeaponBase
     {
         if (_fireLoop == null || !_fireLoop.Playing) return;
         _fireLoop.Stop();
-        _fireEnd?.Play();
     }
 }

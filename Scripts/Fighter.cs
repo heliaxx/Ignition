@@ -411,7 +411,7 @@ public partial class Fighter : CharacterBody3D, IDamageable
         _isDead = true;
         EventBus.EmitKilled(Participants.IdOf(this), Participants.IdOf(LastAttacker));
 
-        Explosion.SpawnAt(this, GlobalPosition);
+        Explosion.SpawnAt(this, GlobalPosition, shipDestroyed: true);
         EmitSignal(SignalName.Died);
     }
 }

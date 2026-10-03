@@ -34,7 +34,7 @@ by brycejellybean1 — [CGTrader](https://www.cgtrader.com/designers/brycejellyb
 by Frosnix-8 / Beiratet — [GitHub](https://github.com/Frosnix-8)
 
 **Geroteng G1 Missile (model & flight-model prototype)**
-by Frosnix — [Missile-flight-model](https://github.com/Frosnix-8/Missile-flight-model)
+by Frosnix-8 / Beiratet — [Missile-flight-model](https://github.com/Frosnix-8/Missile-flight-model)
 
 **Asteroids**
 by Game Piggs Creators — [game-piggs.com](https://game-piggs.com/models/)
@@ -57,6 +57,34 @@ Royalty Free
 by Iohann
 License: [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
 
+**Gatling Gun_fire 1_loop** (gatling fire)
+by kantouth — [Freesound](https://freesound.org/people/kantouth/sounds/104403/)
+License: [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
+
+**Hollow Bang** (hits taken, rams)
+by qubodup — [Freesound](https://freesound.org/people/qubodup/sounds/157609/)
+License: [CC0](http://creativecommons.org/publicdomain/zero/1.0/)
+
+**Bang/Explosion Metallic** (ship destroyed)
+by Werra — [Freesound](https://freesound.org/people/Werra/sounds/244394/)
+License: [CC0](http://creativecommons.org/publicdomain/zero/1.0/)
+
+**Thrust Loop** (engine)
+by unfa — [Freesound](https://freesound.org/people/unfa/sounds/584181/)
+License: [CC0](http://creativecommons.org/publicdomain/zero/1.0/)
+
+**Rocket Launch Boost and Burning (Version B)** (engine crackle)
+by TheLittleCrow — [Freesound](https://freesound.org/people/TheLittleCrow/sounds/774270/)
+License: [CC0](http://creativecommons.org/publicdomain/zero/1.0/)
+
+**Hyperdrive Sound Effect 1** (boost start and end)
+by ProfMegavolt — [Freesound](https://freesound.org/people/ProfMegavolt/sounds/273357/)
+License: [CC0](http://creativecommons.org/publicdomain/zero/1.0/)
+
+**Sci-fi Sounds** (hit confirmation, `impactMetal_002`)
+by Kenney — [kenney.nl](https://kenney.nl/assets/sci-fi-sounds)
+License: [CC0](http://creativecommons.org/publicdomain/zero/1.0/)
+
 ## Fonts
 
 **Eurostile**
@@ -71,4 +99,11 @@ License: [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
 [godotengine.org](https://godotengine.org) — MIT License
 
 ## Addons
-—
+
+**GodotSteam**
+by GP Garcia, Chris Ridenour and contributors — [godotsteam.com](https://godotsteam.com) — MIT License
+Ships Steamworks SDK libraries, which remain under Valve's Steamworks SDK terms.
+
+**Epic Online Services Godot (EOSG)**
+by Delano Lourenco (3ddelano) — [GitHub](https://github.com/3ddelano/epic-online-services-godot) — MIT License
+Ships Epic Games EOS SDK libraries, which remain under Epic's EOS SDK license terms.

@@ -3,10 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://boorcnmmcy4j6"
+path="res://.godot/imported/273357__profmegavolt__hyperdrive-sound-effect-1_boost.wav-004fac2569d9b6c127c8fb954ce2ec6e.sample"
 
 [deps]
 
 source_file="res://Imports/Sounds/Engine/273357__profmegavolt__hyperdrive-sound-effect-1_boost.wav"
+dest_files=["res://.godot/imported/273357__profmegavolt__hyperdrive-sound-effect-1_boost.wav-004fac2569d9b6c127c8fb954ce2ec6e.sample"]
 
 [params]
 

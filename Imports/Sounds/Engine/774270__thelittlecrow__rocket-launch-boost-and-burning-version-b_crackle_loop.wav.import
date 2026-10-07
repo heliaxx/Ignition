@@ -3,10 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://d07w13wbr5aut"
+path="res://.godot/imported/774270__thelittlecrow__rocket-launch-boost-and-burning-version-b_crackle_loop.wav-fba639f33535ff3426e12b8f92145f06.sample"
 
 [deps]
 
 source_file="res://Imports/Sounds/Engine/774270__thelittlecrow__rocket-launch-boost-and-burning-version-b_crackle_loop.wav"
+dest_files=["res://.godot/imported/774270__thelittlecrow__rocket-launch-boost-and-burning-version-b_crackle_loop.wav-fba639f33535ff3426e12b8f92145f06.sample"]
 
 [params]
 

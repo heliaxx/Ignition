@@ -217,6 +217,44 @@ theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "8.0"
 
+[node name="AimWidgetRow" type="HBoxContainer" parent="SettingsPanel/Margin/Sections/MouseSettings"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="AimWidgetLabel" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings/AimWidgetRow"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("3_oyrkr")
+theme_override_font_sizes/font_size = 30
+text = "Aim Widget Visibility"
+
+[node name="AimWidgetCheck" type="CheckBox" parent="SettingsPanel/Margin/Sections/MouseSettings/AimWidgetRow"]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_constants/outline_size = 1
+
+[node name="VectorIndicatorRow" type="HBoxContainer" parent="SettingsPanel/Margin/Sections/MouseSettings"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="VectorIndicatorLabel" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings/VectorIndicatorRow"]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("3_oyrkr")
+theme_override_font_sizes/font_size = 30
+text = "Vector Indicator Visibility"
+
+[node name="VectorIndicatorCheck" type="CheckBox" parent="SettingsPanel/Margin/Sections/MouseSettings/VectorIndicatorRow"]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_default_cursor_shape = 2
+theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_constants/outline_size = 1
+
 [node name="FlightSettings" type="VBoxContainer" parent="SettingsPanel/Margin/Sections" unique_id=1572146616]
 layout_mode = 2
 theme_override_constants/separation = 8

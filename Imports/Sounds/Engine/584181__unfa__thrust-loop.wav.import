@@ -3,10 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://b3rn20cmrjyxd"
+path="res://.godot/imported/584181__unfa__thrust-loop.wav-dc8dc276d81f05d90bf4042929683444.sample"
 
 [deps]
 
 source_file="res://Imports/Sounds/Engine/584181__unfa__thrust-loop.wav"
+dest_files=["res://.godot/imported/584181__unfa__thrust-loop.wav-dc8dc276d81f05d90bf4042929683444.sample"]
 
 [params]
 

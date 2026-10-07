@@ -3,10 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://povvdrfgf3oy"
+path="res://.godot/imported/104403__kantouth__gatling-gun_fire-1_loop_seamless.wav-fe6da5ccd1be7d36e9fd06cc10907754.sample"
 
 [deps]
 
 source_file="res://Imports/Sounds/Combat/104403__kantouth__gatling-gun_fire-1_loop_seamless.wav"
+dest_files=["res://.godot/imported/104403__kantouth__gatling-gun_fire-1_loop_seamless.wav-fe6da5ccd1be7d36e9fd06cc10907754.sample"]
 
 [params]
 

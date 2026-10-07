@@ -3,10 +3,12 @@
 importer="oggvorbisstr"
 type="AudioStreamOggVorbis"
 uid="uid://b6urpqijk3f25"
+path="res://.godot/imported/impactMetal_002.ogg-3705e798dda179e30c64fb09557ea856.oggvorbisstr"
 
 [deps]
 
 source_file="res://Imports/Sounds/Combat/impactMetal_002.ogg"
+dest_files=["res://.godot/imported/impactMetal_002.ogg-3705e798dda179e30c64fb09557ea856.oggvorbisstr"]
 
 [params]
 

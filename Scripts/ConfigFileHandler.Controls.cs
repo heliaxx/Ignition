@@ -12,6 +12,8 @@ public partial class ConfigFileHandler
 	private const float DefaultAutoCenterSpeed = 8.0f;
 	private const bool  DefaultThrottleMode    = false;
 	private const bool  DefaultTogglePartial = false;
+	private const bool  DefaultShowAimWidget  = true;
+	private const bool  DefaultShowVectorIndicator = false;
 
 	private static readonly Dictionary<string, string> DefaultKeybindings = new()
 	{
@@ -45,6 +47,8 @@ public partial class ConfigFileHandler
 		config.SetValue("controls", "aim_deadzone",      DefaultAimDeadzone);
 		config.SetValue("controls", "auto_center_speed", DefaultAutoCenterSpeed);
 		config.SetValue("controls", "throttle_mode", DefaultThrottleMode);
+		config.SetValue("controls", "show_aim_widget",  DefaultShowAimWidget);
+		config.SetValue("controls", "show_vector_indicator", DefaultShowVectorIndicator);
 		config.SetValue("controls", "toggle_partial", DefaultTogglePartial);
 		foreach (var kvp in DefaultKeybindings)
 			config.SetValue("keybinding", kvp.Key, kvp.Value);
@@ -66,6 +70,8 @@ public partial class ConfigFileHandler
 		Ensure("controls", "aim_deadzone",      DefaultAimDeadzone);
 		Ensure("controls", "auto_center_speed", DefaultAutoCenterSpeed);
 		Ensure("controls", "throttle_mode", DefaultThrottleMode);
+		Ensure("controls", "show_aim_widget",  DefaultShowAimWidget);
+		Ensure("controls", "show_vector_indicator", DefaultShowVectorIndicator);
 		Ensure("controls", "toggle_partial", DefaultTogglePartial);
 		foreach (var kvp in DefaultKeybindings)
 			Ensure("keybinding", kvp.Key, kvp.Value);

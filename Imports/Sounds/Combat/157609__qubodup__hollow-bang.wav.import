@@ -3,10 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://dno3o855ksmis"
+path="res://.godot/imported/157609__qubodup__hollow-bang.wav-a69adb78856a5eaa06670205d10deb64.sample"
 
 [deps]
 
 source_file="res://Imports/Sounds/Combat/157609__qubodup__hollow-bang.wav"
+dest_files=["res://.godot/imported/157609__qubodup__hollow-bang.wav-a69adb78856a5eaa06670205d10deb64.sample"]
 
 [params]
 

@@ -3,10 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://bpsq1cb2gvun2"
+path="res://.godot/imported/244394__werra__bangexplosion-metallic.wav-4d2d046997cf0a13e9c1709565435c9e.sample"
 
 [deps]
 
 source_file="res://Imports/Sounds/Combat/244394__werra__bangexplosion-metallic.wav"
+dest_files=["res://.godot/imported/244394__werra__bangexplosion-metallic.wav-4d2d046997cf0a13e9c1709565435c9e.sample"]
 
 [params]
 

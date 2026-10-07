@@ -11,18 +11,23 @@ public partial class AimWidgetVisualizer : Control
 	[Export] public Color CursorColor = new Color(0.894f, 0.718f, 0.337f, 0.8f); // theme orange, opaque
 	[Export] public Color CrosshairColor = new Color(0.894f, 0.718f, 0.337f, 0.9f);
 	[Export] public Color TargetIndicatorColor = new Color(0.894f, 0.718f, 0.337f, 0.9f); // theme orange
+	[Export] public Color VectorIndicatorColor = new Color(0.894f, 0.718f, 0.337f, 0.9f); // theme orange
 	[Export] public Color LeadIndicatorColor = new Color(0.894f, 0.718f, 0.337f, 0.9f); // theme orange
 	[Export] public Color GimbalColor = new Color(0.894f, 0.718f, 0.337f, 0.7f); // theme orange
 	[Export] public float LineWidth = 2.0f;
 	[Export] public float CursorSize = 6.0f;
 	[Export] public float TargetReticleSize = 64f;
 	[Export] public float LeadReticleSize = 48f;
+	[Export] public float VectorReticleSize = 56f;
+	[Export] public bool ShowCursor = true;
+	[Export] public bool ShowVectorIndicator = false;
 
 	private Texture2D _targetReticle;
 	private Texture2D _leadReticle;
 	private Texture2D _gimbalReticle;
 	private Texture2D _centerCrosshair;
 	private Texture2D _gimbalIndicator;
+	private Texture2D _vectorIndicator;
 
 	private float _flickerTimer = 0f;
 
@@ -41,6 +46,13 @@ public partial class AimWidgetVisualizer : Control
 		_gimbalReticle = GD.Load<Texture2D>("res://Imports/Images/crosshair102.png");
 		_centerCrosshair = GD.Load<Texture2D>("res://Imports/Images/crosshair001.png");
 		_gimbalIndicator = GD.Load<Texture2D>("res://Imports/Images/Gimbalindicator.png");
+		_vectorIndicator = GD.Load<Texture2D>("res://Imports/Images/crosshair-040.png");
+
+		var settings = ConfigFileHandler.Instance?.LoadControlSettings();
+		if (settings != null && settings.ContainsKey("show_aim_widget"))
+			ShowCursor = settings["show_aim_widget"].AsBool();
+		if (settings != null && settings.ContainsKey("show_vector_indicator"))
+			ShowVectorIndicator = settings["show_vector_indicator"].AsBool();
 	}
 
 	public override void _Process(double delta)
@@ -60,6 +72,13 @@ public partial class AimWidgetVisualizer : Control
 
 		// Draw outer aim radius circle
 		// DrawArc(center, radius, 0f, Mathf.Tau, 64, CrosshairColor, LineWidth);
+
+		// Draw vector indicator at the direction of travel
+		Vector2? velocityScreenPos = ShowVectorIndicator ? playerShip.GetVelocityScreenPos() : null;
+		if (_vectorIndicator != null && velocityScreenPos.HasValue)
+		{
+			DrawTextureAtCenter(_vectorIndicator, velocityScreenPos.Value, VectorReticleSize, VectorIndicatorColor);
+		}
 
 		// Draw gimbal aim reticle (converges toward lead position when tracking)
 		Vector2? gimbalScreenPos = playerShip.GetGimbalAimScreenPos();
@@ -84,11 +103,14 @@ public partial class AimWidgetVisualizer : Control
 			}
 
 			// Draw cursor indicator - fades in as it moves away from center
-			Vector2 cursorPos = playerShip.GetWidgetCursorPos();
-			float cursorDist = cursorPos.DistanceTo(center);
-			float cursorAlpha = Mathf.Clamp(cursorDist / radius, 0f, 1f);
-			Color fadedCursorColor = new Color(CursorColor.R, CursorColor.G, CursorColor.B, CursorColor.A * cursorAlpha);
-			DrawCircle(cursorPos, CursorSize, fadedCursorColor);
+			if (ShowCursor)
+			{
+				Vector2 cursorPos = playerShip.GetWidgetCursorPos();
+				float cursorDist = cursorPos.DistanceTo(center);
+				float cursorAlpha = Mathf.Clamp(cursorDist / radius, 0f, 1f);
+				Color fadedCursorColor = new Color(CursorColor.R, CursorColor.G, CursorColor.B, CursorColor.A * cursorAlpha);
+				DrawCircle(cursorPos, CursorSize, fadedCursorColor);
+			}
 		}
 
 		// Draw target reticle — flickers during lock acquisition, solid when locked

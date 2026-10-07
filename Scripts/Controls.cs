@@ -20,6 +20,8 @@ public partial class Controls : Control
 	private Label aimDeadzoneValue;
 	private Label aimPowerCurveValue;
 	private Label autoCenterSpeedValue;
+	private CheckBox aimWidgetCheck;
+	private CheckBox vectorIndicatorCheck;
 	private OptionButton flightAssistToggleDropdown;
 	private const int FlightAssistToggleOff = 0;
 	private const int FlightAssistTogglePartial = 1;
@@ -66,6 +68,8 @@ public partial class Controls : Control
 		aimDeadzoneValue = GetNode<Label>(Sections + "MouseSettings/AimDeadzoneRow/AimDeadzoneValue");
 		aimPowerCurveValue = GetNode<Label>(Sections + "MouseSettings/AimPowerCurveRow/AimPowerCurveValue");
 		autoCenterSpeedValue = GetNode<Label>(Sections + "MouseSettings/AutoCenterSpeedRow/AutoCenterSpeedValue");
+		aimWidgetCheck = GetNode<CheckBox>(Sections + "MouseSettings/AimWidgetRow/AimWidgetCheck");
+		vectorIndicatorCheck = GetNode<CheckBox>(Sections + "MouseSettings/VectorIndicatorRow/VectorIndicatorCheck");
 		flightAssistToggleDropdown = GetNode<OptionButton>(Sections + "FlightSettings/FlightAssistToggleRow/FlightAssistToggleDropdown");
 		flightAssistToggleDropdown.AddItem("Full / Off", FlightAssistToggleOff);
 		flightAssistToggleDropdown.AddItem("Full / Partial", FlightAssistTogglePartial);
@@ -87,6 +91,8 @@ public partial class Controls : Control
 		aimDeadzoneSlider.Value = settings.ContainsKey("aim_deadzone") ? settings["aim_deadzone"].AsSingle() : 0.05f;
 		aimPowerCurveSlider.Value = settings.ContainsKey("aim_power_curve") ? settings["aim_power_curve"].AsSingle() : 2.0f;
 		autoCenterSpeedSlider.Value = settings.ContainsKey("auto_center_speed") ? settings["auto_center_speed"].AsSingle() : 8.0f;
+		aimWidgetCheck.ButtonPressed = !settings.ContainsKey("show_aim_widget") || settings["show_aim_widget"].AsBool();
+		vectorIndicatorCheck.ButtonPressed = settings.ContainsKey("show_vector_indicator") && settings["show_vector_indicator"].AsBool();
 		bool partial = settings.ContainsKey("toggle_partial") && settings["toggle_partial"].AsBool();
 		flightAssistToggleDropdown.Select(partial ? FlightAssistTogglePartial : FlightAssistToggleOff);
 		bool throttleMode = settings.ContainsKey("throttle_mode") && settings["throttle_mode"].AsBool();
@@ -101,8 +107,20 @@ public partial class Controls : Control
 		aimDeadzoneSlider.ValueChanged += OnAimDeadzoneChanged;
 		aimPowerCurveSlider.ValueChanged += OnAimPowerCurveChanged;
 		autoCenterSpeedSlider.ValueChanged += OnAutoCenterSpeedChanged;
+		aimWidgetCheck.Toggled += OnAimWidgetToggled;
+		vectorIndicatorCheck.Toggled += OnVectorIndicatorToggled;
 		flightAssistToggleDropdown.ItemSelected += OnFlightAssistToggleSelected;
 		flightAssistModeDropdown.ItemSelected += OnFlightAssistModeSelected;
+	}
+
+	private void OnAimWidgetToggled(bool shown)
+	{
+		ConfigFileHandler.Instance.SaveControlSettings("show_aim_widget", shown);
+	}
+
+	private void OnVectorIndicatorToggled(bool shown)
+	{
+		ConfigFileHandler.Instance.SaveControlSettings("show_vector_indicator", shown);
 	}
 
 	private void OnFlightAssistToggleSelected(long index)

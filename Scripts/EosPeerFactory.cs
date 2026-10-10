@@ -28,6 +28,11 @@ public class EosPeerFactory : IPeerFactory
 		return peer == null ? null : Open(peer, "create_client", SocketId, _hostUserId);
 	}
 
+	public string IdentityOf(MultiplayerPeer peer, int peerId) =>
+		peer.Call("get_peer_user_id", peerId).AsString();
+
+	public IPeerFactory MovedTo(string hostIdentity) => new EosPeerFactory(hostIdentity);
+
 	private static MultiplayerPeer New()
 	{
 		if (ClassDB.Instantiate("EOSGMultiplayerPeer").As<GodotObject>() is MultiplayerPeer peer) return peer;

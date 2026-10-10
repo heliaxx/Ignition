@@ -32,8 +32,12 @@ public partial class MultiplayerPanel : Control
 	private LineEdit _name;
 	private OptionButton _transportOption;
 	private Button _host;
+	private CheckBox _inviteOnly;
 	private LineEdit _address;
 	private Button _joinIp;
+	private Control _codeRow;
+	private LineEdit _code;
+	private Button _joinCode;
 	private VBoxContainer _games;
 	private Label _noGames;
 	private Control _placeholder;
@@ -48,6 +52,11 @@ public partial class MultiplayerPanel : Control
 	private Button _ready;
 	private Button _start;
 	private Button _invite;
+	private Control _friends;
+	private VBoxContainer _onlineBox;
+	private VBoxContainer _offlineBox;
+	private LineEdit _friendsSearch;
+	private Button _copyCode;
 	private Button _leave;
 	private Label _status;
 
@@ -62,8 +71,12 @@ public partial class MultiplayerPanel : Control
 
 		_transportOption = (OptionButton)FindChild("TransportOption");
 		_host = (Button)FindChild("HostButton");
+		_inviteOnly = (CheckBox)FindChild("InviteOnlyCheck");
 		_address = (LineEdit)FindChild("AddressEdit");
 		_joinIp = (Button)FindChild("JoinIpButton");
+		_codeRow = (Control)FindChild("JoinCodeRow");
+		_code = (LineEdit)FindChild("CodeEdit");
+		_joinCode = (Button)FindChild("JoinCodeButton");
 		_games = (VBoxContainer)FindChild("GamesBox");
 		_noGames = (Label)FindChild("NoGamesLabel");
 		_placeholder = (Control)FindChild("Placeholder");
@@ -78,6 +91,17 @@ public partial class MultiplayerPanel : Control
 		_ready = (Button)FindChild("ReadyButton");
 		_start = (Button)FindChild("StartButton");
 		_invite = (Button)FindChild("InviteButton");
+		_friends = (Control)FindChild("Friends");
+		_onlineBox = (VBoxContainer)FindChild("OnlineBox");
+		_offlineBox = (VBoxContainer)FindChild("OfflineBox");
+		_friendsSearch = (LineEdit)FindChild("FriendsSearch");
+		_friendsSearch.TextChanged += FilterFriends;
+		_copyCode = (Button)FindChild("CopyCodeButton");
+		_copyCode.Pressed += () =>
+		{
+			DisplayServer.ClipboardSet(EosManager.Instance.LobbyCode);
+			_status.Text = "code copied";
+		};
 		_leave = (Button)FindChild("LeaveButton");
 		_status = (Label)FindChild("StatusLabel");
 
@@ -87,11 +111,19 @@ public partial class MultiplayerPanel : Control
 		((Button)FindChild("RefreshButton")).Pressed += RefreshGames;
 		((Button)FindChild("BackButton")).Pressed += OnBack;
 		_host.Pressed += OnHost;
+		_transportOption.ItemSelected += _ => Refresh();
 		_joinIp.Pressed += OnJoinIp;
+		_joinCode.Pressed += OnJoinCode;
+		_code.TextSubmitted += _ => OnJoinCode();
 		_joinLobby.Pressed += OnJoinLobby;
 		_ready.Toggled += pressed => MatchManager.Instance.SetLocalReady(pressed);
 		_start.Pressed += () => MatchManager.Instance.StartMatch();
-		_invite.Pressed += SteamManager.Instance.InviteFriends;
+		_invite.Pressed += ShowFriends;
+		((Button)FindChild("FriendsBackButton")).Pressed += () =>
+		{
+			_friends.Visible = false;
+			Refresh();
+		};
 		_leave.Pressed += OnLeave;
 		_killLimit.ItemSelected += _ => OnLimitsChanged();
 		_timeLimit.ItemSelected += _ => OnLimitsChanged();
@@ -101,6 +133,8 @@ public partial class MultiplayerPanel : Control
 		net.PeerLeft += OnPeerLeft;
 		net.JoinedServer += Refresh;
 		net.LeftServer += OnLeftServer;
+		net.SessionMoving += Refresh;
+		net.SessionMoved += Refresh;
 		MatchManager.Instance.LobbyChanged += Refresh;
 		SteamManager.Instance.LobbiesFound += OnLobbiesFound;
 		SteamManager.Instance.LobbyOpened += Refresh;
@@ -129,6 +163,8 @@ public partial class MultiplayerPanel : Control
 		net.PeerLeft -= OnPeerLeft;
 		net.JoinedServer -= Refresh;
 		net.LeftServer -= OnLeftServer;
+		net.SessionMoving -= Refresh;
+		net.SessionMoved -= Refresh;
 		MatchManager.Instance.LobbyChanged -= Refresh;
 		SteamManager.Instance.LobbiesFound -= OnLobbiesFound;
 		SteamManager.Instance.LobbyOpened -= Refresh;
@@ -141,7 +177,7 @@ public partial class MultiplayerPanel : Control
 
 	public override void _Process(double delta)
 	{
-		if (NetworkManager.Instance.IsActive) return;
+		if (NetworkManager.Instance.IsActive || NetworkManager.Instance.IsMoving) return;
 
 		_sinceRefresh += delta;
 		if (_sinceRefresh >= RefreshInterval) RefreshGames();
@@ -209,11 +245,11 @@ public partial class MultiplayerPanel : Control
 		switch (ChosenHostTransport)
 		{
 			case Transport.Steam:
-				SteamManager.Instance.HostLobby();
+				SteamManager.Instance.HostLobby(_inviteOnly.ButtonPressed);
 				_status.Text = "opening a Steam lobby…";
 				break;
 			case Transport.Eos:
-				EosManager.Instance.HostLobby();
+				EosManager.Instance.HostLobby(_inviteOnly.ButtonPressed);
 				_status.Text = "opening an EOS lobby…";
 				break;
 			default:
@@ -232,6 +268,13 @@ public partial class MultiplayerPanel : Control
 		_status.Text = NetworkManager.Instance.Join(address)
 			? $"connecting to {address}…"
 			: $"could not reach {address}";
+	}
+
+	private void OnJoinCode()
+	{
+		if (_code.Text.StripEdges().Length == 0 || NetworkManager.Instance.IsActive) return;
+		EosManager.Instance.JoinByCode(_code.Text);
+		_status.Text = "looking for that game…";
 	}
 
 	private void OnJoinLobby()
@@ -289,6 +332,13 @@ public partial class MultiplayerPanel : Control
 	{
 		NetworkManager net = NetworkManager.Instance;
 		MatchManager match = MatchManager.Instance;
+		// Everyone is briefly off while they reconnect, so the last view stays up meanwhile.
+		if (net.IsMoving)
+		{
+			_status.Text = "switching to the new host…";
+			return;
+		}
+
 		bool connected = net.IsActive;
 		bool hosting = connected && net.IsServer;
 
@@ -296,8 +346,13 @@ public partial class MultiplayerPanel : Control
 		_name.Editable = !connected;
 		_transportOption.Disabled = connected;
 		_host.Disabled = connected;
+		// Direct IP is never listed, so it is invite-only already.
+		_inviteOnly.Disabled = connected || _hostTransports.Count == 0 || ChosenHostTransport == Transport.Enet;
 		_address.Editable = !connected;
 		_joinIp.Disabled = connected;
+		_codeRow.Visible = EosManager.Instance.IsAvailable;
+		_code.Editable = !connected;
+		_joinCode.Disabled = connected;
 		foreach (Button row in _games.GetChildren().OfType<Button>())
 		{
 			row.Disabled = connected;
@@ -307,18 +362,21 @@ public partial class MultiplayerPanel : Control
 
 		Listing listing = connected ? null : Selected;
 		LobbyInfo info = connected ? LobbyInfo.Current() : listing?.Info;
+		_friends.Visible &= connected && SteamManager.Instance.LobbyId != 0;
 		_placeholder.Visible = info == null;
-		_info.Visible = info != null;
+		_info.Visible = info != null && !_friends.Visible;
 		if (info == null) return;
 
 		_hostName.Text = info.Host;
 		_type.Text = connected ? SessionTransportName() : TransportName(listing.Transport);
+		if (info.InviteOnly) _type.Text += $"  CODE {info.Code}";
+		_copyCode.Visible = connected && info.InviteOnly;
 		_state.Text = info.InMatch ? "IN MATCH" : "IN LOBBY";
 		_killLimit.Selected = Array.IndexOf(KillLimits, info.KillLimit);
 		_timeLimit.Selected = Array.IndexOf(TimeLimits, info.TimeLimitMinutes);
 		_killLimit.Disabled = !hosting;
 		_timeLimit.Disabled = !hosting;
-		BuildPlayers(info);
+		BuildPlayers(info, hosting);
 
 		bool full = info.Members.Count >= NetworkManager.MaxPlayers;
 		_joinLobby.Visible = !connected;
@@ -330,7 +388,8 @@ public partial class MultiplayerPanel : Control
 		_start.Visible = hosting;
 		_start.Disabled = !match.CanStart;
 		// Only Steam knows the player's friends; an EOS device login has none to invite.
-		_invite.Visible = hosting && SteamManager.Instance.LobbyId != 0;
+		// Any player can invite, not just the host.
+		_invite.Visible = connected && SteamManager.Instance.LobbyId != 0;
 		_leave.Visible = connected;
 		if (connected) _status.Text = Status(net, match);
 	}
@@ -373,14 +432,17 @@ public partial class MultiplayerPanel : Control
 		}
 	}
 
-	private void BuildPlayers(LobbyInfo info)
+	private void BuildPlayers(LobbyInfo info, bool hosting)
 	{
 		foreach (Node row in _players.GetChildren())
 			row.QueueFree();
 
+		bool canMove = hosting && !info.InMatch && SessionTransportName() != "ENET";
+
 		foreach (LobbyInfo.Member member in info.Members)
 		{
 			var row = new HBoxContainer();
+			row.AddThemeConstantOverride("separation", 12);
 			row.AddChild(MenuUtils.Cell(member.Name, Colors.White, expand: true));
 			row.AddChild(MenuUtils.Cell(member.State switch
 			{
@@ -388,8 +450,97 @@ public partial class MultiplayerPanel : Control
 				LobbyInfo.MemberState.Ready => "READY",
 				_ => "NOT READY",
 			}, member.State == LobbyInfo.MemberState.Waiting ? Dim : Gold));
+
+			if (hosting && member.State != LobbyInfo.MemberState.Host)
+			{
+				int peerId = member.PeerId;
+				string name = member.Name;
+				if (canMove) row.AddChild(MemberAction("HOST", () => OnTransferHost(peerId, name)));
+				row.AddChild(MemberAction("KICK", () => OnRemove(peerId, name, ban: false)));
+				row.AddChild(MemberAction("BAN", () => OnRemove(peerId, name, ban: true)));
+			}
+			MenuUtils.WireControls(row, _click);
 			_players.AddChild(row);
 		}
+	}
+
+	private static Button MemberAction(string text, Action pressed)
+	{
+		var button = new Button { Text = text };
+		button.Pressed += pressed;
+		return button;
+	}
+
+	private void ShowFriends()
+	{
+		List<SteamManager.Friend> friends = SteamManager.Instance.Friends();
+		FillFriends(_onlineBox, friends.Where(f => f.Online), "no friends online");
+		FillFriends(_offlineBox, friends.Where(f => !f.Online), "nobody offline");
+		_friendsSearch.Text = "";
+		FilterFriends("");
+		_friends.Visible = true;
+		Refresh();
+	}
+
+	private const string FriendNameMeta = "friend_name";
+
+	private void FillFriends(VBoxContainer box, IEnumerable<SteamManager.Friend> friends, string empty)
+	{
+		foreach (Node row in box.GetChildren())
+			row.QueueFree();
+
+		// Shown when no row is: the list is empty, or the search left nothing in it.
+		box.AddChild(MenuUtils.Cell(friends.Any() ? "no matches" : empty, Dim));
+
+		foreach (SteamManager.Friend friend in friends)
+		{
+			var cells = new List<Label> { MenuUtils.Cell(friend.Name, friend.Online ? Colors.White : Dim, expand: true) };
+			if (friend.InThisGame) cells.Add(MenuUtils.Cell("IN GAME", Gold));
+			Label status = MenuUtils.Cell("INVITE", Gold);
+			cells.Add(status);
+
+			// The whole row is the button, like the scenario and lobby lists; one invite per opening.
+			Button row = MenuUtils.ListRow(null, false, cells.ToArray());
+			long id = friend.Id;
+			row.Pressed += () =>
+			{
+				status.Text = SteamManager.Instance.InviteToLobby(id) ? "SENT" : "FAILED";
+				row.Disabled = true;
+				MenuUtils.PaintRow(row);
+			};
+			row.SetMeta(FriendNameMeta, friend.Name);
+			MenuUtils.WireControls(row, _click);
+			box.AddChild(row);
+		}
+	}
+
+	private void FilterFriends(string text)
+	{
+		string query = text.StripEdges();
+		foreach (VBoxContainer box in new[] { _onlineBox, _offlineBox })
+		{
+			List<Node> live = box.GetChildren().Where(n => !n.IsQueuedForDeletion()).ToList();
+			bool any = false;
+			foreach (Button row in live.OfType<Button>())
+			{
+				row.Visible = row.GetMeta(FriendNameMeta).AsString().Contains(query, StringComparison.OrdinalIgnoreCase);
+				any |= row.Visible;
+			}
+			live.OfType<Label>().First().Visible = !any;
+		}
+	}
+
+	private void OnRemove(int peerId, string name, bool ban)
+	{
+		NetworkManager.Instance.Kick(peerId, ban);
+		_status.Text = ban ? $"{name} is banned from this lobby" : $"{name} was kicked";
+	}
+
+	private void OnTransferHost(int peerId, string name)
+	{
+		if (SteamManager.Instance.LobbyId != 0) SteamManager.Instance.TransferHost(peerId);
+		else if (EosManager.Instance.InLobby) EosManager.Instance.TransferHost(peerId);
+		_status.Text = $"handing hosting to {name}…";
 	}
 
 	private static void FillLimits(OptionButton option, int[] values, string format)

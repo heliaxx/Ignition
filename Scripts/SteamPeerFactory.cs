@@ -13,6 +13,11 @@ public class SteamPeerFactory : IPeerFactory
 	// Address and port are ignored: the lobby already says which Steam user hosts it.
 	public MultiplayerPeer CreateClient(string address, int port) => Open("connect_to_lobby");
 
+	public string IdentityOf(MultiplayerPeer peer, int peerId) =>
+		peer.Call("get_steam_id_for_peer_id", peerId).AsInt64().ToString();
+
+	public IPeerFactory MovedTo(string hostIdentity) => this;
+
 	private MultiplayerPeer Open(string method)
 	{
 		if (ClassDB.Instantiate("SteamMultiplayerPeer").As<GodotObject>() is not MultiplayerPeer peer)

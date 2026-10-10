@@ -22,8 +22,8 @@ public partial class CockpitReadout : Node3D
 
 	public string Value
 	{
-		get => _value.Text;
-		set => _value.Text = value;
+    	get => _value?.Text ?? "";
+    	set { if (_value != null) _value.Text = value; }
 	}
 
 	public override void _Ready()

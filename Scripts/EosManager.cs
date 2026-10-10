@@ -15,6 +15,13 @@ public partial class EosManager : Node
 	// Hosting or joined over EOS.
 	public bool InLobby { get; private set; }
 
+	// Empty for a lobby anyone can find; otherwise the code that joins this invite-only one.
+	public string LobbyCode { get; private set; } = "";
+
+	// No 0/O or 1/I, so a code read out loud cannot be mistyped.
+	private const string CodeAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+	private const int CodeLength = 6;
+
 	// Filled by the last lobby search.
 	public IReadOnlyList<Lobby> Lobbies => _lobbies;
 
@@ -25,6 +32,8 @@ public partial class EosManager : Node
 
 	private readonly List<Lobby> _lobbies = new();
 	private Node _bridge;
+	private string _joiningCode = "";
+	private int _promotingPeer;
 
 	// What the lobby attributes last said, so they are only rewritten when something changed.
 	private string _published = "";
@@ -46,8 +55,9 @@ public partial class EosManager : Node
 		_bridge.Connect("lobby_opened", Callable.From<string, bool>(OnLobbyOpened));
 		_bridge.Connect("lobby_failed", Callable.From<string>(
 			reason => EmitSignal(SignalName.LobbyFailed, reason)));
+		_bridge.Connect("host_promoted", Callable.From<string, bool>(OnHostPromoted));
 
-		NetworkManager.Instance.LeftServer += _ => LeaveLobby();
+		NetworkManager.Instance.SessionClosed += LeaveLobby;
 	}
 
 	// Only the host writes the lobby attributes, others just read them.
@@ -65,14 +75,47 @@ public partial class EosManager : Node
 		_bridge.Call("publish", attributes);
 	}
 
-	public void HostLobby()
+	public void HostLobby(bool inviteOnly)
 	{
-		if (IsAvailable) _bridge.Call("host_lobby", NetworkManager.MaxPlayers);
+		if (!IsAvailable) return;
+		LobbyCode = inviteOnly ? NewCode() : "";
+		_bridge.Call("host_lobby", NetworkManager.MaxPlayers, LobbyCode);
 	}
 
 	public void JoinLobby(string lobbyId)
 	{
-		if (IsAvailable) _bridge.Call("join_lobby", lobbyId);
+		if (!IsAvailable) return;
+		_joiningCode = "";
+		_bridge.Call("join_lobby", lobbyId);
+	}
+
+	public void JoinByCode(string code)
+	{
+		if (!IsAvailable) return;
+		_joiningCode = code.StripEdges().ToUpperInvariant();
+		_bridge.Call("join_by_code", _joiningCode);
+	}
+
+	// Host only. EOS makes the player the lobby's owner, then the session follows them.
+	public void TransferHost(int peerId)
+	{
+		if (!InLobby) return;
+		_promotingPeer = peerId;
+		_bridge.Call("promote", NetworkManager.Instance.IdentityOf(peerId));
+	}
+
+	private void OnHostPromoted(string userId, bool ok)
+	{
+		if (ok) NetworkManager.Instance.MoveSession(_promotingPeer, userId);
+		else EmitSignal(SignalName.LobbyFailed, "EOS would not hand the lobby over");
+	}
+
+	private static string NewCode()
+	{
+		var code = new System.Text.StringBuilder(CodeLength);
+		for (int i = 0; i < CodeLength; i++)
+			code.Append(CodeAlphabet[(int)(GD.Randi() % CodeAlphabet.Length)]);
+		return code.ToString();
 	}
 
 	public void RefreshLobbies()
@@ -83,6 +126,7 @@ public partial class EosManager : Node
 	public void LeaveLobby()
 	{
 		InLobby = false;
+		LobbyCode = "";
 		_published = "";
 		if (IsAvailable) _bridge.Call("leave_lobby");
 	}
@@ -94,8 +138,8 @@ public partial class EosManager : Node
 		{
 			Godot.Collections.Dictionary lobby = entry.AsGodotDictionary();
 			Godot.Collections.Dictionary data = lobby["data"].AsGodotDictionary();
-			_lobbies.Add(new Lobby(lobby["id"].AsString(),
-				LobbyInfo.FromData(key => data.ContainsKey(key) ? data[key].AsString() : null)));
+			var info = LobbyInfo.FromData(key => data.ContainsKey(key) ? data[key].AsString() : null);
+			if (info is { InviteOnly: false }) _lobbies.Add(new Lobby(lobby["id"].AsString(), info));
 		}
 
 		EmitSignal(SignalName.LobbiesFound);
@@ -107,6 +151,7 @@ public partial class EosManager : Node
 		if (isHost ? NetworkManager.Instance.Host() : NetworkManager.Instance.Join(""))
 		{
 			InLobby = true;
+			if (!isHost) LobbyCode = _joiningCode;
 			EmitSignal(SignalName.LobbyOpened);
 			return;
 		}

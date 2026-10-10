@@ -21,6 +21,10 @@ signal became_available()
 signal lobbies_found(lobbies: Array)
 signal lobby_opened(host_product_user_id: String, is_host: bool)
 signal lobby_failed(reason: String)
+signal host_promoted(product_user_id: String, ok: bool)
+
+## The lobby attribute an invite-only lobby is found by; LobbyInfo.CodeKey on the C# side.
+const CODE_KEY := "CODE"
 
 var available := false
 
@@ -76,7 +80,8 @@ func _exit_tree() -> void:
 	EOS.Platform.PlatformInterface.shutdown()
 
 
-func host_lobby(max_players: int) -> void:
+## An empty code opens a lobby anyone can find.
+func host_lobby(max_players: int, code: String) -> void:
 	if not available:
 		return
 
@@ -89,8 +94,44 @@ func host_lobby(max_players: int) -> void:
 		lobby_failed.emit("EOS could not create the lobby")
 		return
 
+	# Right away rather than with the first regular update, which would leave an invite-only
+	# lobby listed for everyone in the meantime.
+	if not code.is_empty():
+		lobby.add_attribute(CODE_KEY, code)
+		await _counted(lobby.update_async)
+
 	_lobby = lobby
 	lobby_opened.emit(HAuth.product_user_id, true)
+
+
+func join_by_code(code: String) -> void:
+	if not available:
+		return
+
+	var results = await _counted(HLobbies.search_by_attribute_async.bind([
+		{key = EOS.Lobby.SEARCH_BUCKET_ID, value = BUCKET_ID},
+		{key = CODE_KEY, value = code},
+	]))
+	if results == null or results.is_empty():
+		lobby_failed.emit("no game with that code")
+		return
+
+	var lobby: HLobby = await _counted(HLobbies.join_async.bind(results[0]))
+	if lobby == null:
+		lobby_failed.emit("could not join that game")
+		return
+
+	_lobby = lobby
+	lobby_opened.emit(lobby.owner_product_user_id, false)
+
+
+## Owner only: makes another member the lobby's owner.
+func promote(product_user_id: String) -> void:
+	var member: HLobbyMember = _lobby.get_member_by_product_user_id(product_user_id) if _lobby != null else null
+	var ok := false
+	if member != null:
+		ok = await _counted(member.promote_member_async)
+	host_promoted.emit(product_user_id, ok)
 
 
 func join_lobby(lobby_id: String) -> void:

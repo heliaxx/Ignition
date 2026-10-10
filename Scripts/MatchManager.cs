@@ -54,6 +54,12 @@ public partial class MatchManager : Node
 		NetworkManager.Instance.PeerJoined += OnPeerJoined;
 		NetworkManager.Instance.PeerLeft += OnPeerLeft;
 		NetworkManager.Instance.LeftServer += OnLeftServer;
+		// Everyone comes back under a new peer id and readies up again for the new host.
+		NetworkManager.Instance.SessionMoving += () =>
+		{
+			_ready.Clear();
+			EmitSignal(SignalName.LobbyChanged);
+		};
 	}
 
 	// Client -> server. The server stamps the sender, so nobody readies up for somebody else.

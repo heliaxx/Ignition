@@ -4,8 +4,7 @@ public partial class ConfigFileHandler
 {
 	private const int MaxNameLength = 16;
 
-	// The name other players see. An explicit choice wins; the Steam build will fill the
-	// blank with the persona name, and until then a random pilot number stands in.
+	// The name other players see. It is stored in the config file, and also in Steam's profile if Steam is available.
 	public string LoadPlayerName()
 	{
 		if (config.HasSectionKey("profile", "name"))
@@ -14,9 +13,9 @@ public partial class ConfigFileHandler
 			if (!string.IsNullOrWhiteSpace(stored)) return stored;
 		}
 
-		string generated = $"Pilot {GD.Randi() % 9000 + 1000}";
-		SavePlayerName(generated);
-		return generated;
+		string steamName = SteamManager.Instance?.PersonaName ?? "";
+		SavePlayerName(steamName.Trim().Length > 0 ? steamName : $"Pilot {GD.Randi() % 9000 + 1000}");
+		return config.GetValue("profile", "name").AsString();
 	}
 
 	public void SavePlayerName(string name)

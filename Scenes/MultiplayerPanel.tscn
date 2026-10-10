@@ -9,6 +9,7 @@ Label/font_sizes/font_size = 30
 LineEdit/font_sizes/font_size = 30
 OptionButton/font_sizes/font_size = 30
 PopupMenu/font_sizes/font_size = 30
+CheckBox/font_sizes/font_size = 30
 
 [node name="MultiplayerPanel" type="Control" unique_id=974820331]
 layout_mode = 3
@@ -116,6 +117,19 @@ layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "HOST"
 
+[node name="InviteRow" type="HBoxContainer" parent="Panel/Margin/Columns/Browser"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Indent" type="Control" parent="Panel/Margin/Columns/Browser/InviteRow"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+
+[node name="InviteOnlyCheck" type="CheckBox" parent="Panel/Margin/Columns/Browser/InviteRow"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "INVITE ONLY"
+
 [node name="JoinIpRow" type="HBoxContainer" parent="Panel/Margin/Columns/Browser" unique_id=1110036087]
 layout_mode = 2
 theme_override_constants/separation = 12
@@ -133,6 +147,27 @@ text = "127.0.0.1"
 placeholder_text = "host address"
 
 [node name="JoinIpButton" type="Button" parent="Panel/Margin/Columns/Browser/JoinIpRow" unique_id=1767853109]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "JOIN"
+
+[node name="JoinCodeRow" type="HBoxContainer" parent="Panel/Margin/Columns/Browser"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="CodeLabel" type="Label" parent="Panel/Margin/Columns/Browser/JoinCodeRow"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+text = "EOS CODE"
+
+[node name="CodeEdit" type="LineEdit" parent="Panel/Margin/Columns/Browser/JoinCodeRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "join code"
+max_length = 6
+
+[node name="JoinCodeButton" type="Button" parent="Panel/Margin/Columns/Browser/JoinCodeRow"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "JOIN"
@@ -180,6 +215,12 @@ clip_text = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 text = "STEAM"
+
+[node name="CopyCodeButton" type="Button" parent="Panel/Margin/Columns/Detail/Info/TitleRow"]
+visible = false
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "COPY"
 
 [node name="StateLabel" type="Label" parent="Panel/Margin/Columns/Detail/Info" unique_id=1836121563]
 layout_mode = 2
@@ -263,6 +304,64 @@ text = "INVITE"
 layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "LEAVE"
+
+[node name="Friends" type="VBoxContainer" parent="Panel/Margin/Columns/Detail"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="FriendsHeader" type="HBoxContainer" parent="Panel/Margin/Columns/Detail/Friends"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="FriendsTitle" type="Label" parent="Panel/Margin/Columns/Detail/Friends/FriendsHeader"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 44
+text = "INVITE FRIENDS"
+
+[node name="FriendsSearch" type="LineEdit" parent="Panel/Margin/Columns/Detail/Friends/FriendsHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+placeholder_text = "search"
+clear_button_enabled = true
+
+[node name="OnlineTitle" type="Label" parent="Panel/Margin/Columns/Detail/Friends"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+text = "ONLINE"
+
+[node name="OnlineScroll" type="ScrollContainer" parent="Panel/Margin/Columns/Detail/Friends"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="OnlineBox" type="VBoxContainer" parent="Panel/Margin/Columns/Detail/Friends/OnlineScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="OfflineTitle" type="Label" parent="Panel/Margin/Columns/Detail/Friends"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+text = "OFFLINE"
+
+[node name="OfflineScroll" type="ScrollContainer" parent="Panel/Margin/Columns/Detail/Friends"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="OfflineBox" type="VBoxContainer" parent="Panel/Margin/Columns/Detail/Friends/OfflineScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="FriendsBackButton" type="Button" parent="Panel/Margin/Columns/Detail/Friends"]
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_default_cursor_shape = 2
+text = "BACK"
 
 [node name="StatusLabel" type="Label" parent="Panel/Margin/Columns/Detail" unique_id=1546718676]
 layout_mode = 2

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 
 // Steam side of multiplayer: starts Steam, owns the lobby a session runs in, and points
@@ -10,8 +12,14 @@ public partial class SteamManager : Node
 	private const int AppId = 480;
 	private const string GameTag = "heliaxx_ignition";
 
-	// Steam's lobby types and its "everything went fine" results.
+	// Steam's lobby types and its "everything went fine" results. A private lobby is left out
+	// of searches and joined only through an invite.
+	private const int PrivateLobby = 0;
 	private const int PublicLobby = 2;
+
+	// Steam's flag for an ordinary friend, and the persona state of one who is offline.
+	private const int RegularFriends = 4;
+	private const int PersonaOffline = 0;
 
 	// Steam otherwise prefers nearby lobbies and hides the rest of the world's.
 	private const int Worldwide = 3;
@@ -65,7 +73,7 @@ public partial class SteamManager : Node
 		// Accepting an invite or "Join game" while the game is already running.
 		_steam.Connect("join_requested", Callable.From<long, long>((lobbyId, _) => JoinLobby((ulong)lobbyId)));
 
-		NetworkManager.Instance.LeftServer += _ => LeaveLobby();
+		NetworkManager.Instance.SessionClosed += LeaveLobby;
 	}
 
 	public string PersonaName => IsAvailable ? _steam.Call("getPersonaName").AsString() : "";
@@ -83,10 +91,22 @@ public partial class SteamManager : Node
 			_steam.Call("setLobbyData", LobbyId, key, value);
 	}
 
-	public void HostLobby()
+	public void HostLobby(bool inviteOnly)
 	{
 		if (!IsAvailable) return;
-		_steam.Call("createLobby", PublicLobby, NetworkManager.MaxPlayers);
+		_steam.Call("createLobby", inviteOnly ? PrivateLobby : PublicLobby, NetworkManager.MaxPlayers);
+	}
+
+	public void TransferHost(int peerId)
+	{
+		string steamId = NetworkManager.Instance.IdentityOf(peerId);
+		if (LobbyId == 0 || !long.TryParse(steamId, out long id)
+			|| !_steam.Call("setLobbyOwner", LobbyId, id).AsBool())
+		{
+			EmitSignal(SignalName.LobbyFailed, "Steam would not hand the lobby over");
+			return;
+		}
+		NetworkManager.Instance.MoveSession(peerId, steamId);
 	}
 
 	public void JoinLobby(ulong lobbyId)
@@ -103,11 +123,30 @@ public partial class SteamManager : Node
 		_steam.Call("requestLobbyList");
 	}
 
-	// Steam's own invite dialog, so the host picks friends from their list.
-	public void InviteFriends()
+	public record Friend(long Id, string Name, bool Online, bool InThisGame);
+
+	// All friends are returned, even those who are offline or in another game. 
+	// The list is empty if Steam is unavailable.
+	public List<Friend> Friends()
 	{
-		if (IsAvailable && LobbyId != 0) _steam.Call("activateGameOverlayInviteDialog", LobbyId);
+		var friends = new List<Friend>();
+		if (!IsAvailable) return friends;
+
+		int count = _steam.Call("getFriendCount", RegularFriends).AsInt32();
+		for (int i = 0; i < count; i++)
+		{
+			long id = _steam.Call("getFriendByIndex", i, RegularFriends).AsInt64();
+			bool online = _steam.Call("getFriendPersonaState", id).AsInt32() != PersonaOffline;
+			Godot.Collections.Dictionary game = _steam.Call("getFriendGamePlayed", id).AsGodotDictionary();
+			bool inThisGame = game.ContainsKey("id") && game["id"].AsInt64() == AppId;
+			friends.Add(new Friend(id, _steam.Call("getFriendPersonaName", id).AsString(), online, inThisGame));
+		}
+		return friends.OrderByDescending(f => f.InThisGame).ThenBy(f => f.Name, StringComparer.OrdinalIgnoreCase).ToList();
 	}
+
+	// Arrives as a Steam chat invite; accepting it joins through join_requested.
+	public bool InviteToLobby(long friendId) =>
+		IsAvailable && LobbyId != 0 && _steam.Call("inviteUserToLobby", LobbyId, friendId).AsBool();
 
 	public void LeaveLobby()
 	{
@@ -165,8 +204,8 @@ public partial class SteamManager : Node
 		foreach (Variant entry in lobbies)
 		{
 			long id = entry.AsInt64();
-			_lobbies.Add(new Lobby((ulong)id,
-				LobbyInfo.FromData(key => _steam.Call("getLobbyData", id, key).AsString())));
+			LobbyInfo info = LobbyInfo.FromData(key => _steam.Call("getLobbyData", id, key).AsString());
+			if (info != null) _lobbies.Add(new Lobby((ulong)id, info));
 		}
 
 		EmitSignal(SignalName.LobbiesFound);

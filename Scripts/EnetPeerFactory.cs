@@ -21,4 +21,9 @@ public class EnetPeerFactory : IPeerFactory
 		GD.PrintErr($"EnetPeerFactory: CreateClient({address}:{port}) failed with {error}");
 		return null;
 	}
+
+	public string IdentityOf(MultiplayerPeer peer, int peerId) =>
+		(peer as ENetMultiplayerPeer)?.GetPeer(peerId)?.GetRemoteAddress() ?? "";
+
+	public IPeerFactory MovedTo(string hostIdentity) => null;
 }

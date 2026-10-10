@@ -1,4 +1,4 @@
-# Godot writes LF, so the working tree stays LF on every machine, whatever its core.autocrlf.
+# Godot writes LF, so the working tree stays LF on every machine.
 * text=auto eol=lf
 
 # Explicitly declare text files you want to always be normalized.

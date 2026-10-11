@@ -39,7 +39,7 @@ public partial class PlayerShip
         if (_hitSound == null || _sinceHitSound < HitSoundGap) return;
 
         _sinceHitSound = 0f;
-        _hitSound.PitchScale = (float)GD.RandRange(0.92, 1.08);
+        _hitSound.PitchScale = (float)GD.RandRange(0.8, 1.2);
         _hitSound.Play();
     }
 
@@ -48,7 +48,7 @@ public partial class PlayerShip
         if (!IsLocallyControlled || _struckSound == null || _sinceStruckSound < StruckSoundGap) return;
 
         _sinceStruckSound = 0f;
-        _struckSound.PitchScale = (float)GD.RandRange(0.9, 1.1);
+        _struckSound.PitchScale = (float)GD.RandRange(0.8, 1.2);
         _struckSound.Play();
     }
     private int _currentAmmo  => _gatlings.Sum(gun => gun.CurrentAmmo);

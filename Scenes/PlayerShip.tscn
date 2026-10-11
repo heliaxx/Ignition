@@ -106,6 +106,7 @@ shape = ExtResource("20_hull12")
 
 [node name="ShakeableCamera" parent="." unique_id=855144544 instance=ExtResource("4_camera")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0297352, -3.4500873)
+doppler_tracking = 2
 fov = 70.0
 script = ExtResource("12_look")
 
@@ -167,18 +168,19 @@ transform = Transform3D(0, 0, 1, 1, -4.37114e-08, 0, 4.37114e-08, 1, 0, 0, -2.12
 
 [node name="HitSound" type="AudioStreamPlayer" parent="." unique_id=1087976558]
 stream = ExtResource("21_hitsound")
-volume_db = 2.0
+volume_db = 6.7
 max_polyphony = 4
 bus = &"SFX"
 
 [node name="StruckSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("26_struck")
-volume_db = -4.0
+volume_db = -2.2
 max_polyphony = 3
 bus = &"SFX"
 
 [node name="RamSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("26_struck")
+volume_db = 4.0
 bus = &"SFX"
 
 [node name="EngineSound" type="AudioStreamPlayer" parent="." unique_id=2029500269]
@@ -196,7 +198,31 @@ bus = &"SFX"
 
 [node name="BoostEndSound" type="AudioStreamPlayer" parent="." unique_id=1729198656]
 stream = ExtResource("25_boost_end")
+volume_db = -6.3
+bus = &"SFX"
+
+[node name="RemoteEngineSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("22_engine")
+unit_size = 30.0
+max_db = 6.0
+max_distance = 1500.0
+doppler_tracking = 2
+bus = &"SFX"
+
+[node name="RemoteBoostSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("24_boost")
 volume_db = -8.0
+unit_size = 40.0
+max_distance = 2000.0
+doppler_tracking = 2
+bus = &"SFX"
+
+[node name="RemoteBoostEndSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("25_boost_end")
+volume_db = -6.3
+unit_size = 40.0
+max_distance = 2000.0
+doppler_tracking = 2
 bus = &"SFX"
 
 [node name="HealthComponent" type="Node" parent="." unique_id=1650153027]

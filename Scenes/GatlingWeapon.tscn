@@ -13,4 +13,5 @@ bus = &"SFX"
 
 [node name="Shooting" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("3_loop")
+volume_db = -2.2
 bus = &"SFX"

@@ -79,6 +79,7 @@ public partial class Fighter : CharacterBody3D, IDamageable
     // Thruster visuals
     private ShaderMaterial _thrusterMaterial;
     private ShipModel _model;
+    private AudioStreamPlayer3D _engineSound;
 
     private Node3D player;
     private CharacterBody3D playerBody;
@@ -96,6 +97,7 @@ public partial class Fighter : CharacterBody3D, IDamageable
             _thrusterMaterial = thrusterMesh.GetSurfaceOverrideMaterial(0) as ShaderMaterial
                 ?? thrusterMesh.Mesh?.SurfaceGetMaterial(0) as ShaderMaterial;
         _model = GetNodeOrNull<ShipModel>("Model");
+        _engineSound = GetNodeOrNull<AudioStreamPlayer3D>("EngineSound");
         // Nobody sits in an NPC cockpit.
         _model?.SetInteriorVisible(false);
         // Stagger avoidance frames across instances so they don't all raycast simultaneously
@@ -164,6 +166,8 @@ public partial class Fighter : CharacterBody3D, IDamageable
         float intensity = Mathf.Clamp(Velocity.Length() / Speed * 1.2f, 0f, 1.5f);
         _thrusterMaterial?.SetShaderParameter("intensity", intensity);
         _model?.SetThrottle(intensity, 0f);
+        // 1.5 is the flame at its hottest, which the engine sound takes as full power.
+        if (!_isDead) PlayerShip.DriveOutsideEngine(_engineSound, intensity / 1.5f);
     }
 
     private void EnsureCacheValid()
@@ -412,6 +416,8 @@ public partial class Fighter : CharacterBody3D, IDamageable
         EventBus.EmitKilled(Participants.IdOf(this), Participants.IdOf(LastAttacker));
 
         Explosion.SpawnAt(this, GlobalPosition, shipDestroyed: true);
+        // A pooled fighter is only hidden, so its engine would keep running.
+        _engineSound?.Stop();
         EmitSignal(SignalName.Died);
     }
 }

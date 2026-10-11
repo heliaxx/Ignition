@@ -129,6 +129,11 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 	private AudioStreamPlayer _engineCrackle;
 	private AudioStreamPlayer _boostSound;
 	private AudioStreamPlayer _boostEndSound;
+	// What everyone else hears of this ship. Silent on own ship.
+	private AudioStreamPlayer3D _remoteEngineSound;
+	private AudioStreamPlayer3D _remoteBoostSound;
+	private AudioStreamPlayer3D _remoteBoostEndSound;
+	private bool _remoteWasBoosting;
 	private float _engineLevel;
 	private float _engineSoundLevel;
 	private CockpitBar _speedBar;
@@ -170,6 +175,9 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		_engineCrackle = GetNodeOrNull<AudioStreamPlayer>("EngineCrackle");
 		_boostSound = GetNodeOrNull<AudioStreamPlayer>("BoostSound");
 		_boostEndSound = GetNodeOrNull<AudioStreamPlayer>("BoostEndSound");
+		_remoteEngineSound = GetNodeOrNull<AudioStreamPlayer3D>("RemoteEngineSound");
+		_remoteBoostSound = GetNodeOrNull<AudioStreamPlayer3D>("RemoteBoostSound");
+		_remoteBoostEndSound = GetNodeOrNull<AudioStreamPlayer3D>("RemoteBoostEndSound");
 		_speedBar = GetNodeOrNull<CockpitBar>("SpeedBar");
 		health = GetNode<HealthComponent>("HealthComponent");
 		health.HealthChanged += OnHealthChanged;
@@ -266,6 +274,7 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 			gun.Silence();
 		_engineSound?.Stop();
 		_engineCrackle?.Stop();
+		_remoteEngineSound?.Stop();
 		_engineSoundLevel = 0.0f;
 		Explosion.SpawnAt(this, GlobalPosition, shipDestroyed: true);
 		ApplyActivation();
@@ -393,7 +402,11 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		UpdateThrusterFlame();
 
 		// Everything below is for the pilot alone: dust is a cockpit effect, the rest is HUD.
-		if (!IsLocallyControlled) return;
+		if (!IsLocallyControlled)
+		{
+			UpdateRemoteEngineSound((float)delta);
+			return;
+		}
 
 		_sinceHitSound += (float)delta;
 		_sinceStruckSound += (float)delta;
@@ -799,6 +812,11 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 	private const float EngineSoundFullDb = 8.0f;
 	private const float EngineCrackleFullDb = 0.0f;
 	private const float EngineSoundResponse = 8.0f;
+	private const float CracklePitchMin = 0.9f;
+	private const float CracklePitchMax = 1.1f;
+	private const float CracklePitchResponse = 4.0f;
+	private float _cracklePitchTarget = 1.0f;
+	private float _untilCracklePitchChange;
 
 	// The pilot hears their own engines as hard as the flame burns: quiet while coasting,
 	// loudest and a little higher under boost. Engine crackle runs at the same volume.
@@ -809,9 +827,43 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		_engineSoundLevel = Mathf.Lerp(_engineSoundLevel, _engineLevel / BoostFlame, EngineSoundResponse * delta);
 		float levelDb = Mathf.LinearToDb(Mathf.Max(_engineSoundLevel, 0.001f));
 		_engineSound.VolumeDb = EngineSoundFullDb + levelDb;
-		_engineSound.PitchScale = 0.7f + 0.2f * _engineSoundLevel;
+		_engineSound.PitchScale = EnginePitch(_engineSoundLevel);
 		_engineCrackle.VolumeDb = EngineCrackleFullDb + levelDb;
+
+		_untilCracklePitchChange -= delta;
+		if (_untilCracklePitchChange <= 0.0f)
+		{
+			_cracklePitchTarget = (float)GD.RandRange(CracklePitchMin, CracklePitchMax);
+			_untilCracklePitchChange = (float)GD.RandRange(0.4, 1.2);
+		}
+		_engineCrackle.PitchScale = Mathf.Lerp(_engineCrackle.PitchScale, _cracklePitchTarget, CracklePitchResponse * delta);
+
 		if (!_engineSound.Playing) _engineSound.Play();
 		if (!_engineCrackle.Playing) _engineCrackle.Play();
+	}
+
+	// Another ship's engine heard from outside.
+	// For both players and NPCs.
+	private const float OutsideEngineFullDb = 10.0f;
+
+	public static void DriveOutsideEngine(AudioStreamPlayer3D engine, float level)
+	{
+		if (engine == null) return;
+		engine.VolumeDb = OutsideEngineFullDb + Mathf.LinearToDb(Mathf.Max(level, 0.001f));
+		engine.PitchScale = EnginePitch(level);
+		if (!engine.Playing) engine.Play();
+	}
+
+	private static float EnginePitch(float level) => 0.7f + 0.2f * level;
+
+	private void UpdateRemoteEngineSound(float delta)
+	{
+		_engineSoundLevel = Mathf.Lerp(_engineSoundLevel, _engineLevel / BoostFlame, EngineSoundResponse * delta);
+		DriveOutsideEngine(_remoteEngineSound, _engineSoundLevel);
+
+		if (_isBoosting == _remoteWasBoosting) return;
+		_remoteWasBoosting = _isBoosting;
+		if (_isBoosting) _remoteBoostSound?.Play(BoostDelay);
+		else _remoteBoostEndSound?.Play();
 	}
 }

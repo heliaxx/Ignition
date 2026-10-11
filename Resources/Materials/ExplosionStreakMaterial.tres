@@ -1,11 +1,10 @@
-[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://bpmnxqfygods0"]
+[gd_resource type="ShaderMaterial" format=3 uid="uid://bpmnxqfygods0"]
 
 [ext_resource type="Shader" uid="uid://c1346uibrf0bb" path="res://Shaders/ExplosionStreak.gdshader" id="1_shader"]
-[ext_resource type="Texture2D" uid="uid://cpntqumljtag6" path="res://Imports/Images/T_4_streaks.png" id="2_atlas"]
 
 [resource]
 render_priority = -1
 shader = ExtResource("1_shader")
-shader_parameter/streak_atlas = ExtResource("2_atlas")
-shader_parameter/streak_color = Color(1, 0.6, 0.2, 1)
-shader_parameter/emission_strength = 8.0
+shader_parameter/core_color = Color(1, 0.95, 0.85, 1)
+shader_parameter/edge_color = Color(1, 0.45, 0.1, 1)
+shader_parameter/emission_strength = 10.0

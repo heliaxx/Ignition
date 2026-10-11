@@ -1,13 +1,13 @@
-[gd_scene load_steps=25 format=3 uid="uid://duvmffx5gj5xg"]
+[gd_scene format=3 uid="uid://duvmffx5gj5xg"]
 
 [ext_resource type="Material" uid="uid://hgi0nqa0v3vb" path="res://Resources/Materials/ExplosionCloudMaterial.tres" id="1_cloud"]
 [ext_resource type="Material" uid="uid://bpmnxqfygods0" path="res://Resources/Materials/ExplosionStreakMaterial.tres" id="2_streak"]
-[ext_resource type="Material" path="res://Resources/Materials/ExplosionFlareMaterial.tres" id="3_flare"]
+[ext_resource type="Material" uid="uid://d07wgqosbibhn" path="res://Resources/Materials/ExplosionFlareMaterial.tres" id="3_flare"]
 [ext_resource type="AudioStream" uid="uid://bpsq1cb2gvun2" path="res://Imports/Sounds/Combat/244394__werra__bangexplosion-metallic.wav" id="4_destroyed"]
 
 [sub_resource type="Gradient" id="Grad_cloud"]
-offsets = PackedFloat32Array(0, 0.15, 0.5, 1)
-colors = PackedColorArray(1, 0, 0, 1, 0.6, 0, 0, 1, 0.1, 0, 0, 0.9, 0, 0, 0, 0)
+offsets = PackedFloat32Array(0, 0.0057971017, 0.13623188, 0.26086956, 0.51304346, 1)
+colors = PackedColorArray(1, 0, 0, 0, 1, 0, 0, 1, 0.45, 0, 0, 1, 0, 0, 0, 0.9, 0, 0, 0, 0.55, 0, 0, 0, 0)
 
 [sub_resource type="GradientTexture1D" id="GradTex_cloud"]
 gradient = SubResource("Grad_cloud")
@@ -20,31 +20,35 @@ point_count = 3
 curve = SubResource("Curve_radial")
 
 [sub_resource type="Curve" id="Curve_scale_up"]
-_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.25, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+_data = [Vector2(0, 0.3), 0.0, 0.0, 0, 0, Vector2(0.3, 0.8), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
 point_count = 3
 
 [sub_resource type="CurveTexture" id="CurveTex_scale_up"]
 curve = SubResource("Curve_scale_up")
 
 [sub_resource type="ParticleProcessMaterial" id="PPM_smoke"]
-lifetime_randomness = 0.45
+lifetime_randomness = 0.6
 emission_shape = 1
-emission_sphere_radius = 0.6
+emission_sphere_radius = 1.5
+angle_min = -180.0
+angle_max = 180.0
 spread = 180.0
 initial_velocity_min = 7.0
 initial_velocity_max = 16.0
+angular_velocity_min = -25.0
+angular_velocity_max = 25.0
 radial_velocity_min = 1.0
 radial_velocity_max = 1.0
 radial_velocity_curve = SubResource("CurveTex_radial")
 gravity = Vector3(0, 0, 0)
-scale_min = 2.0
-scale_max = 4.5
+damping_min = 3.0
+damping_max = 6.0
+scale_min = 16.0
+scale_max = 20.0
 scale_curve = SubResource("CurveTex_scale_up")
 color_ramp = SubResource("GradTex_cloud")
 
-[sub_resource type="SphereMesh" id="Mesh_smoke"]
-radial_segments = 128
-rings = 64
+[sub_resource type="QuadMesh" id="Mesh_smoke"]
 
 [sub_resource type="Gradient" id="Grad_streak"]
 offsets = PackedFloat32Array(0, 0.15, 1)
@@ -61,20 +65,21 @@ point_count = 3
 curve = SubResource("Curve_scale_streak")
 
 [sub_resource type="ParticleProcessMaterial" id="PPM_streak"]
+lifetime_randomness = 0.8
 particle_flag_align_y = true
 spread = 180.0
-initial_velocity_min = 1.0
-initial_velocity_max = 2.0
+initial_velocity_min = 25.0
+initial_velocity_max = 60.0
 gravity = Vector3(0, 0, 0)
+damping_min = 10.0
+damping_max = 40.0
 scale_min = 10.0
-scale_max = 14.0
+scale_max = 16.0
 scale_curve = SubResource("CurveTex_scale_streak")
 color_ramp = SubResource("GradTex_streak")
-hue_variation_min = 1.0
-hue_variation_max = 1.0
 
 [sub_resource type="QuadMesh" id="Mesh_streak"]
-size = Vector2(0.25, 1)
+size = Vector2(0.12, 1)
 center_offset = Vector3(0, 0.4, 0)
 
 [sub_resource type="Curve" id="Curve_flare"]
@@ -86,8 +91,8 @@ curve = SubResource("Curve_flare")
 
 [sub_resource type="ParticleProcessMaterial" id="PPM_flare"]
 gravity = Vector3(0, 0, 0)
-scale_min = 24.0
-scale_max = 24.0
+scale_min = 20.0
+scale_max = 20.0
 scale_curve = SubResource("CurveTex_flare")
 
 [sub_resource type="QuadMesh" id="Mesh_flare"]
@@ -150,32 +155,35 @@ _data = {
 &"explode_space": SubResource("Anim_explode")
 }
 
-[node name="VFX_Explosion_Space" type="Node3D"]
+[node name="VFX_Explosion_Space" type="Node3D" unique_id=336918828]
 
-[node name="VFX_Smoke_Balls" type="GPUParticles3D" parent="."]
+[node name="VFX_Smoke_Balls" type="GPUParticles3D" parent="." unique_id=1917069014]
 material_override = ExtResource("1_cloud")
 emitting = false
-amount = 48
+amount = 120
+lifetime = 2.0
 one_shot = true
-explosiveness = 0.7
+explosiveness = 0.8
 fixed_fps = 60
-visibility_aabb = AABB(-30, -30, -30, 60, 60, 60)
+visibility_aabb = AABB(-40, -40, -40, 80, 80, 80)
+draw_order = 3
 process_material = SubResource("PPM_smoke")
 draw_pass_1 = SubResource("Mesh_smoke")
 
-[node name="VFX_Streaks" type="GPUParticles3D" parent="."]
+[node name="VFX_Streaks" type="GPUParticles3D" parent="." unique_id=1142278156]
 material_override = ExtResource("2_streak")
 emitting = false
-amount = 32
-lifetime = 0.5
+amount = 50
+lifetime = 0.6
 one_shot = true
-explosiveness = 0.6
+explosiveness = 1.0
+randomness = 0.4
 fixed_fps = 60
 visibility_aabb = AABB(-30, -30, -30, 60, 60, 60)
 process_material = SubResource("PPM_streak")
 draw_pass_1 = SubResource("Mesh_streak")
 
-[node name="Flare" type="GPUParticles3D" parent="."]
+[node name="Flare" type="GPUParticles3D" parent="." unique_id=2022627396]
 material_override = ExtResource("3_flare")
 emitting = false
 amount = 1
@@ -187,20 +195,19 @@ visibility_aabb = AABB(-30, -30, -30, 60, 60, 60)
 process_material = SubResource("PPM_flare")
 draw_pass_1 = SubResource("Mesh_flare")
 
-[node name="OmniLight3D" type="OmniLight3D" parent="."]
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=963384544]
 light_color = Color(1, 0.7, 0.3, 1)
-light_energy = 20.0
+light_energy = 0.0
 omni_range = 80.0
 omni_attenuation = 0.5
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimLib")
-}
-autoplay = "explode_space"
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1485553465]
+libraries/ = SubResource("AnimLib")
+autoplay = &"explode_space"
 
-[node name="DestroyedSound" type="AudioStreamPlayer3D" parent="."]
+[node name="DestroyedSound" type="AudioStreamPlayer3D" parent="." unique_id=70742832]
 stream = ExtResource("4_destroyed")
+volume_db = 4.0
 unit_size = 100.0
-max_db = 0.0
+max_db = 4.0
 bus = &"SFX"

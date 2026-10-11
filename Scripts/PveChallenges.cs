@@ -15,7 +15,7 @@ public partial class PveChallenges : Control
 			"No enemies, ammo limits or other distractions. Fly around the asteroid field at your own pace, get a feel for your ship and test the controls.",
 			null),
 		new("RUSH", "res://Scenes/LevelRush.tscn",
-			"Your hull corrodes away faster, the further you get. Fly through the rings to repair and gain points multiplier. As long as you keep moving, your score is growing.",
+			"Your hull corrodes away faster, the further you get. Fly through the rings to repair and build up a points multiplier - miss one and it resets. As long as you keep moving, your score is growing.",
 			() => $"TOP SCORE: {ConfigFileHandler.Instance.LoadRushHighScore()} POINTS"),
 		new("WAVES", "res://Scenes/LevelWave.tscn",
 			"Enemy fighters come in waves, each one bigger than the last. Hold out for as long as you can - every kill counts towards your score.",

@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://b1318syjhu2cq" path="res://Imports/Planets/Rings/2k_saturn_ring_alpha.png" id="12_ringt"]
 [ext_resource type="Theme" uid="uid://brj8jmsa6vurj" path="res://theme.tres" id="13_theme"]
 [ext_resource type="Material" path="res://Resources/Materials/FogStreaksMaterial.tres" id="14_fogstreak"]
+[ext_resource type="Script" path="res://Scripts/RingIndicator.cs" id="15_ringind"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7645s"]
 shader = ExtResource("2_fmvnv")
@@ -124,9 +125,9 @@ anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -300.0
-offset_top = 20.0
+offset_top = 68.0
 offset_right = -20.0
-offset_bottom = 60.0
+offset_bottom = 108.0
 grow_horizontal = 0
 theme = ExtResource("13_theme")
 text = "Score: 0"
@@ -137,16 +138,15 @@ anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -300.0
-offset_top = 68.0
+offset_top = 20.0
 offset_right = -20.0
-offset_bottom = 108.0
+offset_bottom = 60.0
 grow_horizontal = 0
 theme = ExtResource("13_theme")
 text = "Best: 0"
 horizontal_alignment = 2
 
-[node name="MultiplierLabel" type="Label" parent="ScoreHUD" unique_id=74132431]
-visible = false
+[node name="ModifiersLabel" type="Label" parent="ScoreHUD"]
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
@@ -156,14 +156,51 @@ offset_right = -20.0
 offset_bottom = 156.0
 grow_horizontal = 0
 theme = ExtResource("13_theme")
-text = "x1.5 (2.0s)"
+text = "Modifiers:"
 horizontal_alignment = 2
+
+[node name="SpeedLabel" type="Label" parent="ScoreHUD"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -300.0
+offset_top = 212.0
+offset_right = -20.0
+offset_bottom = 252.0
+grow_horizontal = 0
+theme = ExtResource("13_theme")
+text = "Speed: x1.00"
+horizontal_alignment = 2
+
+[node name="MultiplierLabel" type="Label" parent="ScoreHUD" unique_id=74132431]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -300.0
+offset_top = 164.0
+offset_right = -20.0
+offset_bottom = 204.0
+grow_horizontal = 0
+theme = ExtResource("13_theme")
+text = "Checkpoints: x1.00"
+horizontal_alignment = 2
+
+[node name="RingIndicator" type="Control" parent="ScoreHUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("13_theme")
+script = ExtResource("15_ringind")
 
 [node name="ChunkedAsteroidField" type="Node3D" parent="." unique_id=1664462103 node_paths=PackedStringArray("SpawnExclusionZones")]
 script = ExtResource("9_6rtd5")
 ChunkSize = 400.0
 CollisionRadius = 3
-MinSpacing = 120.0
+MinSpacing = 150.0
 SpawnExclusionZones = [null, NodePath("../Player")]
 AsyncApplyPerFrame = 2
 

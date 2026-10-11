@@ -87,6 +87,7 @@ public partial class ChunkedAsteroidField : Node3D
     private Mesh[] _asteroidMeshes;
     private Material[] _asteroidMaterials;
     private Shape3D[] _collisionShapes;
+    private float[] _meshRadii; // rough radius per variant at scale 1
 
     // Loaded chunks: key = chunk coordinate hash
     private Dictionary<Vector3I, ChunkData> _loadedChunks = new();
@@ -222,6 +223,7 @@ public partial class ChunkedAsteroidField : Node3D
         var meshes = new List<Mesh>();
         var materials = new List<Material>();
         var collisionShapes = new List<Shape3D>();
+        var meshRadii = new List<float>();
 
         foreach (var scenePath in AsteroidScenePaths)
         {
@@ -238,6 +240,9 @@ public partial class ChunkedAsteroidField : Node3D
             if (meshInstance?.Mesh != null)
             {
                 meshes.Add(meshInstance.Mesh);
+                Aabb aabb = meshInstance.Mesh.GetAabb();
+                // Largest half-extent: the rocks are roundish, so the box corner would overstate them.
+                meshRadii.Add(aabb.GetLongestAxisSize() * 0.5f);
 
                 Material material = meshInstance.GetActiveMaterial(0);
                 if (material == null)
@@ -268,6 +273,7 @@ public partial class ChunkedAsteroidField : Node3D
         _asteroidMeshes = meshes.ToArray();
         _asteroidMaterials = materials.ToArray();
         _collisionShapes = collisionShapes.ToArray();
+        _meshRadii = meshRadii.ToArray();
 
         if (_asteroidMeshes.Length == 0)
         {
@@ -673,6 +679,37 @@ public partial class ChunkedAsteroidField : Node3D
             id ^= (ulong)(localPos.Z * 54321.09f).GetHashCode() << 32;
             return id;
         }
+    }
+
+    // Open space around a point: distance to the nearest rock's surface among loaded chunks.
+    public float ClearanceAt(Vector3 globalPoint)
+    {
+        Vector3 local = globalPoint - GlobalPosition;
+        // A chunk's rocks lie within half a chunk of its coord * ChunkSize.
+        var home = new Vector3I(
+            Mathf.RoundToInt(local.X / ChunkSize),
+            Mathf.RoundToInt(local.Y / ChunkSize),
+            Mathf.RoundToInt(local.Z / ChunkSize)
+        );
+
+        float clearance = float.MaxValue;
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                for (int z = -1; z <= 1; z++)
+                {
+                    if (!_loadedChunks.TryGetValue(home + new Vector3I(x, y, z), out var chunk)) continue;
+                    foreach (var a in chunk.Asteroids)
+                    {
+                        if (_destroyedAsteroids.Contains(a.Id)) continue;
+                        float radius = a.Scale * _meshRadii[a.MeshVariant];
+                        clearance = Mathf.Min(clearance, local.DistanceTo(a.Position) - radius);
+                    }
+                }
+            }
+        }
+        return clearance;
     }
 
     // Records an asteroid as destroyed so it stays gone across chunk reloads.

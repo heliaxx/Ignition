@@ -56,18 +56,17 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 	private double timeSinceLastMouseInput = 0.0;
 	public Vector2 GetWidgetCursorPos() => widgetCursor;
 
-	// Where the ship is heading, for the HUD's vector indicator. Measured from the camera so
-	// looking around keeps it on the true direction; null when drifting too slowly for the
-	// direction to mean anything, or when travelling away from the view.
-	public Vector2? GetVelocityScreenPos()
+	// A point far along where the ship is heading, for the HUD's vector indicator. Measured from
+	// the camera so looking around keeps it on the true direction; null when drifting too slowly
+	// for the direction to mean anything.
+	public Vector3? GetVelocityAimPoint()
 	{
 		if (Velocity.LengthSquared() < 1.0f) return null;
 
 		var camera = GetViewport().GetCamera3D();
 		if (camera == null) return null;
 
-		Vector3 ahead = camera.GlobalPosition + Velocity.Normalized() * 1000.0f;
-		return camera.IsPositionBehind(ahead) ? null : camera.UnprojectPosition(ahead);
+		return camera.GlobalPosition + Velocity.Normalized() * 1000.0f;
 	}
 	public bool IsViewTurned => _cockpitCamera is FreeLook look && look.IsTurned;
 

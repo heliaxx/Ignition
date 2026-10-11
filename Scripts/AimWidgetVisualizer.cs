@@ -19,6 +19,7 @@ public partial class AimWidgetVisualizer : Control
 	[Export] public float TargetReticleSize = 64f;
 	[Export] public float LeadReticleSize = 48f;
 	[Export] public float VectorReticleSize = 56f;
+	[Export] public float VectorArrowSize = 40f;
 	[Export] public bool ShowCursor = true;
 	[Export] public bool ShowVectorIndicator = false;
 
@@ -28,6 +29,7 @@ public partial class AimWidgetVisualizer : Control
 	private Texture2D _centerCrosshair;
 	private Texture2D _gimbalIndicator;
 	private Texture2D _vectorIndicator;
+	private Texture2D _vectorArrow;
 
 	private float _flickerTimer = 0f;
 
@@ -47,6 +49,7 @@ public partial class AimWidgetVisualizer : Control
 		_centerCrosshair = GD.Load<Texture2D>("res://Imports/Images/crosshair001.png");
 		_gimbalIndicator = GD.Load<Texture2D>("res://Imports/Images/Gimbalindicator.png");
 		_vectorIndicator = GD.Load<Texture2D>("res://Imports/Images/crosshair-040.png");
+		_vectorArrow = GD.Load<Texture2D>("res://Imports/Images/navigation_n.png");
 
 		var settings = ConfigFileHandler.Instance?.LoadControlSettings();
 		if (settings != null && settings.ContainsKey("show_aim_widget"))
@@ -73,11 +76,16 @@ public partial class AimWidgetVisualizer : Control
 		// Draw outer aim radius circle
 		// DrawArc(center, radius, 0f, Mathf.Tau, 64, CrosshairColor, LineWidth);
 
-		// Draw vector indicator at the direction of travel
-		Vector2? velocityScreenPos = ShowVectorIndicator ? playerShip.GetVelocityScreenPos() : null;
-		if (_vectorIndicator != null && velocityScreenPos.HasValue)
+		// Draw vector indicator at the direction of travel, or an edge arrow toward it when off screen
+		Vector3? velocityPoint = ShowVectorIndicator ? playerShip.GetVelocityAimPoint() : null;
+		var camera = GetViewport().GetCamera3D();
+		if (_vectorIndicator != null && velocityPoint.HasValue && camera != null)
 		{
-			DrawTextureAtCenter(_vectorIndicator, velocityScreenPos.Value, VectorReticleSize, VectorIndicatorColor);
+			// Margin of half the reticle, so it switches to the arrow before being cut off.
+			if (ScreenEdge.Locate(camera, velocityPoint.Value, GetViewportRect().Size, VectorReticleSize / 2f, out Vector2 pos, out Vector2 dir))
+				DrawTextureAtCenter(_vectorIndicator, pos, VectorReticleSize, VectorIndicatorColor);
+			else
+				ScreenEdge.DrawArrow(this, _vectorArrow, pos, dir, VectorArrowSize, VectorIndicatorColor);
 		}
 
 		// Draw gimbal aim reticle (converges toward lead position when tracking)

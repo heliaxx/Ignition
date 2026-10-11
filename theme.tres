@@ -2,28 +2,17 @@
 
 [ext_resource type="FontFile" uid="uid://dp75um7jdyrun" path="res://Imports/Fonts/Eurostile.ttf" id="1_lv0qn"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_705ct"]
-content_margin_left = 40.0
-bg_color = Color(0.894118, 0.717647, 0.337255, 1)
-
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ip8po"]
 content_margin_left = 20.0
 content_margin_right = 30.0
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c3f0c"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_705ct"]
 content_margin_left = 40.0
 bg_color = Color(0.894118, 0.717647, 0.337255, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cb_hover"]
-content_margin_left = 2.0
-content_margin_top = 2.0
-content_margin_right = 2.0
-content_margin_bottom = 2.0
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c3f0c"]
+content_margin_left = 40.0
 bg_color = Color(0.894118, 0.717647, 0.337255, 1)
-corner_radius_top_left = 3
-corner_radius_top_right = 3
-corner_radius_bottom_right = 3
-corner_radius_bottom_left = 3
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cb_normal"]
 bg_color = Color(0.1, 0.1, 0.1, 0.9)
@@ -32,6 +21,17 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.894118, 0.717647, 0.337255, 0.55)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cb_hover"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.894118, 0.717647, 0.337255, 1)
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3

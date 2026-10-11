@@ -1,4 +1,4 @@
-[gd_resource type="AudioStreamRandomizer" load_steps=2 format=3 uid="uid://dsoitvy6jdcit"]
+[gd_resource type="AudioStreamRandomizer" format=3 uid="uid://dsoitvy6jdcit"]
 
 [ext_resource type="AudioStream" uid="uid://dopshp4d2ht4x" path="res://Imports/FlightModelMissile/thrusts/thrust/boom/big payment boom.ogg" id="1_akmpc"]
 

@@ -112,6 +112,7 @@ public partial class Fighter : CharacterBody3D, IDamageable
     public void Reset()
     {
         currentHealth = MAX_HEALTH;
+        _isDead = false;
         Velocity = Vector3.Zero;
         _cacheValid = false;
         _wanderAngle = GD.Randf() * Mathf.Tau;

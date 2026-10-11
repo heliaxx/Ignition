@@ -94,8 +94,16 @@ public partial class SteamManager : Node
 	public void HostLobby(bool inviteOnly)
 	{
 		if (!IsAvailable) return;
+		_creating = true;
 		_steam.Call("createLobby", inviteOnly ? PrivateLobby : PublicLobby, NetworkManager.MaxPlayers);
 	}
+
+	// Between asking Steam for a lobby and hearing it was made. Steam also reports the host
+	// entering its new lobby, and that report can come first.
+	private bool _creating;
+
+	private bool OwnsLobby(long lobbyId) =>
+		_steam.Call("getLobbyOwner", lobbyId).AsInt64() == _steam.Call("getSteamID").AsInt64();
 
 	public void TransferHost(int peerId)
 	{
@@ -158,6 +166,7 @@ public partial class SteamManager : Node
 
 	private void OnLobbyCreated(long result, long lobbyId)
 	{
+		_creating = false;
 		if (result != ResultOk)
 		{
 			EmitSignal(SignalName.LobbyFailed, "Steam could not create the lobby");
@@ -186,6 +195,16 @@ public partial class SteamManager : Node
 		if (response != JoinedOk)
 		{
 			EmitSignal(SignalName.LobbyFailed, "Steam refused the lobby");
+			return;
+		}
+
+		// Joining as the owner would connect this game to itself. Either it is the lobby just
+		// created, which OnLobbyCreated hosts, or its host left and Steam handed the lobby on.
+		if (OwnsLobby(lobbyId))
+		{
+			if (_creating) return;
+			_steam.Call("leaveLobby", lobbyId);
+			EmitSignal(SignalName.LobbyFailed, "that game is no longer hosted");
 			return;
 		}
 

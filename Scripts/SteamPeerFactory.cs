@@ -6,19 +6,32 @@ public class SteamPeerFactory : IPeerFactory
 {
 	private readonly ulong _lobbyId;
 
-	public SteamPeerFactory(ulong lobbyId) => _lobbyId = lobbyId;
+	private readonly ulong _hostSteamId;
 
-	public MultiplayerPeer CreateHost(int port, int maxPlayers) => Open("host_with_lobby");
+	public SteamPeerFactory(ulong lobbyId, ulong hostSteamId = 0)
+	{
+		_lobbyId = lobbyId;
+		_hostSteamId = hostSteamId;
+	}
+
+	public MultiplayerPeer CreateHost(int port, int maxPlayers) => Open("create_host");
 
 	// Address and port are ignored: the lobby already says which Steam user hosts it.
-	public MultiplayerPeer CreateClient(string address, int port) => Open("connect_to_lobby");
+	public MultiplayerPeer CreateClient(string address, int port)
+	{
+		long host = _hostSteamId != 0
+			? (long)_hostSteamId
+			: Engine.GetSingleton("Steam").Call("getLobbyOwner", _lobbyId).AsInt64();
+		return Open("create_client", host);
+	}
 
 	public string IdentityOf(MultiplayerPeer peer, int peerId) =>
 		peer.Call("get_steam_id_for_peer_id", peerId).AsInt64().ToString();
 
-	public IPeerFactory MovedTo(string hostIdentity) => this;
+	public IPeerFactory MovedTo(string hostIdentity) =>
+		ulong.TryParse(hostIdentity, out ulong id) ? new SteamPeerFactory(_lobbyId, id) : null;
 
-	private MultiplayerPeer Open(string method)
+	private MultiplayerPeer Open(string method, params Variant[] args)
 	{
 		if (ClassDB.Instantiate("SteamMultiplayerPeer").As<GodotObject>() is not MultiplayerPeer peer)
 		{
@@ -26,10 +39,10 @@ public class SteamPeerFactory : IPeerFactory
 			return null;
 		}
 
-		var error = (Error)peer.Call(method, _lobbyId).AsInt32();
+		var error = (Error)peer.Call(method, args).AsInt32();
 		if (error == Error.Ok) return peer;
 
-		GD.PrintErr($"SteamPeerFactory: {method}({_lobbyId}) failed with {error}");
+		GD.PrintErr($"SteamPeerFactory: {method} for lobby {_lobbyId} failed with {error}");
 		return null;
 	}
 }

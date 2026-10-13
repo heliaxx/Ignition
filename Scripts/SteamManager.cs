@@ -71,7 +71,7 @@ public partial class SteamManager : Node
 		_steam.Connect("lobby_joined", Callable.From<long, long, bool, long>(OnLobbyJoined));
 		_steam.Connect("lobby_match_list", Callable.From<Godot.Collections.Array>(OnLobbyMatchList));
 		// Accepting an invite or "Join game" while the game is already running.
-		_steam.Connect("join_requested", Callable.From<long, long>((lobbyId, _) => JoinLobby((ulong)lobbyId)));
+		_steam.Connect("join_requested", Callable.From<long, long>((lobbyId, _) => OnJoinRequested((ulong)lobbyId)));
 
 		NetworkManager.Instance.SessionClosed += LeaveLobby;
 	}
@@ -80,15 +80,20 @@ public partial class SteamManager : Node
 
 	public override void _Process(double delta)
 	{
-		if (LobbyId == 0 || !NetworkManager.Instance.IsActive || !NetworkManager.Instance.IsServer) return;
+		if (LobbyId == 0 || !NetworkManager.Instance.IsActive || !NetworkManager.Instance.IsServer)
+		{
+			_published = "";
+			return;
+		}
 
 		Dictionary<string, string> data = LobbyInfo.Current().ToData();
 		string snapshot = string.Join("\n", data.Values);
 		if (snapshot == _published) return;
 
-		_published = snapshot;
+		bool stored = true;
 		foreach (var (key, value) in data)
-			_steam.Call("setLobbyData", LobbyId, key, value);
+			stored &= _steam.Call("setLobbyData", LobbyId, key, value).AsBool();
+		if (stored) _published = snapshot;
 	}
 
 	public void HostLobby(bool inviteOnly)
@@ -121,6 +126,15 @@ public partial class SteamManager : Node
 	{
 		if (!IsAvailable) return;
 		_steam.Call("joinLobby", lobbyId);
+	}
+
+	// Steam's join_requested is a callback from the Steam overlay, so it can arrive while the game is already running.
+	// In that case, ignore it.
+	private void OnJoinRequested(ulong lobbyId)
+	{
+		if (lobbyId == LobbyId || GetTree().CurrentScene is LevelDeathmatch) return;
+		NetworkManager.Instance.Leave();
+		JoinLobby(lobbyId);
 	}
 
 	public void RefreshLobbies()

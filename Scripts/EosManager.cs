@@ -63,7 +63,11 @@ public partial class EosManager : Node
 	// Only the host writes the lobby attributes, others just read them.
 	public override void _Process(double delta)
 	{
-		if (!InLobby || !NetworkManager.Instance.IsActive || !NetworkManager.Instance.IsServer) return;
+		if (!InLobby || !NetworkManager.Instance.IsActive || !NetworkManager.Instance.IsServer)
+		{
+			_published = "";
+			return;
+		}
 
 		Dictionary<string, string> data = LobbyInfo.Current().ToData();
 		string snapshot = string.Join("\n", data.Values);

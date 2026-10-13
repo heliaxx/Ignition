@@ -4,7 +4,7 @@ using Godot;
 
 public partial class NetworkManager : Node
 {
-	private const string ProtocolVersion = "6";
+	private const string ProtocolVersion = "7";
 
 	// Sent by the host, so the client can tell he's been banned.
 	private const string BannedReply = "banned";
@@ -87,6 +87,8 @@ public partial class NetworkManager : Node
 	{
 		Instance = this;
 		_scene = (SceneMultiplayer)Multiplayer;
+		// Clients cannot relay to each other, so the host is the only one that can.
+		_scene.ServerRelay = false;
 
 		Multiplayer.PeerConnected += OnPeerConnected;
 		Multiplayer.PeerDisconnected += OnPeerDisconnected;

@@ -1,8 +1,8 @@
 using Godot;
 using System;
 
-// Craig Reynolds steering behaviors. Each method returns a steering force
-// (a desired velocity change), not a final velocity.
+// Craig Reynolds steering behaviors. Each method returns a desired velocity, or a nudge to add
+// to one; ApplySteering turns the sum into a steering force.
 public static class SteeringBehaviors
 {
     // Steer straight toward a target.
@@ -55,23 +55,6 @@ public static class SteeringBehaviors
         return Flee(position, predictedPosition, maxSpeed);
     }
 
-    // Seek a target but slow down inside the slowing radius to avoid overshoot.
-    public static Vector3 Arrive(Vector3 position, Vector3 targetPosition, float maxSpeed, float slowingRadius)
-    {
-        Vector3 toTarget = targetPosition - position;
-        float distance = toTarget.Length();
-        
-        if (distance < 0.1f)
-            return Vector3.Zero;
-        
-        // Ramp down speed when entering the slowing radius
-        float rampedSpeed = maxSpeed * (distance / slowingRadius);
-        float clippedSpeed = Mathf.Min(rampedSpeed, maxSpeed);
-        
-        Vector3 desired = toTarget.Normalized() * clippedSpeed;
-        return desired;
-    }
-
     // Random drift force from a wander circle projected ahead of the agent.
     public static Vector3 Wander(Vector3 forward, float wanderStrength, float wanderRadius, ref float wanderAngle)
     {
@@ -93,30 +76,6 @@ public static class SteeringBehaviors
         Vector3 wanderForce = (forward * wanderStrength + displacement).Normalized() * wanderStrength;
         
         return wanderForce;
-    }
-
-    // Hold a preferred range: pursue when too far, evade when too close, else zero.
-    public static Vector3 MaintainDistance(Vector3 position, Vector3 currentVelocity, float maxSpeed,
-                                             Vector3 targetPosition, Vector3 targetVelocity,
-                                             float preferredDistance, float tolerance)
-    {
-        float distance = (targetPosition - position).Length();
-        float minRange = preferredDistance - tolerance;
-        float maxRange = preferredDistance + tolerance;
-        
-        if (distance > maxRange)
-        {
-            // Too far - pursue
-            return Pursue(position, currentVelocity, maxSpeed, targetPosition, targetVelocity);
-        }
-        else if (distance < minRange)
-        {
-            // Too close - evade
-            return Evade(position, currentVelocity, maxSpeed, targetPosition, targetVelocity);
-        }
-        
-        // Within range - just maintain heading toward target 
-        return Vector3.Zero;
     }
 
     // Pursue a point offset from the target, e.g. to tail or strafe it.
@@ -237,10 +196,14 @@ public static class SteeringBehaviors
         return totalAvoidance * avoidanceForce * (0.5f + avoidanceUrgency * 0.5f);
     }
 
-    // Integrates a steering force into velocity, clamping force and resulting speed.
-    public static Vector3 ApplySteering(Vector3 currentVelocity, Vector3 steeringForce,
+    // Steers toward a desired velocity and integrates, clamping force and resulting speed.
+    // The force is desired minus current, so it cancels unwanted motion as well as adding
+    // wanted motion: turns stay tight and a lower desired speed brakes.
+    public static Vector3 ApplySteering(Vector3 currentVelocity, Vector3 desiredVelocity,
                                           float maxSpeed, float maxForce, float delta)
     {
+        Vector3 steeringForce = desiredVelocity - currentVelocity;
+
         // Clamp steering force (squared comparison avoids sqrt)
         if (steeringForce.LengthSquared() > maxForce * maxForce)
         {

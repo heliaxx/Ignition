@@ -47,7 +47,7 @@ public partial class MissileSync : Node
 	// it visible to everyone else.
 	public void ReportLaunch(FlightModelMissile missile, Transform3D spawn)
 	{
-		if (!NetworkManager.Instance.IsActive) return;
+		if (!NetworkManager.Instance.IsConnected) return;
 
 		int seq = _nextSeq++;
 		_owned[seq] = missile;
@@ -77,7 +77,7 @@ public partial class MissileSync : Node
 	private void ReportDespawn(int seq, Vector3 at, bool detonated)
 	{
 		if (!_owned.Remove(seq)) return;
-		if (!NetworkManager.Instance.IsActive) return;
+		if (!NetworkManager.Instance.IsConnected) return;
 
 		if (NetworkManager.Instance.IsServer)
 			Rpc(MethodName.DespawnCopy, NetworkManager.Instance.LocalPeerId, seq, at, detonated);
@@ -89,7 +89,7 @@ public partial class MissileSync : Node
 	{
 		AdvanceRemotes((float)delta);
 
-		if (!NetworkManager.Instance.IsActive || _owned.Count == 0) return;
+		if (!NetworkManager.Instance.IsConnected || _owned.Count == 0) return;
 
 		_sendTimer += delta;
 		if (_sendTimer < SendInterval) return;

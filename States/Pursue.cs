@@ -2,9 +2,15 @@ using Godot;
 
 public partial class Pursue : CombatState
 {
+    private const float THROTTLE = 1.3f;
+
     public override void Enter()
     {
-        Fighter?.SetLaserFiring(false);
+        if (Fighter == null) return;
+        // Every way into combat starts here.
+        Fighter.Engaged = true;
+        Fighter.TargetThrottle = THROTTLE;
+        Fighter.SetLaserFiring(false);
     }
 
     protected override void CombatUpdate(float delta)

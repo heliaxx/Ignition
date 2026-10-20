@@ -5,8 +5,8 @@ using Godot;
 public partial class CockpitRadar : Node3D
 {
 	[Export] public float Range = 2000f;
-	[Export] public float CenterMarkerStartDistance = 1000f;
-	[Export] public float CenterMarkerFullDistance = 5000f;
+	[Export] public float CenterMarkerStartDistance = 750f;
+	[Export] public float CenterMarkerFullDistance = 4000f;
 
 	// How flat the ship's plane is drawn, 1 being seen from straight above.
 	private const float Flatten = 0.45f;

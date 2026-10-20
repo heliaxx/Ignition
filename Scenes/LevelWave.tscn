@@ -81,14 +81,15 @@ volumetric_fog_length = 200.0
 
 [node name="Level2" type="Node3D" unique_id=230063944]
 script = ExtResource("1_q8gjv")
+ShowMapCenterMarker = false
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=2105745883]
 environment = SubResource("Environment_r05y7")
 
 [node name="Player" parent="." unique_id=997055589 instance=ExtResource("5_d2lja")]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 0, 0, 0)
-MaxMissiles = 12
-GatlingAmmo = 2000
+UnlimitedMissiles = true
+UnlimitedGatlingAmmo = true
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=533679251]
 light_bake_mode = 0

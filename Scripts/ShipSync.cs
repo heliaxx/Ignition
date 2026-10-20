@@ -62,7 +62,7 @@ public partial class ShipSync : Node
 	{
 		AdvanceRemotes((float)delta);
 
-		if (!NetworkManager.Instance.IsActive) return;
+		if (!NetworkManager.Instance.IsConnected) return;
 		// A scene change leaves _local valid but out of the tree for a frame, where its
 		// transform reads as the origin.
 		if (_local == null || !IsInstanceValid(_local) || !_local.IsInsideTree()) return;

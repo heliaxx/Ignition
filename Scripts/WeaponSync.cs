@@ -13,7 +13,7 @@ public partial class WeaponSync : Node
 
 	public void ReportGatlingShot(int shooterId, Transform3D muzzle, Vector3 inheritedVelocity)
 	{
-		if (!NetworkManager.Instance.IsActive) return;
+		if (!NetworkManager.Instance.IsConnected) return;
 
 		if (NetworkManager.Instance.IsServer)
 			Rpc(MethodName.SpawnTracer, shooterId, muzzle, inheritedVelocity);

@@ -42,7 +42,7 @@ shape = ExtResource("20_npc_starboard")
 
 [node name="LaserWeapon" parent="." unique_id=393343523 instance=ExtResource("3_laser")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, -8.3)
-DPS = 20.0
+DPS = 10.0
 BeamColor = Color(0.972549, 0.384314, 0, 1)
 
 [node name="StateMachine" type="Node" parent="." unique_id=1773697558]

@@ -74,7 +74,9 @@ public partial class Graphics : Control
 		RegisterHint(fpsDropdown, "Caps rendered FPS. Lower values reduce GPU load.");
 		RegisterHint(modeDropdown, "Windowed: resizable window. Borderless: fullscreen window, fast alt-tabbing. Fullscreen: marginally lower latency and better performance.");
 		RegisterHint(vsyncDropdown, "Syncs rendered frames to the monitor refresh rate to prevent tearing. Enabled adds a little input latency; Adaptive only syncs while the frame rate keeps up.");
-		RegisterHint(fxaaCheck, "Fast approximate anti-aliasing. Cheaply smooths jagged edges at the cost of slight blur.");
+		RegisterHint(fxaaCheck, () => configHandler.FxaaBlocked
+			? "FXAA is unavailable with the Bilinear upscaler below native render scale. Switch to FSR or render at 100% to use it."
+			: "Fast approximate anti-aliasing. Cheaply smooths jagged edges at the cost of slight blur.");
 		RegisterHint(taaCheck, "Temporal anti-aliasing. Very smooth image, but can introduce ghosting trails.");
 		RegisterHint(msaaDropdown, "Multisample anti-aliasing. High-quality geometry edges; increasingly expensive at 4 and 8 samples per pixel.");
 		RegisterHint(resolutionDropdown, "Window size in pixels. Only relevant in Windowed mode.");
@@ -85,11 +87,13 @@ public partial class Graphics : Control
 		RegisterHint(cockpitFovSlider, "Field of view from the cockpit, in degrees. Wider shows more around the ship; narrower makes what is ahead larger.");
 	}
 
-	private void RegisterHint(Control control, string text)
+	private void RegisterHint(Control control, string text) => RegisterHint(control, () => text);
+
+	private void RegisterHint(Control control, Func<string> text)
 	{
-		control.MouseEntered += () => hintLabel.Text = text;
+		control.MouseEntered += () => hintLabel.Text = text();
 		// Only clear if another control's hint hasn't replaced this one already.
-		control.MouseExited += () => { if (hintLabel.Text == text) hintLabel.Text = ""; };
+		control.MouseExited += () => { if (hintLabel.Text == text()) hintLabel.Text = ""; };
 	}
 
 	private void InitializeFPSDropdown()
@@ -208,12 +212,18 @@ public partial class Graphics : Control
 		cockpitFovValue.Text = $"{configHandler.GetCockpitFov()}°";
 
 		UpdateResolutionEnabled();
+		UpdateFxaaEnabled();
 	}
 
 	// The window resolution only takes effect in windowed mode.
 	private void UpdateResolutionEnabled()
 	{
 		resolutionDropdown.Disabled = modeDropdown.Selected != 0;
+	}
+
+	private void UpdateFxaaEnabled()
+	{
+		fxaaCheck.Disabled = configHandler.FxaaBlocked;
 	}
 
 	private void _on_fps_dropdown_item_selected(int index)
@@ -275,6 +285,7 @@ public partial class Graphics : Control
 	{
 		configHandler.SaveVideoSettings("render_scale", renderScaleOptions[index]);
 		configHandler.ApplyVideoSettings();
+		UpdateFxaaEnabled();
 	}
 
 	private void _on_upscaler_dropdown_item_selected(int index)
@@ -282,6 +293,7 @@ public partial class Graphics : Control
 		string upscaler = index switch { 1 => "fsr1", 2 => "fsr2", _ => "bilinear" };
 		configHandler.SaveVideoSettings("upscaler", upscaler);
 		configHandler.ApplyVideoSettings();
+		UpdateFxaaEnabled();
 	}
 
 	private void _on_fps_meter_check_toggled(bool toggled)

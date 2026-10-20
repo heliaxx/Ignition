@@ -8,14 +8,23 @@ public partial class CombatState : State
     {
         if (Fighter == null || !Fighter.HasTarget()) return;
 
-        if (Fighter.GetHealthPercent() <= Fighter.FleeHealthThreshold)
+        if (Fighter.ShouldFlee)
             { stateMachine.TransitionTo("Flee"); return; }
 
-        if (Fighter.TookRecentDamage)
+        if (Fighter.ShouldEvade)
             { stateMachine.TransitionTo("Evade"); return; }
 
         CombatUpdate(delta);
     }
 
     protected virtual void CombatUpdate(float delta) {}
+
+    // Back into the fight after breaking off, by how far away the player is.
+    protected void Reengage()
+    {
+        if (Fighter.DistanceToPlayer() <= Fighter.WeaponRange)
+            stateMachine.TransitionTo("Joust");
+        else
+            stateMachine.TransitionTo("Pursue");
+    }
 }

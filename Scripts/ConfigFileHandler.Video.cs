@@ -107,6 +107,9 @@ public partial class ConfigFileHandler
 		_           => new Vector2I(1920, 1080),
 	};
 
+	// FXAA is off whatever the setting says, as of the last ApplyVideoSettings.
+	public bool FxaaBlocked { get; private set; }
+
 	public void ApplyVideoSettings()
 	{
 		var videoSettings = LoadVideoSettings();
@@ -119,10 +122,6 @@ public partial class ConfigFileHandler
 		// VSync
 		string vsync = videoSettings.ContainsKey("vsync") ? videoSettings["vsync"].ToString() : DefaultVsync;
 		DisplayServer.WindowSetVsyncMode(ParseVsyncMode(vsync));
-
-		// FXAA
-		bool fxaa = videoSettings.ContainsKey("fxaa") && (bool)videoSettings["fxaa"];
-		viewport.ScreenSpaceAA = fxaa ? Viewport.ScreenSpaceAAEnum.Fxaa : Viewport.ScreenSpaceAAEnum.Disabled;
 
 		// TAA
 		bool taa = videoSettings.ContainsKey("taa") && (bool)videoSettings["taa"];
@@ -143,6 +142,14 @@ public partial class ConfigFileHandler
 			"fsr2" => Viewport.Scaling3DModeEnum.Fsr2,
 			_      => Viewport.Scaling3DModeEnum.Bilinear,
 		};
+
+		// FXAA. Godot fails every 2D draw with FXAA, 2D MSAA and a bilinear downscale settings together.
+		// so FXAA gives way in just that combination.
+		bool fxaa = videoSettings.ContainsKey("fxaa") && (bool)videoSettings["fxaa"];
+		FxaaBlocked = viewport.Msaa2D != Viewport.Msaa.Disabled
+			&& viewport.Scaling3DMode == Viewport.Scaling3DModeEnum.Bilinear
+			&& viewport.Scaling3DScale < 1f;
+		viewport.ScreenSpaceAA = fxaa && !FxaaBlocked ? Viewport.ScreenSpaceAAEnum.Fxaa : Viewport.ScreenSpaceAAEnum.Disabled;
 
 		// Window mode: "fullscreen" is exclusive fullscreen, "borderless" is a
 		// borderless fullscreen window. The window resolution only exists in

@@ -67,7 +67,7 @@ movie_writer/disable_vsync=true
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/epic-online-services-godot/plugin.cfg")
+enabled=PackedStringArray("res://addons/epic-online-services-godot/plugin.cfg", "res://addons/godotsteam/plugin.cfg")
 
 [filesystem]
 
@@ -204,7 +204,7 @@ free_look={
 
 [rendering]
 
-environment/ssao/half_size=false
+environment/ssao/quality=3
 anti_aliasing/quality/msaa_2d=2
 anti_aliasing/quality/msaa_3d=2
 environment/volumetric_fog/volume_size=96

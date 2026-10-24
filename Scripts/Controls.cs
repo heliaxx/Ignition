@@ -8,6 +8,10 @@ public partial class Controls : Control
 	public PackedScene InputButtonScene;
 
 	private VBoxContainer ActionList;
+	private ScrollContainer keybindScroll;
+	private int _keybindRowPitch;
+	// Whole rows only, so the bottom one is never cut off.
+	private const int KeybindRowsShown = 11;
 	private bool IsRemapping = false;
 	private string ActionToRemap = null;
 	private Button RemappingButton = null;
@@ -28,7 +32,7 @@ public partial class Controls : Control
 	private OptionButton flightAssistModeDropdown;
 	private const int FlightAssistModeThrust = 0;
 	private const int FlightAssistModeThrottle = 1;
-	private const string Sections = "SettingsPanel/Margin/Sections/";
+	private const string Sections = "Center/SettingsPanel/Margin/Sections/";
 	private const int KeybindRowBaseLeftMargin = 0;
 	private const int KeybindRowHoverLeftMargin = 20;
 	private static readonly Color KeybindRowNormalTextColor = new Color(0.894f, 0.718f, 0.337f, 1f);
@@ -60,6 +64,7 @@ public partial class Controls : Control
 	{
 		InputButtonScene ??= GD.Load<PackedScene>("res://Scenes/InputButton.tscn");
 		ActionList = GetNode<VBoxContainer>(Sections + "KeyboardSettings/KeybindScroll/ActionList");
+		keybindScroll = GetNode<ScrollContainer>(Sections + "KeyboardSettings/KeybindScroll");
 		aimSensitivitySlider = GetNode<HSlider>(Sections + "MouseSettings/AimSensitivityRow/AimSensitivitySlider");
 		aimDeadzoneSlider = GetNode<HSlider>(Sections + "MouseSettings/AimDeadzoneRow/AimDeadzoneSlider");
 		aimPowerCurveSlider = GetNode<HSlider>(Sections + "MouseSettings/AimPowerCurveRow/AimPowerCurveSlider");
@@ -81,6 +86,29 @@ public partial class Controls : Control
 		BindMouseSettingsSignals();
 		_menuClick = MenuUtils.AttachButtonSounds(this);
 		CreateActionList();
+		FitKeybindScroll();
+	}
+
+	// The list is exactly KeybindRowsShown rows tall and scrolls a whole row at a time: the scroll
+	// bar's step snaps dragging to rows, and a wheel notch moves exactly one.
+	private void FitKeybindScroll()
+	{
+		int separation = ActionList.GetThemeConstant("separation");
+		_keybindRowPitch = Mathf.RoundToInt(ActionList.GetChild<Control>(0).GetCombinedMinimumSize().Y) + separation;
+		keybindScroll.CustomMinimumSize = new Vector2(0, KeybindRowsShown * _keybindRowPitch - separation);
+		keybindScroll.GetVScrollBar().Step = _keybindRowPitch;
+		keybindScroll.GuiInput += OnKeybindScrollInput;
+	}
+
+	private void OnKeybindScrollInput(InputEvent @event)
+	{
+		if (@event is not InputEventMouseButton { Pressed: true } button) return;
+
+		int rows = button.ButtonIndex switch { MouseButton.WheelUp => -1, MouseButton.WheelDown => 1, _ => 0 };
+		if (rows == 0) return;
+
+		keybindScroll.ScrollVertical += rows * _keybindRowPitch;
+		keybindScroll.AcceptEvent();
 	}
 
 	private void LoadMouseSettings()
@@ -277,7 +305,7 @@ public partial class Controls : Control
 
 	private void _on_back_btn_pressed()
 	{
-		GetTree().ChangeSceneToFile("res://Scenes/Menu.tscn");
+		GetParent<OptionsMenu>().Close();
 	}
 
 	private void _on_reset_btn_pressed()

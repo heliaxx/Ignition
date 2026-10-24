@@ -51,6 +51,14 @@ public partial class AimWidgetVisualizer : Control
 		_vectorIndicator = GD.Load<Texture2D>("res://Imports/Images/crosshair-040.png");
 		_vectorArrow = GD.Load<Texture2D>("res://Imports/Images/navigation_n.png");
 
+		LoadSettings();
+		EventBus.SettingsChanged += LoadSettings;
+	}
+
+	public override void _ExitTree() => EventBus.SettingsChanged -= LoadSettings;
+
+	private void LoadSettings()
+	{
 		var settings = ConfigFileHandler.Instance?.LoadControlSettings();
 		if (settings != null && settings.ContainsKey("show_aim_widget"))
 			ShowCursor = settings["show_aim_widget"].AsBool();

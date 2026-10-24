@@ -9,9 +9,9 @@ public partial class Audio : Control
 
     public override void _Ready()
     {
-        generalVolumeSlider = GetNode<Slider>("Menu/Options/VolGeneralSlider");
-        musicVolumeSlider = GetNode<Slider>("Menu/Options/VolMusicSlider");
-        sfxVolumeSlider = GetNode<Slider>("Menu/Options/VolSFXSlider");
+        generalVolumeSlider = GetNode<Slider>("Center/Rows/VolGeneralRow/VolGeneralSlider");
+        musicVolumeSlider = GetNode<Slider>("Center/Rows/VolMusicRow/VolMusicSlider");
+        sfxVolumeSlider = GetNode<Slider>("Center/Rows/VolSFXRow/VolSFXSlider");
 
         LoadSettingsIntoUi();
 
@@ -51,7 +51,7 @@ public partial class Audio : Control
 
     private void _on_back_btn_pressed()
     {
-        GetTree().ChangeSceneToFile("res://Scenes/Menu.tscn");
+        GetParent<OptionsMenu>().Close();
     }
 
     private void _on_reset_btn_pressed()

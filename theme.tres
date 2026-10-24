@@ -72,6 +72,7 @@ CheckBox/styles/normal = SubResource("StyleBoxFlat_cb_normal")
 CheckBox/styles/pressed = SubResource("StyleBoxFlat_cb_pressed")
 ProgressBar/styles/background = null
 ProgressBar/styles/fill = SubResource("StyleBoxFlat_x1dlj")
+VSlider/icons/tick = null
 VSlider/styles/grabber_area = null
 VSlider/styles/grabber_area_highlight = null
 VSlider/styles/slider = null

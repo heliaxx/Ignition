@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cfabqj87i6w7l" path="res://Scripts/Graphics.cs" id="1_script"]
 [ext_resource type="FontFile" uid="uid://dp75um7jdyrun" path="res://Imports/Fonts/Eurostile.ttf" id="2_ii5nb"]
 [ext_resource type="Theme" path="res://theme_settings.tres" id="3_settings"]
+[ext_resource type="PackedScene" path="res://Scenes/OptionsTabs.tscn" id="99_tabs"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ivqh8"]
 bg_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -40,246 +41,184 @@ grow_vertical = 2
 theme = ExtResource("3_settings")
 script = ExtResource("1_script")
 
-[node name="Menu" type="HBoxContainer" parent="."]
+[node name="Center" type="CenterContainer" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -500.0
-offset_top = -300.0
-offset_right = 500.0
-offset_bottom = 300.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
-[node name="Labels" type="VBoxContainer" parent="Menu"]
+[node name="Rows" type="VBoxContainer" parent="Center"]
+custom_minimum_size = Vector2(850, 0)
 layout_mode = 2
-size_flags_horizontal = 4
+theme_override_constants/separation = 8
 
-[node name="FPSLimit" type="Label" parent="Menu/Labels"]
+[node name="ModeRow" type="HBoxContainer" parent="Center/Rows"]
 layout_mode = 2
-size_flags_vertical = 6
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
-text = "FPS Limit"
 
-[node name="Mode" type="Label" parent="Menu/Labels"]
+[node name="Mode" type="Label" parent="Center/Rows/ModeRow"]
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 6
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "Mode"
 
-[node name="Vsync" type="Label" parent="Menu/Labels"]
+[node name="ModeDropdown" type="OptionButton" parent="Center/Rows/ModeRow"]
+custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
+size_flags_vertical = 6
+mouse_default_cursor_shape = 2
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+
+[node name="ResolutionRow" type="HBoxContainer" parent="Center/Rows"]
+layout_mode = 2
+
+[node name="Resolution" type="Label" parent="Center/Rows/ResolutionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("2_ii5nb")
+theme_override_font_sizes/font_size = 30
+text = "Resolution"
+
+[node name="ResolutionDropdown" type="OptionButton" parent="Center/Rows/ResolutionRow"]
+custom_minimum_size = Vector2(312, 0)
+layout_mode = 2
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+
+[node name="VsyncRow" type="HBoxContainer" parent="Center/Rows"]
+layout_mode = 2
+
+[node name="Vsync" type="Label" parent="Center/Rows/VsyncRow"]
+layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 6
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "Vsync"
 
-[node name="FXAA" type="Label" parent="Menu/Labels"]
+[node name="VsyncDropdown" type="OptionButton" parent="Center/Rows/VsyncRow"]
+custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
+size_flags_vertical = 6
+mouse_default_cursor_shape = 2
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+
+[node name="FPSLimitRow" type="HBoxContainer" parent="Center/Rows"]
+layout_mode = 2
+
+[node name="FPSLimit" type="Label" parent="Center/Rows/FPSLimitRow"]
+layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 6
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
-text = "FXAA"
+text = "FPS Limit"
 
-[node name="TAA" type="Label" parent="Menu/Labels"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
-text = "TAA"
-
-[node name="MSAA" type="Label" parent="Menu/Labels"]
+[node name="FPSDropdown" type="OptionButton" parent="Center/Rows/FPSLimitRow"]
+custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
 size_flags_vertical = 6
+mouse_default_cursor_shape = 2
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
-text = "MSAA"
+theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
 
-[node name="Resolution" type="Label" parent="Menu/Labels"]
+[node name="FPSMeterRow" type="HBoxContainer" parent="Center/Rows"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
-text = "Resolution"
 
-[node name="RenderScale" type="Label" parent="Menu/Labels"]
+[node name="FPSMeter" type="Label" parent="Center/Rows/FPSMeterRow"]
 layout_mode = 2
-size_flags_vertical = 6
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
-text = "Render Scale"
-
-[node name="Upscaler" type="Label" parent="Menu/Labels"]
-layout_mode = 2
-size_flags_vertical = 6
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
-text = "Upscaler"
-
-[node name="FPSMeter" type="Label" parent="Menu/Labels"]
-layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 6
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "FPS Meter"
 
-[node name="ShipModel" type="Label" parent="Menu/Labels"]
+[node name="FPSMeterCheckSlot" type="CenterContainer" parent="Center/Rows/FPSMeterRow"]
+custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
+
+[node name="FPSMeterCheck" type="CheckBox" parent="Center/Rows/FPSMeterRow/FPSMeterCheckSlot"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+mouse_default_cursor_shape = 2
+theme_override_colors/font_disabled_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("2_ii5nb")
+theme_override_font_sizes/font_size = 30
+
+[node name="ShipModelRow" type="HBoxContainer" parent="Center/Rows"]
+layout_mode = 2
+
+[node name="ShipModel" type="Label" parent="Center/Rows/ShipModelRow"]
+layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 6
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "Ship Model"
 
-[node name="CockpitFov" type="Label" parent="Menu/Labels"]
+[node name="ShipModelCheckSlot" type="CenterContainer" parent="Center/Rows/ShipModelRow"]
+custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
+
+[node name="ShipModelCheck" type="CheckBox" parent="Center/Rows/ShipModelRow/ShipModelCheckSlot"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+mouse_default_cursor_shape = 2
+theme_override_colors/font_disabled_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("2_ii5nb")
+theme_override_font_sizes/font_size = 30
+
+[node name="CockpitFovRow" type="HBoxContainer" parent="Center/Rows"]
+layout_mode = 2
+
+[node name="CockpitFov" type="Label" parent="Center/Rows/CockpitFovRow"]
+layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 6
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "Cockpit FOV"
 
-[node name="Options" type="VBoxContainer" parent="Menu"]
-layout_mode = 2
-size_flags_horizontal = 6
-
-[node name="FPSDropdown" type="OptionButton" parent="Menu/Options"]
-layout_mode = 2
-size_flags_vertical = 6
-mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-
-[node name="ModeDropdown" type="OptionButton" parent="Menu/Options"]
-layout_mode = 2
-size_flags_vertical = 6
-mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-
-[node name="VsyncDropdown" type="OptionButton" parent="Menu/Options"]
-layout_mode = 2
-size_flags_vertical = 6
-mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-
-[node name="FXAACheck" type="CheckBox" parent="Menu/Options"]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 6
-mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 1
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
-
-[node name="TAACheck" type="CheckBox" parent="Menu/Options"]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 6
-mouse_default_cursor_shape = 2
-theme_override_colors/font_disabled_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 1
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
-
-[node name="MSAADropdown" type="OptionButton" parent="Menu/Options"]
-layout_mode = 2
-size_flags_vertical = 6
-mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-
-[node name="ResolutionDropdown" type="OptionButton" parent="Menu/Options"]
-layout_mode = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-
-[node name="RenderScaleDropdown" type="OptionButton" parent="Menu/Options"]
-layout_mode = 2
-size_flags_vertical = 6
-mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-
-[node name="UpscalerDropdown" type="OptionButton" parent="Menu/Options"]
-layout_mode = 2
-size_flags_vertical = 6
-mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-
-[node name="FPSMeterCheck" type="CheckBox" parent="Menu/Options"]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 6
-mouse_default_cursor_shape = 2
-theme_override_colors/font_disabled_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 1
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
-
-[node name="ShipModelCheck" type="CheckBox" parent="Menu/Options"]
-layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 6
-mouse_default_cursor_shape = 2
-theme_override_colors/font_disabled_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 1
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
-
-[node name="CockpitFovRow" type="HBoxContainer" parent="Menu/Options"]
+[node name="CockpitFovControl" type="HBoxContainer" parent="Center/Rows/CockpitFovRow"]
+custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
 size_flags_vertical = 6
 theme_override_constants/separation = 12
 
-[node name="CockpitFovSlider" type="HSlider" parent="Menu/Options/CockpitFovRow"]
+[node name="CockpitFovSlider" type="HSlider" parent="Center/Rows/CockpitFovRow/CockpitFovControl"]
 custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -292,7 +231,7 @@ min_value = 60.0
 max_value = 80.0
 value = 70.0
 
-[node name="CockpitFovValue" type="Label" parent="Menu/Options/CockpitFovRow"]
+[node name="CockpitFovValue" type="Label" parent="Center/Rows/CockpitFovRow/CockpitFovControl"]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -300,13 +239,229 @@ theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "70°"
 
+[node name="GroupGap" type="Control" parent="Center/Rows"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+
+[node name="PresetRow" type="HBoxContainer" parent="Center/Rows"]
+layout_mode = 2
+
+[node name="Preset" type="Label" parent="Center/Rows/PresetRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 6
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("2_ii5nb")
+theme_override_font_sizes/font_size = 30
+text = "Preset"
+
+[node name="PresetDropdown" type="OptionButton" parent="Center/Rows/PresetRow"]
+custom_minimum_size = Vector2(312, 0)
+layout_mode = 2
+size_flags_vertical = 6
+mouse_default_cursor_shape = 2
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+
+[node name="RenderScaleRow" type="HBoxContainer" parent="Center/Rows"]
+layout_mode = 2
+
+[node name="RenderScale" type="Label" parent="Center/Rows/RenderScaleRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 6
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("2_ii5nb")
+theme_override_font_sizes/font_size = 30
+text = "Render Scale"
+
+[node name="RenderScaleDropdown" type="OptionButton" parent="Center/Rows/RenderScaleRow"]
+custom_minimum_size = Vector2(312, 0)
+layout_mode = 2
+size_flags_vertical = 6
+mouse_default_cursor_shape = 2
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+
+[node name="UpscalerRow" type="HBoxContainer" parent="Center/Rows"]
+layout_mode = 2
+
+[node name="Upscaler" type="Label" parent="Center/Rows/UpscalerRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 6
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("2_ii5nb")
+theme_override_font_sizes/font_size = 30
+text = "Upscaler"
+
+[node name="UpscalerDropdown" type="OptionButton" parent="Center/Rows/UpscalerRow"]
+custom_minimum_size = Vector2(312, 0)
+layout_mode = 2
+size_flags_vertical = 6
+mouse_default_cursor_shape = 2
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+
+[node name="MSAARow" type="HBoxContainer" parent="Center/Rows"]
+layout_mode = 2
+
+[node name="MSAA" type="Label" parent="Center/Rows/MSAARow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 6
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("2_ii5nb")
+theme_override_font_sizes/font_size = 30
+text = "MSAA"
+
+[node name="MSAADropdown" type="OptionButton" parent="Center/Rows/MSAARow"]
+custom_minimum_size = Vector2(312, 0)
+layout_mode = 2
+size_flags_vertical = 6
+mouse_default_cursor_shape = 2
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+
+[node name="FXAARow" type="HBoxContainer" parent="Center/Rows"]
+layout_mode = 2
+
+[node name="FXAA" type="Label" parent="Center/Rows/FXAARow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 6
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("2_ii5nb")
+theme_override_font_sizes/font_size = 30
+text = "FXAA"
+
+[node name="FXAACheckSlot" type="CenterContainer" parent="Center/Rows/FXAARow"]
+custom_minimum_size = Vector2(312, 0)
+layout_mode = 2
+
+[node name="FXAACheck" type="CheckBox" parent="Center/Rows/FXAARow/FXAACheckSlot"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+mouse_default_cursor_shape = 2
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("2_ii5nb")
+theme_override_font_sizes/font_size = 30
+
+[node name="TAARow" type="HBoxContainer" parent="Center/Rows"]
+layout_mode = 2
+
+[node name="TAA" type="Label" parent="Center/Rows/TAARow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("2_ii5nb")
+theme_override_font_sizes/font_size = 30
+text = "TAA"
+
+[node name="TAACheckSlot" type="CenterContainer" parent="Center/Rows/TAARow"]
+custom_minimum_size = Vector2(312, 0)
+layout_mode = 2
+
+[node name="TAACheck" type="CheckBox" parent="Center/Rows/TAARow/TAACheckSlot"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+mouse_default_cursor_shape = 2
+theme_override_colors/font_disabled_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("2_ii5nb")
+theme_override_font_sizes/font_size = 30
+
+[node name="SSAORow" type="HBoxContainer" parent="Center/Rows"]
+layout_mode = 2
+
+[node name="SSAO" type="Label" parent="Center/Rows/SSAORow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 6
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("2_ii5nb")
+theme_override_font_sizes/font_size = 30
+text = "SSAO"
+
+[node name="SSAOCheckSlot" type="CenterContainer" parent="Center/Rows/SSAORow"]
+custom_minimum_size = Vector2(312, 0)
+layout_mode = 2
+
+[node name="SSAOCheck" type="CheckBox" parent="Center/Rows/SSAORow/SSAOCheckSlot"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+mouse_default_cursor_shape = 2
+theme_override_colors/font_disabled_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("2_ii5nb")
+theme_override_font_sizes/font_size = 30
+
+[node name="VolumetricFogRow" type="HBoxContainer" parent="Center/Rows"]
+layout_mode = 2
+
+[node name="VolumetricFog" type="Label" parent="Center/Rows/VolumetricFogRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 6
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("2_ii5nb")
+theme_override_font_sizes/font_size = 30
+text = "Volumetric Fog"
+
+[node name="VolumetricFogCheckSlot" type="CenterContainer" parent="Center/Rows/VolumetricFogRow"]
+custom_minimum_size = Vector2(312, 0)
+layout_mode = 2
+
+[node name="VolumetricFogCheck" type="CheckBox" parent="Center/Rows/VolumetricFogRow/VolumetricFogCheckSlot"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 6
+mouse_default_cursor_shape = 2
+theme_override_colors/font_disabled_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("2_ii5nb")
+theme_override_font_sizes/font_size = 30
+
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+offset_top = 20.0
+offset_right = 220.0
+offset_bottom = 85.0
 
 [node name="Label" type="Label" parent="VBoxContainer"]
 layout_mode = 2
+size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 40
@@ -318,15 +473,6 @@ vertical_alignment = 1
 layout_mode = 2
 theme_override_constants/separation = 5
 theme_override_styles/separator = SubResource("StyleBoxFlat_ivqh8")
-
-[node name="Label2" type="Label" parent="VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
-text = "GRAPHICS"
-horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="TextureRect" type="TextureRect" parent="."]
 show_behind_parent = true
@@ -400,17 +546,23 @@ horizontal_alignment = 1
 vertical_alignment = 2
 autowrap_mode = 3
 
-[connection signal="item_selected" from="Menu/Options/FPSDropdown" to="." method="_on_fps_dropdown_item_selected"]
-[connection signal="item_selected" from="Menu/Options/ModeDropdown" to="." method="_on_mode_dropdown_item_selected"]
-[connection signal="item_selected" from="Menu/Options/VsyncDropdown" to="." method="_on_vsync_dropdown_item_selected"]
-[connection signal="toggled" from="Menu/Options/FXAACheck" to="." method="_on_fxaa_check_toggled"]
-[connection signal="toggled" from="Menu/Options/TAACheck" to="." method="_on_taa_check_toggled"]
-[connection signal="item_selected" from="Menu/Options/MSAADropdown" to="." method="_on_msaa_dropdown_item_selected"]
-[connection signal="item_selected" from="Menu/Options/ResolutionDropdown" to="." method="_on_resolution_dropdown_item_selected"]
-[connection signal="item_selected" from="Menu/Options/RenderScaleDropdown" to="." method="_on_render_scale_dropdown_item_selected"]
-[connection signal="item_selected" from="Menu/Options/UpscalerDropdown" to="." method="_on_upscaler_dropdown_item_selected"]
-[connection signal="toggled" from="Menu/Options/FPSMeterCheck" to="." method="_on_fps_meter_check_toggled"]
-[connection signal="toggled" from="Menu/Options/ShipModelCheck" to="." method="_on_ship_model_check_toggled"]
-[connection signal="value_changed" from="Menu/Options/CockpitFovRow/CockpitFovSlider" to="." method="_on_cockpit_fov_slider_value_changed"]
+[node name="OptionsTabs" parent="." instance=ExtResource("99_tabs")]
+layout_mode = 1
+
+[connection signal="item_selected" from="Center/Rows/PresetRow/PresetDropdown" to="." method="_on_preset_dropdown_item_selected"]
+[connection signal="toggled" from="Center/Rows/SSAORow/SSAOCheckSlot/SSAOCheck" to="." method="_on_ssao_check_toggled"]
+[connection signal="toggled" from="Center/Rows/VolumetricFogRow/VolumetricFogCheckSlot/VolumetricFogCheck" to="." method="_on_volumetric_fog_check_toggled"]
+[connection signal="item_selected" from="Center/Rows/FPSLimitRow/FPSDropdown" to="." method="_on_fps_dropdown_item_selected"]
+[connection signal="item_selected" from="Center/Rows/ModeRow/ModeDropdown" to="." method="_on_mode_dropdown_item_selected"]
+[connection signal="item_selected" from="Center/Rows/VsyncRow/VsyncDropdown" to="." method="_on_vsync_dropdown_item_selected"]
+[connection signal="toggled" from="Center/Rows/FXAARow/FXAACheckSlot/FXAACheck" to="." method="_on_fxaa_check_toggled"]
+[connection signal="toggled" from="Center/Rows/TAARow/TAACheckSlot/TAACheck" to="." method="_on_taa_check_toggled"]
+[connection signal="item_selected" from="Center/Rows/MSAARow/MSAADropdown" to="." method="_on_msaa_dropdown_item_selected"]
+[connection signal="item_selected" from="Center/Rows/ResolutionRow/ResolutionDropdown" to="." method="_on_resolution_dropdown_item_selected"]
+[connection signal="item_selected" from="Center/Rows/RenderScaleRow/RenderScaleDropdown" to="." method="_on_render_scale_dropdown_item_selected"]
+[connection signal="item_selected" from="Center/Rows/UpscalerRow/UpscalerDropdown" to="." method="_on_upscaler_dropdown_item_selected"]
+[connection signal="toggled" from="Center/Rows/FPSMeterRow/FPSMeterCheckSlot/FPSMeterCheck" to="." method="_on_fps_meter_check_toggled"]
+[connection signal="toggled" from="Center/Rows/ShipModelRow/ShipModelCheckSlot/ShipModelCheck" to="." method="_on_ship_model_check_toggled"]
+[connection signal="value_changed" from="Center/Rows/CockpitFovRow/CockpitFovControl/CockpitFovSlider" to="." method="_on_cockpit_fov_slider_value_changed"]
 [connection signal="pressed" from="HBoxContainer/BackBtn" to="." method="_on_back_btn_pressed"]
 [connection signal="pressed" from="HBoxContainer/ResetBtn" to="." method="_on_reset_btn_pressed"]

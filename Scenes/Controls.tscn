@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://dkj738m0u6bij" path="res://Scripts/Controls.cs" id="1_fdf8q"]
 [ext_resource type="FontFile" uid="uid://dp75um7jdyrun" path="res://Imports/Fonts/Eurostile.ttf" id="3_oyrkr"]
 [ext_resource type="Theme" path="res://theme_settings.tres" id="4_settings"]
+[ext_resource type="PackedScene" path="res://Scenes/OptionsTabs.tscn" id="99_tabs"]
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_kb_slider_bg"]
 color = Color(0.314316, 0.314316, 0.314316, 1)
@@ -33,77 +34,76 @@ grow_vertical = 2
 theme = ExtResource("4_settings")
 script = ExtResource("1_fdf8q")
 
-[node name="SettingsPanel" type="PanelContainer" parent="." unique_id=1394707793]
+[node name="Center" type="CenterContainer" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -710.5
-offset_top = -439.0
-offset_right = 710.5
-offset_bottom = 439.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Margin" type="MarginContainer" parent="SettingsPanel" unique_id=1377806349]
+[node name="SettingsPanel" type="PanelContainer" parent="Center" unique_id=1394707793]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_4e4ky")
+
+[node name="Margin" type="MarginContainer" parent="Center/SettingsPanel" unique_id=1377806349]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="Sections" type="VBoxContainer" parent="SettingsPanel/Margin" unique_id=1078603715]
+[node name="Sections" type="VBoxContainer" parent="Center/SettingsPanel/Margin" unique_id=1078603715]
+custom_minimum_size = Vector2(850, 0)
 layout_mode = 2
 theme_override_constants/separation = 32
 
-[node name="KeyboardSettings" type="VBoxContainer" parent="SettingsPanel/Margin/Sections" unique_id=1459023817]
+[node name="KeyboardSettings" type="VBoxContainer" parent="Center/SettingsPanel/Margin/Sections" unique_id=1459023817]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 8
 
-[node name="KeyboardSettingsTitle" type="Label" parent="SettingsPanel/Margin/Sections/KeyboardSettings" unique_id=761203562]
+[node name="KeyboardSettingsTitle" type="Label" parent="Center/SettingsPanel/Margin/Sections/KeyboardSettings" unique_id=761203562]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "KEYBOARD SETTINGS"
 
-[node name="KeybindScroll" type="ScrollContainer" parent="SettingsPanel/Margin/Sections/KeyboardSettings" unique_id=913024068]
+[node name="KeybindScroll" type="ScrollContainer" parent="Center/SettingsPanel/Margin/Sections/KeyboardSettings" unique_id=913024068]
 layout_mode = 2
-size_flags_vertical = 3
 
-[node name="ActionList" type="VBoxContainer" parent="SettingsPanel/Margin/Sections/KeyboardSettings/KeybindScroll" unique_id=1310543235]
+[node name="ActionList" type="VBoxContainer" parent="Center/SettingsPanel/Margin/Sections/KeyboardSettings/KeybindScroll" unique_id=1310543235]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 
-[node name="MouseSettings" type="VBoxContainer" parent="SettingsPanel/Margin/Sections" unique_id=104805269]
+[node name="MouseSettings" type="VBoxContainer" parent="Center/SettingsPanel/Margin/Sections" unique_id=104805269]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="MouseSettingsTitle" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings" unique_id=1787915022]
+[node name="MouseSettingsTitle" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings" unique_id=1787915022]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "MOUSE SETTINGS"
 
-[node name="AimSensitivityRow" type="HBoxContainer" parent="SettingsPanel/Margin/Sections/MouseSettings" unique_id=190805283]
+[node name="AimSensitivityRow" type="HBoxContainer" parent="Center/SettingsPanel/Margin/Sections/MouseSettings" unique_id=190805283]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="AimSensitivityLabel" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings/AimSensitivityRow" unique_id=1941686026]
-custom_minimum_size = Vector2(260, 0)
+[node name="AimSensitivityLabel" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimSensitivityRow" unique_id=1941686026]
+custom_minimum_size = Vector2(310, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "Aim Sensitivity"
 
-[node name="AimSensitivitySlider" type="HSlider" parent="SettingsPanel/Margin/Sections/MouseSettings/AimSensitivityRow" unique_id=217671540]
+[node name="AimSensitivitySlider" type="HSlider" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimSensitivityRow" unique_id=217671540]
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -115,7 +115,7 @@ max_value = 2.0
 step = 0.01
 value = 0.5
 
-[node name="AimSensitivityValue" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings/AimSensitivityRow" unique_id=999955222]
+[node name="AimSensitivityValue" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimSensitivityRow" unique_id=999955222]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -123,19 +123,19 @@ theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "0.50"
 
-[node name="AimDeadzoneRow" type="HBoxContainer" parent="SettingsPanel/Margin/Sections/MouseSettings" unique_id=1266789265]
+[node name="AimDeadzoneRow" type="HBoxContainer" parent="Center/SettingsPanel/Margin/Sections/MouseSettings" unique_id=1266789265]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="AimDeadzoneLabel" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings/AimDeadzoneRow" unique_id=1440527663]
-custom_minimum_size = Vector2(260, 0)
+[node name="AimDeadzoneLabel" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimDeadzoneRow" unique_id=1440527663]
+custom_minimum_size = Vector2(310, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "Aim Deadzone"
 
-[node name="AimDeadzoneSlider" type="HSlider" parent="SettingsPanel/Margin/Sections/MouseSettings/AimDeadzoneRow" unique_id=730804622]
+[node name="AimDeadzoneSlider" type="HSlider" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimDeadzoneRow" unique_id=730804622]
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -146,7 +146,7 @@ max_value = 0.5
 step = 0.005
 value = 0.05
 
-[node name="AimDeadzoneValue" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings/AimDeadzoneRow" unique_id=1424860582]
+[node name="AimDeadzoneValue" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimDeadzoneRow" unique_id=1424860582]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -154,19 +154,19 @@ theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "0.05"
 
-[node name="AimPowerCurveRow" type="HBoxContainer" parent="SettingsPanel/Margin/Sections/MouseSettings"]
+[node name="AimPowerCurveRow" type="HBoxContainer" parent="Center/SettingsPanel/Margin/Sections/MouseSettings"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="AimPowerCurveLabel" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings/AimPowerCurveRow"]
-custom_minimum_size = Vector2(260, 0)
+[node name="AimPowerCurveLabel" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimPowerCurveRow"]
+custom_minimum_size = Vector2(310, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "Mouse Power Curve"
 
-[node name="AimPowerCurveSlider" type="HSlider" parent="SettingsPanel/Margin/Sections/MouseSettings/AimPowerCurveRow"]
+[node name="AimPowerCurveSlider" type="HSlider" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimPowerCurveRow"]
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -178,7 +178,7 @@ max_value = 4.0
 step = 0.1
 value = 2.0
 
-[node name="AimPowerCurveValue" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings/AimPowerCurveRow"]
+[node name="AimPowerCurveValue" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimPowerCurveRow"]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -186,19 +186,19 @@ theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "2.0"
 
-[node name="AutoCenterSpeedRow" type="HBoxContainer" parent="SettingsPanel/Margin/Sections/MouseSettings" unique_id=627908779]
+[node name="AutoCenterSpeedRow" type="HBoxContainer" parent="Center/SettingsPanel/Margin/Sections/MouseSettings" unique_id=627908779]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="AutoCenterSpeedLabel" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings/AutoCenterSpeedRow" unique_id=1475462429]
-custom_minimum_size = Vector2(260, 0)
+[node name="AutoCenterSpeedLabel" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AutoCenterSpeedRow" unique_id=1475462429]
+custom_minimum_size = Vector2(310, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "Auto-Center Speed"
 
-[node name="AutoCenterSpeedSlider" type="HSlider" parent="SettingsPanel/Margin/Sections/MouseSettings/AutoCenterSpeedRow" unique_id=1476253028]
+[node name="AutoCenterSpeedSlider" type="HSlider" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AutoCenterSpeedRow" unique_id=1476253028]
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -209,7 +209,7 @@ max_value = 20.0
 step = 0.1
 value = 8.0
 
-[node name="AutoCenterSpeedValue" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings/AutoCenterSpeedRow" unique_id=1661465330]
+[node name="AutoCenterSpeedValue" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AutoCenterSpeedRow" unique_id=1661465330]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -217,68 +217,78 @@ theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "8.0"
 
-[node name="AimWidgetRow" type="HBoxContainer" parent="SettingsPanel/Margin/Sections/MouseSettings"]
+[node name="AimWidgetRow" type="HBoxContainer" parent="Center/SettingsPanel/Margin/Sections/MouseSettings"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="AimWidgetLabel" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings/AimWidgetRow"]
-custom_minimum_size = Vector2(260, 0)
+[node name="AimWidgetLabel" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimWidgetRow"]
+custom_minimum_size = Vector2(310, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "Aim Widget Visibility"
 
-[node name="AimWidgetCheck" type="CheckBox" parent="SettingsPanel/Margin/Sections/MouseSettings/AimWidgetRow"]
+[node name="AimWidgetCheck" type="CheckBox" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimWidgetRow"]
 layout_mode = 2
+size_flags_horizontal = 6
 size_flags_vertical = 4
 mouse_default_cursor_shape = 2
 theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_constants/outline_size = 1
 
-[node name="VectorIndicatorRow" type="HBoxContainer" parent="SettingsPanel/Margin/Sections/MouseSettings"]
+[node name="AimWidgetCheckValueGap" type="Control" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimWidgetRow"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+
+[node name="VectorIndicatorRow" type="HBoxContainer" parent="Center/SettingsPanel/Margin/Sections/MouseSettings"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="VectorIndicatorLabel" type="Label" parent="SettingsPanel/Margin/Sections/MouseSettings/VectorIndicatorRow"]
-custom_minimum_size = Vector2(260, 0)
+[node name="VectorIndicatorLabel" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/VectorIndicatorRow"]
+custom_minimum_size = Vector2(310, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "Vector Indicator Visibility"
 
-[node name="VectorIndicatorCheck" type="CheckBox" parent="SettingsPanel/Margin/Sections/MouseSettings/VectorIndicatorRow"]
+[node name="VectorIndicatorCheck" type="CheckBox" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/VectorIndicatorRow"]
 layout_mode = 2
+size_flags_horizontal = 6
 size_flags_vertical = 4
 mouse_default_cursor_shape = 2
 theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_constants/outline_size = 1
 
-[node name="FlightSettings" type="VBoxContainer" parent="SettingsPanel/Margin/Sections" unique_id=1572146616]
+[node name="VectorIndicatorCheckValueGap" type="Control" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/VectorIndicatorRow"]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+
+[node name="FlightSettings" type="VBoxContainer" parent="Center/SettingsPanel/Margin/Sections" unique_id=1572146616]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="FlightSettingsTitle" type="Label" parent="SettingsPanel/Margin/Sections/FlightSettings" unique_id=2106577605]
+[node name="FlightSettingsTitle" type="Label" parent="Center/SettingsPanel/Margin/Sections/FlightSettings" unique_id=2106577605]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "FLIGHT SETTINGS"
 
-[node name="FlightAssistToggleRow" type="HBoxContainer" parent="SettingsPanel/Margin/Sections/FlightSettings" unique_id=1545824195]
+[node name="FlightAssistToggleRow" type="HBoxContainer" parent="Center/SettingsPanel/Margin/Sections/FlightSettings" unique_id=1545824195]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="FlightAssistToggleLabel" type="Label" parent="SettingsPanel/Margin/Sections/FlightSettings/FlightAssistToggleRow" unique_id=114051175]
-custom_minimum_size = Vector2(260, 0)
+[node name="FlightAssistToggleLabel" type="Label" parent="Center/SettingsPanel/Margin/Sections/FlightSettings/FlightAssistToggleRow" unique_id=114051175]
+custom_minimum_size = Vector2(310, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "Flight Assist Toggle"
 
-[node name="FlightAssistToggleDropdown" type="OptionButton" parent="SettingsPanel/Margin/Sections/FlightSettings/FlightAssistToggleRow" unique_id=790608471]
+[node name="FlightAssistToggleDropdown" type="OptionButton" parent="Center/SettingsPanel/Margin/Sections/FlightSettings/FlightAssistToggleRow" unique_id=790608471]
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -288,19 +298,19 @@ theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
 theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 
-[node name="FlightAssistModeRow" type="HBoxContainer" parent="SettingsPanel/Margin/Sections/FlightSettings" unique_id=670429662]
+[node name="FlightAssistModeRow" type="HBoxContainer" parent="Center/SettingsPanel/Margin/Sections/FlightSettings" unique_id=670429662]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="FlightAssistModeLabel" type="Label" parent="SettingsPanel/Margin/Sections/FlightSettings/FlightAssistModeRow" unique_id=1175251746]
-custom_minimum_size = Vector2(260, 0)
+[node name="FlightAssistModeLabel" type="Label" parent="Center/SettingsPanel/Margin/Sections/FlightSettings/FlightAssistModeRow" unique_id=1175251746]
+custom_minimum_size = Vector2(310, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "Flight Assist Mode"
 
-[node name="FlightAssistModeDropdown" type="OptionButton" parent="SettingsPanel/Margin/Sections/FlightSettings/FlightAssistModeRow" unique_id=693183308]
+[node name="FlightAssistModeDropdown" type="OptionButton" parent="Center/SettingsPanel/Margin/Sections/FlightSettings/FlightAssistModeRow" unique_id=693183308]
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -353,11 +363,13 @@ text = "RESET"
 
 [node name="Header" type="VBoxContainer" parent="." unique_id=1841744805]
 layout_mode = 0
+offset_top = 20.0
 offset_right = 220.0
-offset_bottom = 101.0
+offset_bottom = 85.0
 
 [node name="OptionsTitle" type="Label" parent="Header" unique_id=370101632]
 layout_mode = 2
+size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 40
@@ -370,15 +382,6 @@ layout_mode = 2
 theme_override_constants/separation = 5
 theme_override_styles/separator = SubResource("StyleBoxFlat_rr2ug")
 
-[node name="ControlsTitle" type="Label" parent="Header" unique_id=1340157683]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("3_oyrkr")
-theme_override_font_sizes/font_size = 30
-text = "CONTROLS"
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="Background" type="ColorRect" parent="." unique_id=797455991]
 show_behind_parent = true
 layout_mode = 1
@@ -389,6 +392,9 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
+
+[node name="OptionsTabs" parent="." instance=ExtResource("99_tabs")]
+layout_mode = 1
 
 [connection signal="pressed" from="BottomButtons/BackBtn" to="." method="_on_back_btn_pressed"]
 [connection signal="pressed" from="BottomButtons/ResetBtn" to="." method="_on_reset_btn_pressed"]

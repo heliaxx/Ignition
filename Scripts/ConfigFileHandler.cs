@@ -27,6 +27,7 @@ public partial class ConfigFileHandler : Node
 		EnsureAudioDefaults();
 		EnsureControlDefaults();
 		Instance = this;
+		GetTree().NodeAdded += OnNodeAdded;
 		ApplyVideoSettings();
 		ApplyKeybindings();
 	}
@@ -51,6 +52,8 @@ public partial class ConfigFileHandler : Node
 		config.SetValue("video", "show_fps_meter",  DefaultShowFpsMeter);
 		config.SetValue("video", "show_ship_model", DefaultShowShipModel);
 		config.SetValue("video", "cockpit_fov",     DefaultCockpitFov);
+		config.SetValue("video", "ssao",            DefaultSsao);
+		config.SetValue("video", "volumetric_fog",  DefaultVolumetricFog);
 	}
 
 	private void SetDefaultAudioSettings()

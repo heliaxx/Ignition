@@ -188,27 +188,7 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 		_headlights = GetNodeOrNull<Node3D>("Headlights");
 		// A stand-in has no pilot to see it.
 		if (!IsLocallyControlled) _model?.SetInteriorVisible(false);
-		var cfg = GetTree().Root.GetNodeOrNull<ConfigFileHandler>("/root/ConfigFileHandler");
-		if (cfg != null)
-		{
-			// Photo mode clears this machine's own view; other players' ships stay visible.
-			_showShip = !IsLocallyControlled || cfg.GetShowShipModel();
-			_cockpitCamera.Fov = cfg.GetCockpitFov();
-			if (_model != null) _model.Visible = _showShip;
-
-			foreach (string nodeName in new[]
-			{
-				"HealthBar", "SpeedBar", "AmmoReadout",
-				"MissilesReadout", "TargetNameReadout", "TargetDistReadout", "TargetHealthBar", "Radar"
-			})
-				GetNodeOrNull<Node3D>(nodeName)?.SetVisible(_showShip);
-
-			if (!_showShip)
-			{
-				canvasLayer.Visible = false;
-				if (_scoreHud != null) _scoreHud.Visible = false;
-			}
-		}
+		ApplyViewSettings();
 
 		InitWeapons();
 		InitBoost();
@@ -224,9 +204,46 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 				+= () => MatchManager.Instance.LeaveMatch();
 
 		// A stand-in for somebody else's ship must not take over the viewport.
-		if (IsLocallyControlled) _cockpitCamera.MakeCurrent();
+		if (IsLocallyControlled)
+		{
+			_cockpitCamera.MakeCurrent();
+			EventBus.SettingsChanged += OnSettingsChanged;
+		}
 
 		ApplyActivation();
+	}
+
+	public override void _ExitTree() => EventBus.SettingsChanged -= OnSettingsChanged;
+
+	// The pilot can change settings from the pause menu mid-flight.
+	private void OnSettingsChanged()
+	{
+		LoadControlSettings();
+		ApplyViewSettings();
+	}
+
+	private void ApplyViewSettings()
+	{
+		var cfg = GetTree().Root.GetNodeOrNull<ConfigFileHandler>("/root/ConfigFileHandler");
+		if (cfg == null) return;
+
+		// Photo mode clears this machine's own view; other players' ships stay visible.
+		_showShip = !IsLocallyControlled || cfg.GetShowShipModel();
+		_cockpitCamera.Fov = cfg.GetCockpitFov();
+		if (_model != null) _model.Visible = _showShip;
+
+		foreach (string nodeName in new[]
+		{
+			"HealthBar", "SpeedBar", "AmmoReadout",
+			"MissilesReadout", "TargetNameReadout", "TargetDistReadout", "TargetHealthBar", "Radar"
+		})
+			GetNodeOrNull<Node3D>(nodeName)?.SetVisible(_showShip);
+
+		// The 2D HUD shows only from the cockpit, as ToggleCameraView has it.
+		if (!IsLocallyControlled) return;
+		bool cockpit = !_isExternalView;
+		canvasLayer.Visible = cockpit && _showShip;
+		if (_scoreHud != null) _scoreHud.Visible = cockpit && _showShip;
 	}
 
 	private void LoadControlSettings()

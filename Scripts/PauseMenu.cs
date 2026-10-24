@@ -5,6 +5,7 @@ public partial class PauseMenu : ColorRect
 	[ExportGroup("Node References")]
 	[Export] private AnimationPlayer animator;
 	[Export] private Button continueButton;
+	[Export] private Button optionsButton;
 	[Export] private Button quitButton;
 	[Export] private Button mainMenuButton;
 
@@ -17,10 +18,11 @@ public partial class PauseMenu : ColorRect
 	{
 		animator ??= GetNode<AnimationPlayer>("AnimationPlayer");
 		continueButton ??= FindChild("ContinueButton") as Button;
+		optionsButton ??= FindChild("OptionsButton") as Button;
 		quitButton ??= FindChild("QuitButton") as Button;
 		mainMenuButton ??= FindChild("MainMenuButton") as Button;
 
-		if (continueButton == null || quitButton == null || mainMenuButton == null)
+		if (continueButton == null || optionsButton == null || quitButton == null || mainMenuButton == null)
 		{
 			GD.PrintErr("PauseMenu: one or more buttons not found!");
 			return;
@@ -37,10 +39,13 @@ public partial class PauseMenu : ColorRect
 		clickSound.Stream = (AudioStream)GD.Load("res://Imports/Sounds/click_sound_menu2.mp3");
 
 		continueButton.Pressed += () => Unpause();
+		// Over the pause menu, which is still there when the options close.
+		optionsButton.Pressed += () => OptionsMenu.Open(this);
 		quitButton.Pressed += () => GetTree().Quit();
 		mainMenuButton.Pressed += () => OnMainMenuButtonPressed();
 
 		continueButton.MouseEntered += Click;
+		optionsButton.MouseEntered += Click;
 		quitButton.MouseEntered += Click;
 		mainMenuButton.MouseEntered += Click;
 

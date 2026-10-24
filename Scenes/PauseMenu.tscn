@@ -222,6 +222,21 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_wasvf")
 theme_override_styles/normal = SubResource("StyleBoxFlat_1fo3t")
 text = "Continue"
 
+[node name="OptionsButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_default_cursor_shape = 2
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("3_r8ort")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/hover = SubResource("StyleBoxFlat_h6qk2")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_wasvf")
+theme_override_styles/normal = SubResource("StyleBoxFlat_1fo3t")
+text = "Options"
+
 [node name="MainMenuButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3

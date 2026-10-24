@@ -38,7 +38,13 @@ offset_bottom = 1012.0
 [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=650162704]
 layout_mode = 2
 
+[node name="Space4" type="Control" parent="PanelContainer/VBoxContainer" unique_id=1709802188]
+custom_minimum_size = Vector2(0, 180)
+layout_mode = 2
+size_flags_vertical = 4
+
 [node name="Space" type="Control" parent="PanelContainer/VBoxContainer" unique_id=956631026]
+visible = false
 layout_mode = 2
 size_flags_vertical = 3
 
@@ -60,53 +66,23 @@ text = "MULTIPLAYER"
 alignment = 0
 icon_alignment = 1
 
-[node name="Space2" type="Control" parent="PanelContainer/VBoxContainer" unique_id=738483202]
-custom_minimum_size = Vector2(0, 10)
-layout_mode = 2
-size_flags_vertical = 4
-
 [node name="Space3" type="Control" parent="PanelContainer/VBoxContainer" unique_id=1082300633]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="ControlsButton" type="Button" parent="PanelContainer/VBoxContainer" unique_id=338163444]
-layout_mode = 2
-size_flags_horizontal = 0
-mouse_default_cursor_shape = 2
-text = "CONTROLS"
-alignment = 0
-
-[node name="Space4" type="Control" parent="PanelContainer/VBoxContainer" unique_id=789848292]
-custom_minimum_size = Vector2(0, 10)
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 size_flags_vertical = 4
 
-[node name="GraphicsButton" type="Button" parent="PanelContainer/VBoxContainer" unique_id=325069818]
+[node name="OptionsButton" type="Button" parent="PanelContainer/VBoxContainer" unique_id=2027173125]
 layout_mode = 2
 size_flags_horizontal = 0
 mouse_default_cursor_shape = 2
-text = "GRAPHICS"
+text = "OPTIONS"
 alignment = 0
-icon_alignment = 1
-
-[node name="Space5" type="Control" parent="PanelContainer/VBoxContainer" unique_id=425823585]
-custom_minimum_size = Vector2(0, 10)
-layout_mode = 2
-size_flags_vertical = 4
-
-[node name="AudioButton" type="Button" parent="PanelContainer/VBoxContainer" unique_id=572186866]
-layout_mode = 2
-size_flags_horizontal = 0
-mouse_default_cursor_shape = 2
-text = "AUDIO"
-alignment = 0
-icon_alignment = 1
 
 [node name="Space6" type="Control" parent="PanelContainer/VBoxContainer" unique_id=1144950336]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Space7" type="Control" parent="PanelContainer/VBoxContainer" unique_id=2038495414]
+[node name="Space7" type="Control" parent="PanelContainer/VBoxContainer" unique_id=1820102547]
 layout_mode = 2
 size_flags_vertical = 3
 

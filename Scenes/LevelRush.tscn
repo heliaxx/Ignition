@@ -11,8 +11,8 @@
 [ext_resource type="Texture2D" uid="uid://byh22h6q3rc0d" path="res://Imports/Planets/earth/textures/Material_62_emissive.jpeg" id="11_n0ucd"]
 [ext_resource type="Texture2D" uid="uid://b1318syjhu2cq" path="res://Imports/Planets/Rings/2k_saturn_ring_alpha.png" id="12_ringt"]
 [ext_resource type="Theme" uid="uid://brj8jmsa6vurj" path="res://theme.tres" id="13_theme"]
-[ext_resource type="Material" path="res://Resources/Materials/FogStreaksMaterial.tres" id="14_fogstreak"]
-[ext_resource type="Script" path="res://Scripts/RingIndicator.cs" id="15_ringind"]
+[ext_resource type="Material" uid="uid://bcjj72a158t5m" path="res://Resources/Materials/FogStreaksMaterial.tres" id="14_fogstreak"]
+[ext_resource type="Script" uid="uid://bsk7pkityesjf" path="res://Scripts/RingIndicator.cs" id="15_ringind"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7645s"]
 shader = ExtResource("2_fmvnv")
@@ -58,9 +58,9 @@ ambient_light_color = Color(1, 1, 1, 1)
 ambient_light_energy = 0.15
 reflected_light_source = 1
 tonemap_mode = 2
-ssao_intensity = 16.0
-ssao_detail = 5.0
-ssao_sharpness = 0.0
+ssao_enabled = true
+ssao_detail = 1.0
+ssao_sharpness = 0.8
 glow_enabled = true
 glow_levels/1 = 7.1
 glow_levels/2 = 7.35
@@ -73,15 +73,6 @@ glow_mix = 0.113
 glow_blend_mode = 0
 glow_hdr_threshold = 2.0
 glow_hdr_luminance_cap = 256.0
-fog_mode = 1
-fog_light_color = Color(0.337255, 0.584314, 0.72549, 1)
-fog_light_energy = 3.2
-fog_sun_scatter = 0.45
-fog_density = 0.0
-fog_aerial_perspective = 0.19
-fog_sky_affect = 0.0
-fog_height = 300.0
-fog_height_density = 0.002
 volumetric_fog_enabled = true
 volumetric_fog_density = 0.0002
 volumetric_fog_albedo = Color(1, 0.866047, 0.715673, 1)
@@ -146,7 +137,7 @@ theme = ExtResource("13_theme")
 text = "Best: 0"
 horizontal_alignment = 2
 
-[node name="ModifiersLabel" type="Label" parent="ScoreHUD"]
+[node name="ModifiersLabel" type="Label" parent="ScoreHUD" unique_id=1097557286]
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
@@ -159,7 +150,7 @@ theme = ExtResource("13_theme")
 text = "Modifiers:"
 horizontal_alignment = 2
 
-[node name="SpeedLabel" type="Label" parent="ScoreHUD"]
+[node name="SpeedLabel" type="Label" parent="ScoreHUD" unique_id=542169614]
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
@@ -185,7 +176,7 @@ theme = ExtResource("13_theme")
 text = "Checkpoints: x1.00"
 horizontal_alignment = 2
 
-[node name="RingIndicator" type="Control" parent="ScoreHUD"]
+[node name="RingIndicator" type="Control" parent="ScoreHUD" unique_id=1003523171]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -204,6 +195,6 @@ MinSpacing = 150.0
 SpawnExclusionZones = [null, NodePath("../Player")]
 AsyncApplyPerFrame = 2
 
-[node name="FogStreaks" type="FogVolume" parent="."]
+[node name="FogStreaks" type="FogVolume" parent="." unique_id=304365451]
 shape = 4
 material = ExtResource("14_fogstreak")

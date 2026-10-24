@@ -1,0 +1,81 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/OptionsTabs.cs" id="1_script"]
+[ext_resource type="FontFile" uid="uid://dp75um7jdyrun" path="res://Imports/Fonts/Eurostile.ttf" id="2_font"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_normal"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fill"]
+bg_color = Color(0.894118, 0.717647, 0.337255, 1)
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_tabs"]
+
+[node name="OptionsTabs" type="HBoxContainer"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -360.0
+offset_top = 20.0
+offset_right = 360.0
+offset_bottom = 80.0
+grow_horizontal = 2
+theme_override_constants/separation = 24
+alignment = 1
+script = ExtResource("1_script")
+
+[node name="ControlsTab" type="Button" parent="."]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_pressed_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 40
+theme_override_styles/normal = SubResource("StyleBoxEmpty_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_fill")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_fill")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_fill")
+toggle_mode = true
+button_group = SubResource("ButtonGroup_tabs")
+text = "CONTROLS"
+
+[node name="GraphicsTab" type="Button" parent="."]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_pressed_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 40
+theme_override_styles/normal = SubResource("StyleBoxEmpty_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_fill")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_fill")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_fill")
+toggle_mode = true
+button_group = SubResource("ButtonGroup_tabs")
+text = "GRAPHICS"
+
+[node name="AudioTab" type="Button" parent="."]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_pressed_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 40
+theme_override_styles/normal = SubResource("StyleBoxEmpty_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_fill")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_fill")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_fill")
+toggle_mode = true
+button_group = SubResource("ButtonGroup_tabs")
+text = "AUDIO"

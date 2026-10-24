@@ -4,9 +4,7 @@ using System;
 public partial class Menu : Control
 {
 	[ExportGroup("Node References")]
-	[Export] private Button controlsButton;
-	[Export] private Button graphicsButton;
-	[Export] private Button audioButton;
+	[Export] private Button optionsButton;
 	[Export] private Button pveChallengesButton;
 	[Export] private Button multiplayerButton;
 	[Export] private Button exitButton;
@@ -24,9 +22,7 @@ public partial class Menu : Control
 
 		// Found by name, not by path: the menu gets rearranged in the editor often, and a
 		// stale path silently leaves the rest of _Ready unwired.
-		controlsButton ??= FindChild("ControlsButton") as Button;
-		graphicsButton ??= FindChild("GraphicsButton") as Button;
-		audioButton ??= FindChild("AudioButton") as Button;
+		optionsButton ??= FindChild("OptionsButton") as Button;
 		exitButton ??= FindChild("ExitButton") as Button;
 		pveChallengesButton ??= FindChild("PveChallengesButton") as Button;
 		multiplayerButton ??= FindChild("MultiplayerButton") as Button;
@@ -54,9 +50,7 @@ public partial class Menu : Control
 		pveChallengesButton.Pressed += OnPveChallengesPressed;
 		multiplayerButton.Pressed += OnMultiplayerPressed;
 		exitButton.Pressed += OnExitButtonPressed;
-		controlsButton.Pressed += OnControlsPressed;
-		graphicsButton.Pressed += OnGraphicsPressed;
-		audioButton.Pressed += OnAudioPressed;
+		optionsButton.Pressed += OnOptionsPressed;
 
 		// Back from a match: the lobby, or why the session ended without this player leaving it.
 		if (NetworkManager.Instance.IsActive || MatchManager.Instance.HasLeaveReason)
@@ -65,9 +59,7 @@ public partial class Menu : Control
 		pveChallengesButton.MouseEntered += OnButtonHovered;
 		multiplayerButton.MouseEntered += OnButtonHovered;
 		exitButton.MouseEntered += OnButtonHovered;
-		controlsButton.MouseEntered += OnButtonHovered;
-		graphicsButton.MouseEntered += OnButtonHovered;
-		audioButton.MouseEntered += OnButtonHovered;
+		optionsButton.MouseEntered += OnButtonHovered;
 	}
 
 	private void OnPveChallengesPressed()
@@ -85,19 +77,9 @@ public partial class Menu : Control
 		GetTree().Quit();
 	}
 
-	private void OnControlsPressed()
+	private void OnOptionsPressed()
 	{
-		GetTree().ChangeSceneToFile("res://Scenes/Controls.tscn");
-	}
-
-	private void OnGraphicsPressed()
-	{
-		GetTree().ChangeSceneToFile("res://Scenes/Graphics.tscn");
-	}
-
-	private void OnAudioPressed()
-	{
-		GetTree().ChangeSceneToFile("res://Scenes/Audio.tscn");
+		OptionsMenu.Open(this);
 	}
 
 	private void OnButtonHovered()

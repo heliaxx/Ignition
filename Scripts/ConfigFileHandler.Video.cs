@@ -15,6 +15,8 @@ public partial class ConfigFileHandler
 	private const bool   DefaultShowFpsMeter  = true;
 	private const bool   DefaultShowShipModel = true;
 	private const int    DefaultCockpitFov    = 70;
+	private const bool   DefaultSsao          = true;
+	private const bool   DefaultVolumetricFog = true;
 	public const int     MinCockpitFov        = 60;
 	public const int     MaxCockpitFov        = 80;
 
@@ -42,6 +44,8 @@ public partial class ConfigFileHandler
 		config.SetValue("video", "show_fps_meter",  DefaultShowFpsMeter);
 		config.SetValue("video", "show_ship_model", DefaultShowShipModel);
 		config.SetValue("video", "cockpit_fov",     DefaultCockpitFov);
+		config.SetValue("video", "ssao",            DefaultSsao);
+		config.SetValue("video", "volumetric_fog",  DefaultVolumetricFog);
 		config.Save(SETTINGS_FILE_PATH);
 		ApplyVideoSettings();
 	}
@@ -88,6 +92,8 @@ public partial class ConfigFileHandler
 		Ensure("show_fps_meter",  DefaultShowFpsMeter);
 		Ensure("show_ship_model", DefaultShowShipModel);
 		Ensure("cockpit_fov",     DefaultCockpitFov);
+		Ensure("ssao",            DefaultSsao);
+		Ensure("volumetric_fog",  DefaultVolumetricFog);
 		if (changed) config.Save(SETTINGS_FILE_PATH);
 	}
 
@@ -123,9 +129,12 @@ public partial class ConfigFileHandler
 		string vsync = videoSettings.ContainsKey("vsync") ? videoSettings["vsync"].ToString() : DefaultVsync;
 		DisplayServer.WindowSetVsyncMode(ParseVsyncMode(vsync));
 
-		// TAA
-		bool taa = videoSettings.ContainsKey("taa") && (bool)videoSettings["taa"];
-		viewport.UseTaa = taa;
+		string upscaler = videoSettings.ContainsKey("upscaler") ? videoSettings["upscaler"].ToString() : DefaultUpscaler;
+
+		// TAA. FSR 2.2 does its own, and Godot warns whenever both are on, even for a moment: so TAA
+		// stays off under FSR 2.2, goes off before the upscaler changes and comes on only after.
+		bool taa = videoSettings.ContainsKey("taa") && (bool)videoSettings["taa"] && upscaler != "fsr2";
+		if (!taa) viewport.UseTaa = false;
 
 		// MSAA
 		string msaa = videoSettings.ContainsKey("msaa") ? videoSettings["msaa"].ToString() : DefaultMsaa;
@@ -135,13 +144,13 @@ public partial class ConfigFileHandler
 		// 3D render scale + upscaler (works in every window mode)
 		int scale = videoSettings.ContainsKey("render_scale") ? (int)videoSettings["render_scale"] : DefaultRenderScale;
 		viewport.Scaling3DScale = Mathf.Clamp(scale, 50, 100) / 100f;
-		string upscaler = videoSettings.ContainsKey("upscaler") ? videoSettings["upscaler"].ToString() : DefaultUpscaler;
 		viewport.Scaling3DMode = upscaler switch
 		{
 			"fsr1" => Viewport.Scaling3DModeEnum.Fsr,
 			"fsr2" => Viewport.Scaling3DModeEnum.Fsr2,
 			_      => Viewport.Scaling3DModeEnum.Bilinear,
 		};
+		viewport.UseTaa = taa;
 
 		// FXAA. Godot fails every 2D draw with FXAA, 2D MSAA and a bilinear downscale settings together.
 		// so FXAA gives way in just that combination.
@@ -170,6 +179,39 @@ public partial class ConfigFileHandler
 				DisplayServer.WindowSetMode(DisplayServer.WindowMode.ExclusiveFullscreen);
 				break;
 		}
+
+		foreach (Node node in GetTree().Root.FindChildren("*", nameof(WorldEnvironment), true, false))
+			ApplyEnvironmentSettings((WorldEnvironment)node);
+	}
+
+	// Levels switch SSAO and volumetric fog on where they want them; the settings can only switch
+	// them off. Every load of a scene shares the Environment in its file, so each WorldEnvironment
+	// works on its own copy and keeps what its level authored beside it.
+	private const string AuthoredSsao = "authored_ssao";
+	private const string AuthoredVolumetricFog = "authored_volumetric_fog";
+
+	private void OnNodeAdded(Node node)
+	{
+		if (node is WorldEnvironment worldEnv) ApplyEnvironmentSettings(worldEnv);
+	}
+
+	private void ApplyEnvironmentSettings(WorldEnvironment worldEnv)
+	{
+		Environment env = worldEnv.Environment;
+		if (env == null) return;
+
+		if (!worldEnv.HasMeta(AuthoredSsao))
+		{
+			worldEnv.SetMeta(AuthoredSsao, env.SsaoEnabled);
+			worldEnv.SetMeta(AuthoredVolumetricFog, env.VolumetricFogEnabled);
+			env = (Environment)env.Duplicate();
+			worldEnv.Environment = env;
+		}
+
+		var videoSettings = LoadVideoSettings();
+		env.SsaoEnabled = worldEnv.GetMeta(AuthoredSsao).AsBool() && videoSettings["ssao"].AsBool();
+		env.VolumetricFogEnabled = worldEnv.GetMeta(AuthoredVolumetricFog).AsBool()
+			&& videoSettings["volumetric_fog"].AsBool();
 	}
 
 	// Resizes the window and re-centers it on its current screen.

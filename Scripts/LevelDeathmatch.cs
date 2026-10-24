@@ -37,17 +37,34 @@ public partial class LevelDeathmatch : BaseLevel
 		SpawnRemoteShips();
 
 		MatchManager.Instance.MatchEnded += OnMatchEnded;
+		MatchManager.Instance.PlayStarted += OnPlayStarted;
+		// The server may have stopped waiting while this machine was still loading.
+		if (!MatchManager.Instance.InPlay) PlayerShip?.Park();
+		ReportLoadedAfterFirstFrame();
 	}
 
 	// MatchManager outlives this level, so its signal must not keep pointing here.
 	public override void _ExitTree()
 	{
 		if (MatchManager.Instance != null)
+		{
 			MatchManager.Instance.MatchEnded -= OnMatchEnded;
+			MatchManager.Instance.PlayStarted -= OnPlayStarted;
+		}
+	}
+
+	// The first draw is where a slow machine stalls longest, compiling the arena's shaders.
+	private async void ReportLoadedAfterFirstFrame()
+	{
+		await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+		if (IsInstanceValid(this) && IsInsideTree())
+			MatchManager.Instance.ReportLoaded();
 	}
 
 	// Every machine parks the ship it flies; the others stop with it through the usual sync.
 	private void OnMatchEnded(int winnerId) => PlayerShip?.Park();
+
+	private void OnPlayStarted() => PlayerShip?.Unpark();
 
 	private void SpawnRemoteShips()
 	{

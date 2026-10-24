@@ -99,8 +99,9 @@ public partial class PlayerShip : CharacterBody3D, IDamageable
 	}
 	private bool _inputSuspended;
 
-	// At the end of a match: ship brakes to a halt.
+	// Before a match starts and at its end: ship brakes to a halt.
 	public void Park() => _parked = true;
+	public void Unpark() => _parked = false;
 	private bool _parked;
 	private float _currentMaxSpeed;
 	private float _currentAcceleration;

@@ -31,7 +31,9 @@ public partial class MatchHud : CanvasLayer
 		_sinceRefresh = 0.0;
 
 		double remaining = MatchManager.Instance.TimeRemaining;
-		_clock.Text = $"{(int)(remaining / 60):00}:{(int)(remaining % 60):00}";
+		_clock.Text = MatchManager.Instance.InPlay
+			? $"{(int)(remaining / 60):00}:{(int)(remaining % 60):00}"
+			: $"WAITING FOR PLAYERS\nStarting anyway in: {Mathf.CeilToInt(MatchManager.Instance.LoadWaitRemaining)} s";
 
 		int localId = NetworkManager.Instance.LocalPeerId;
 		_self.Text = Row(localId);

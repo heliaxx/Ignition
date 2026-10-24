@@ -149,8 +149,64 @@ public partial class MatchManager : Node
 		TimeLimitMinutes = timeLimitMinutes;
 		_ready.Clear();
 		_matchOver = false;
+		_loaded.Clear();
+		InPlay = false;
+		_loadWaitLeft = MaxLoadWait;
 		_timeLeft = timeLimitMinutes * 60.0;
 		GetTree().ChangeSceneToFile(levelPath);
+	}
+
+	// The server tracks who has loaded in, and starts the match once everyone is ready or the wait expires.
+	private readonly HashSet<int> _loaded = new();
+
+	// Set on every peer once the server has heard from the whole roster, or gave up waiting.
+	public bool InPlay { get; private set; }
+
+	// Time after which the server starts the match even if some peers have not loaded in yet.
+	private const double MaxLoadWait = 30.0;
+
+	// Counted down on every peer for the HUD.
+	// Only the server's expiry starts the match.
+	private double _loadWaitLeft;
+
+	public double LoadWaitRemaining => _loadWaitLeft;
+
+	[Signal] public delegate void PlayStartedEventHandler();
+
+	// Called by the level once it is on screen.
+	public void ReportLoaded()
+	{
+		if (!NetworkManager.Instance.IsActive)
+			StartPlay();
+		else if (NetworkManager.Instance.IsServer)
+			ApplyLoaded(NetworkManager.Instance.LocalPeerId);
+		else
+			RpcId(ServerPeerId, MethodName.RequestLoaded);
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void RequestLoaded() => ApplyLoaded(Multiplayer.GetRemoteSenderId());
+
+	private void ApplyLoaded(int peerId)
+	{
+		if (!_spawnOrder.Contains(peerId)) return;
+		_loaded.Add(peerId);
+		TryStartPlay();
+	}
+
+	// Server only. Someone who left while loading no longer holds the others back.
+	private void TryStartPlay()
+	{
+		if (InPlay || _matchOver) return;
+		if (NetworkManager.Instance.Peers.Any(id => _spawnOrder.Contains(id) && !_loaded.Contains(id))) return;
+		Rpc(MethodName.StartPlay);
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void StartPlay()
+	{
+		InPlay = true;
+		EmitSignal(SignalName.PlayStarted);
 	}
 
 	// Long enough to see the explosion, short enough not to sit out the match.
@@ -233,6 +289,7 @@ public partial class MatchManager : Node
 		if (!_spawnOrder.Contains(peerId)) return;
 		if (GetTree().CurrentScene is not LevelDeathmatch) return;
 		Rpc(MethodName.ParticipantLeft, peerId);
+		TryStartPlay();
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -270,6 +327,12 @@ public partial class MatchManager : Node
 
 	public override void _Process(double delta)
 	{
+		if (!InPlay)
+		{
+			TickLoadWait(delta);
+			return;
+		}
+
 		if (_matchOver || _timeLeft <= 0.0) return;
 
 		_timeLeft -= delta;
@@ -280,10 +343,23 @@ public partial class MatchManager : Node
 			Rpc(MethodName.EndMatch, Leader());
 	}
 
+	private void TickLoadWait(double delta)
+	{
+		if (_loadWaitLeft <= 0.0) return;
+
+		_loadWaitLeft -= delta;
+		if (_loadWaitLeft > 0.0) return;
+
+		_loadWaitLeft = 0.0;
+		if (NetworkManager.Instance.IsActive && NetworkManager.Instance.IsServer && !_matchOver)
+			Rpc(MethodName.StartPlay);
+	}
+
 	// The match is over, not the session: the ships go, the lobby stays.
 	public void ReturnToLobby(string menuPath = MenuScene)
 	{
 		_timeLeft = 0.0;
+		_loadWaitLeft = 0.0;
 		ShipSync.Instance.Clear();
 		MissileSync.Instance.Clear();
 		if (NetworkManager.Instance.IsServer)
@@ -300,6 +376,7 @@ public partial class MatchManager : Node
 	{
 		NetworkManager.Instance.Leave();
 		_timeLeft = 0.0;
+		_loadWaitLeft = 0.0;
 		ShipSync.Instance.Clear();
 		MissileSync.Instance.Clear();
 		GetTree().ChangeSceneToFile(menuPath);

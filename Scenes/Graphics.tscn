@@ -1,27 +1,10 @@
-[gd_scene load_steps=11 format=3 uid="uid://h1mhhr2d2v7j"]
+[gd_scene format=3 uid="uid://h1mhhr2d2v7j"]
 
 [ext_resource type="Script" uid="uid://cfabqj87i6w7l" path="res://Scripts/Graphics.cs" id="1_script"]
 [ext_resource type="FontFile" uid="uid://dp75um7jdyrun" path="res://Imports/Fonts/Eurostile.ttf" id="2_ii5nb"]
-[ext_resource type="Theme" path="res://theme_settings.tres" id="3_settings"]
-[ext_resource type="PackedScene" path="res://Scenes/OptionsTabs.tscn" id="99_tabs"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ivqh8"]
-bg_color = Color(0.894118, 0.717647, 0.337255, 1)
-
-[sub_resource type="Gradient" id="Gradient_sk063"]
-offsets = PackedFloat32Array(0.987097, 1)
-colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_57m3l"]
-gradient = SubResource("Gradient_sk063")
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5h68y"]
-bg_color = Color(0.894118, 0.717647, 0.337255, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7yb8s"]
-bg_color = Color(0.894118, 0.717647, 0.337255, 1)
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qdpag"]
+[ext_resource type="Theme" uid="uid://c473vthobtrx6" path="res://theme_settings.tres" id="3_settings"]
+[ext_resource type="Theme" uid="uid://brj8jmsa6vurj" path="res://theme.tres" id="97_menu_theme"]
+[ext_resource type="PackedScene" uid="uid://x0hje8rfkvvj" path="res://Scenes/OptionsTabs.tscn" id="99_tabs"]
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_fov_slider_bg"]
 color = Color(0.314316, 0.314316, 0.314316, 1)
@@ -31,7 +14,10 @@ thickness = 4
 color = Color(0.894118, 0.717647, 0.337255, 1)
 thickness = 4
 
-[node name="Graphics" type="Control"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ivqh8"]
+bg_color = Color(0.894118, 0.717647, 0.337255, 1)
+
+[node name="Graphics" type="Control" unique_id=882538398]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -41,7 +27,22 @@ grow_vertical = 2
 theme = ExtResource("3_settings")
 script = ExtResource("1_script")
 
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Panel" type="PanelContainer" parent="." unique_id=675035765]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -800.0
+offset_top = -450.0
+offset_right = 800.0
+offset_bottom = 450.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Center" type="CenterContainer" parent="." unique_id=278100337]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -50,15 +51,19 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Rows" type="VBoxContainer" parent="Center"]
-custom_minimum_size = Vector2(850, 0)
+[node name="HBoxContainer" type="HBoxContainer" parent="Center" unique_id=422577022]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Rows" type="VBoxContainer" parent="Center/HBoxContainer" unique_id=1446872103]
+custom_minimum_size = Vector2(680, 0)
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="ModeRow" type="HBoxContainer" parent="Center/Rows"]
+[node name="ModeRow" type="HBoxContainer" parent="Center/HBoxContainer/Rows" unique_id=1500382248]
 layout_mode = 2
 
-[node name="Mode" type="Label" parent="Center/Rows/ModeRow"]
+[node name="Mode" type="Label" parent="Center/HBoxContainer/Rows/ModeRow" unique_id=976691047]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6
@@ -67,20 +72,21 @@ theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "Mode"
 
-[node name="ModeDropdown" type="OptionButton" parent="Center/Rows/ModeRow"]
+[node name="ModeDropdown" type="OptionButton" parent="Center/HBoxContainer/Rows/ModeRow" unique_id=1801742322]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
 size_flags_vertical = 6
 mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 
-[node name="ResolutionRow" type="HBoxContainer" parent="Center/Rows"]
+[node name="ResolutionRow" type="HBoxContainer" parent="Center/HBoxContainer/Rows" unique_id=1344109581]
 layout_mode = 2
 
-[node name="Resolution" type="Label" parent="Center/Rows/ResolutionRow"]
+[node name="Resolution" type="Label" parent="Center/HBoxContainer/Rows/ResolutionRow" unique_id=442256436]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -88,18 +94,19 @@ theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "Resolution"
 
-[node name="ResolutionDropdown" type="OptionButton" parent="Center/Rows/ResolutionRow"]
+[node name="ResolutionDropdown" type="OptionButton" parent="Center/HBoxContainer/Rows/ResolutionRow" unique_id=1696698830]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 
-[node name="VsyncRow" type="HBoxContainer" parent="Center/Rows"]
+[node name="VsyncRow" type="HBoxContainer" parent="Center/HBoxContainer/Rows" unique_id=504470401]
 layout_mode = 2
 
-[node name="Vsync" type="Label" parent="Center/Rows/VsyncRow"]
+[node name="Vsync" type="Label" parent="Center/HBoxContainer/Rows/VsyncRow" unique_id=849570632]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6
@@ -108,20 +115,21 @@ theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "Vsync"
 
-[node name="VsyncDropdown" type="OptionButton" parent="Center/Rows/VsyncRow"]
+[node name="VsyncDropdown" type="OptionButton" parent="Center/HBoxContainer/Rows/VsyncRow" unique_id=1573176752]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
 size_flags_vertical = 6
 mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 
-[node name="FPSLimitRow" type="HBoxContainer" parent="Center/Rows"]
+[node name="FPSLimitRow" type="HBoxContainer" parent="Center/HBoxContainer/Rows" unique_id=206000704]
 layout_mode = 2
 
-[node name="FPSLimit" type="Label" parent="Center/Rows/FPSLimitRow"]
+[node name="FPSLimit" type="Label" parent="Center/HBoxContainer/Rows/FPSLimitRow" unique_id=1814419458]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6
@@ -130,20 +138,21 @@ theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "FPS Limit"
 
-[node name="FPSDropdown" type="OptionButton" parent="Center/Rows/FPSLimitRow"]
+[node name="FPSDropdown" type="OptionButton" parent="Center/HBoxContainer/Rows/FPSLimitRow" unique_id=172177116]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
 size_flags_vertical = 6
 mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 
-[node name="FPSMeterRow" type="HBoxContainer" parent="Center/Rows"]
+[node name="FPSMeterRow" type="HBoxContainer" parent="Center/HBoxContainer/Rows" unique_id=1559184310]
 layout_mode = 2
 
-[node name="FPSMeter" type="Label" parent="Center/Rows/FPSMeterRow"]
+[node name="FPSMeter" type="Label" parent="Center/HBoxContainer/Rows/FPSMeterRow" unique_id=1676971427]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6
@@ -152,28 +161,29 @@ theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "FPS Meter"
 
-[node name="FPSMeterCheckSlot" type="CenterContainer" parent="Center/Rows/FPSMeterRow"]
+[node name="FPSMeterCheckSlot" type="CenterContainer" parent="Center/HBoxContainer/Rows/FPSMeterRow" unique_id=1657614128]
 custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
 
-[node name="FPSMeterCheck" type="CheckBox" parent="Center/Rows/FPSMeterRow/FPSMeterCheckSlot"]
+[node name="FPSMeterCheck" type="CheckBox" parent="Center/HBoxContainer/Rows/FPSMeterRow/FPSMeterCheckSlot" unique_id=669957007]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 6
 mouse_default_cursor_shape = 2
-theme_override_colors/font_disabled_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_disabled_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_constants/outline_size = 1
 theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 
-[node name="ShipModelRow" type="HBoxContainer" parent="Center/Rows"]
+[node name="ShipModelRow" type="HBoxContainer" parent="Center/HBoxContainer/Rows" unique_id=594898398]
 layout_mode = 2
 
-[node name="ShipModel" type="Label" parent="Center/Rows/ShipModelRow"]
+[node name="ShipModel" type="Label" parent="Center/HBoxContainer/Rows/ShipModelRow" unique_id=281832889]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6
@@ -182,28 +192,29 @@ theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "Ship Model"
 
-[node name="ShipModelCheckSlot" type="CenterContainer" parent="Center/Rows/ShipModelRow"]
+[node name="ShipModelCheckSlot" type="CenterContainer" parent="Center/HBoxContainer/Rows/ShipModelRow" unique_id=1942113304]
 custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
 
-[node name="ShipModelCheck" type="CheckBox" parent="Center/Rows/ShipModelRow/ShipModelCheckSlot"]
+[node name="ShipModelCheck" type="CheckBox" parent="Center/HBoxContainer/Rows/ShipModelRow/ShipModelCheckSlot" unique_id=1820408490]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 6
 mouse_default_cursor_shape = 2
-theme_override_colors/font_disabled_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_disabled_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_constants/outline_size = 1
 theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 
-[node name="CockpitFovRow" type="HBoxContainer" parent="Center/Rows"]
+[node name="CockpitFovRow" type="HBoxContainer" parent="Center/HBoxContainer/Rows" unique_id=1931576952]
 layout_mode = 2
 
-[node name="CockpitFov" type="Label" parent="Center/Rows/CockpitFovRow"]
+[node name="CockpitFov" type="Label" parent="Center/HBoxContainer/Rows/CockpitFovRow" unique_id=1679821503]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6
@@ -212,13 +223,14 @@ theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "Cockpit FOV"
 
-[node name="CockpitFovControl" type="HBoxContainer" parent="Center/Rows/CockpitFovRow"]
+[node name="CockpitFovControl" type="HBoxContainer" parent="Center/HBoxContainer/Rows/CockpitFovRow" unique_id=389367602]
 custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
 size_flags_vertical = 6
 theme_override_constants/separation = 12
 
-[node name="CockpitFovSlider" type="HSlider" parent="Center/Rows/CockpitFovRow/CockpitFovControl"]
+[node name="CockpitFovSlider" type="HSlider" parent="Center/HBoxContainer/Rows/CockpitFovRow/CockpitFovControl" unique_id=961186205]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -231,7 +243,8 @@ min_value = 60.0
 max_value = 80.0
 value = 70.0
 
-[node name="CockpitFovValue" type="Label" parent="Center/Rows/CockpitFovRow/CockpitFovControl"]
+[node name="CockpitFovValue" type="Label" parent="Center/HBoxContainer/Rows/CockpitFovRow/CockpitFovControl" unique_id=71349525]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -239,14 +252,14 @@ theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "70°"
 
-[node name="GroupGap" type="Control" parent="Center/Rows"]
+[node name="GroupGap" type="Control" parent="Center/HBoxContainer/Rows" unique_id=989399614]
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 
-[node name="PresetRow" type="HBoxContainer" parent="Center/Rows"]
+[node name="PresetRow" type="HBoxContainer" parent="Center/HBoxContainer/Rows" unique_id=333032721]
 layout_mode = 2
 
-[node name="Preset" type="Label" parent="Center/Rows/PresetRow"]
+[node name="Preset" type="Label" parent="Center/HBoxContainer/Rows/PresetRow" unique_id=1421641042]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6
@@ -255,20 +268,21 @@ theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "Preset"
 
-[node name="PresetDropdown" type="OptionButton" parent="Center/Rows/PresetRow"]
+[node name="PresetDropdown" type="OptionButton" parent="Center/HBoxContainer/Rows/PresetRow" unique_id=800274256]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
 size_flags_vertical = 6
 mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 
-[node name="RenderScaleRow" type="HBoxContainer" parent="Center/Rows"]
+[node name="RenderScaleRow" type="HBoxContainer" parent="Center/HBoxContainer/Rows" unique_id=1541629103]
 layout_mode = 2
 
-[node name="RenderScale" type="Label" parent="Center/Rows/RenderScaleRow"]
+[node name="RenderScale" type="Label" parent="Center/HBoxContainer/Rows/RenderScaleRow" unique_id=203680742]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6
@@ -277,20 +291,21 @@ theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "Render Scale"
 
-[node name="RenderScaleDropdown" type="OptionButton" parent="Center/Rows/RenderScaleRow"]
+[node name="RenderScaleDropdown" type="OptionButton" parent="Center/HBoxContainer/Rows/RenderScaleRow" unique_id=821000799]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
 size_flags_vertical = 6
 mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 
-[node name="UpscalerRow" type="HBoxContainer" parent="Center/Rows"]
+[node name="UpscalerRow" type="HBoxContainer" parent="Center/HBoxContainer/Rows" unique_id=848982439]
 layout_mode = 2
 
-[node name="Upscaler" type="Label" parent="Center/Rows/UpscalerRow"]
+[node name="Upscaler" type="Label" parent="Center/HBoxContainer/Rows/UpscalerRow" unique_id=1914818515]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6
@@ -299,20 +314,21 @@ theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "Upscaler"
 
-[node name="UpscalerDropdown" type="OptionButton" parent="Center/Rows/UpscalerRow"]
+[node name="UpscalerDropdown" type="OptionButton" parent="Center/HBoxContainer/Rows/UpscalerRow" unique_id=1736121201]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
 size_flags_vertical = 6
 mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 
-[node name="MSAARow" type="HBoxContainer" parent="Center/Rows"]
+[node name="MSAARow" type="HBoxContainer" parent="Center/HBoxContainer/Rows" unique_id=1209841946]
 layout_mode = 2
 
-[node name="MSAA" type="Label" parent="Center/Rows/MSAARow"]
+[node name="MSAA" type="Label" parent="Center/HBoxContainer/Rows/MSAARow" unique_id=127328946]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6
@@ -321,20 +337,21 @@ theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "MSAA"
 
-[node name="MSAADropdown" type="OptionButton" parent="Center/Rows/MSAARow"]
+[node name="MSAADropdown" type="OptionButton" parent="Center/HBoxContainer/Rows/MSAARow" unique_id=1264549176]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
 size_flags_vertical = 6
 mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 
-[node name="FXAARow" type="HBoxContainer" parent="Center/Rows"]
+[node name="FXAARow" type="HBoxContainer" parent="Center/HBoxContainer/Rows" unique_id=1065826535]
 layout_mode = 2
 
-[node name="FXAA" type="Label" parent="Center/Rows/FXAARow"]
+[node name="FXAA" type="Label" parent="Center/HBoxContainer/Rows/FXAARow" unique_id=1075485445]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6
@@ -343,28 +360,29 @@ theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "FXAA"
 
-[node name="FXAACheckSlot" type="CenterContainer" parent="Center/Rows/FXAARow"]
+[node name="FXAACheckSlot" type="CenterContainer" parent="Center/HBoxContainer/Rows/FXAARow" unique_id=1087893295]
 custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
 
-[node name="FXAACheck" type="CheckBox" parent="Center/Rows/FXAARow/FXAACheckSlot"]
+[node name="FXAACheck" type="CheckBox" parent="Center/HBoxContainer/Rows/FXAARow/FXAACheckSlot" unique_id=1740597318]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 6
 mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_constants/outline_size = 1
 theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 
-[node name="TAARow" type="HBoxContainer" parent="Center/Rows"]
+[node name="TAARow" type="HBoxContainer" parent="Center/HBoxContainer/Rows" unique_id=1173141008]
 layout_mode = 2
 
-[node name="TAA" type="Label" parent="Center/Rows/TAARow"]
+[node name="TAA" type="Label" parent="Center/HBoxContainer/Rows/TAARow" unique_id=120385388]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -372,29 +390,30 @@ theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "TAA"
 
-[node name="TAACheckSlot" type="CenterContainer" parent="Center/Rows/TAARow"]
+[node name="TAACheckSlot" type="CenterContainer" parent="Center/HBoxContainer/Rows/TAARow" unique_id=799110334]
 custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
 
-[node name="TAACheck" type="CheckBox" parent="Center/Rows/TAARow/TAACheckSlot"]
+[node name="TAACheck" type="CheckBox" parent="Center/HBoxContainer/Rows/TAARow/TAACheckSlot" unique_id=41768271]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 6
 mouse_default_cursor_shape = 2
-theme_override_colors/font_disabled_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_disabled_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_constants/outline_size = 1
 theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 
-[node name="SSAORow" type="HBoxContainer" parent="Center/Rows"]
+[node name="SSAORow" type="HBoxContainer" parent="Center/HBoxContainer/Rows" unique_id=288967724]
 layout_mode = 2
 
-[node name="SSAO" type="Label" parent="Center/Rows/SSAORow"]
+[node name="SSAO" type="Label" parent="Center/HBoxContainer/Rows/SSAORow" unique_id=2129018427]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6
@@ -403,29 +422,30 @@ theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "SSAO"
 
-[node name="SSAOCheckSlot" type="CenterContainer" parent="Center/Rows/SSAORow"]
+[node name="SSAOCheckSlot" type="CenterContainer" parent="Center/HBoxContainer/Rows/SSAORow" unique_id=1435084]
 custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
 
-[node name="SSAOCheck" type="CheckBox" parent="Center/Rows/SSAORow/SSAOCheckSlot"]
+[node name="SSAOCheck" type="CheckBox" parent="Center/HBoxContainer/Rows/SSAORow/SSAOCheckSlot" unique_id=228029358]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 6
 mouse_default_cursor_shape = 2
-theme_override_colors/font_disabled_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_disabled_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_constants/outline_size = 1
 theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 
-[node name="VolumetricFogRow" type="HBoxContainer" parent="Center/Rows"]
+[node name="VolumetricFogRow" type="HBoxContainer" parent="Center/HBoxContainer/Rows" unique_id=1004212724]
 layout_mode = 2
 
-[node name="VolumetricFog" type="Label" parent="Center/Rows/VolumetricFogRow"]
+[node name="VolumetricFog" type="Label" parent="Center/HBoxContainer/Rows/VolumetricFogRow" unique_id=1462462581]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6
@@ -434,135 +454,111 @@ theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 text = "Volumetric Fog"
 
-[node name="VolumetricFogCheckSlot" type="CenterContainer" parent="Center/Rows/VolumetricFogRow"]
+[node name="VolumetricFogCheckSlot" type="CenterContainer" parent="Center/HBoxContainer/Rows/VolumetricFogRow" unique_id=789967033]
 custom_minimum_size = Vector2(312, 0)
 layout_mode = 2
 
-[node name="VolumetricFogCheck" type="CheckBox" parent="Center/Rows/VolumetricFogRow/VolumetricFogCheckSlot"]
+[node name="VolumetricFogCheck" type="CheckBox" parent="Center/HBoxContainer/Rows/VolumetricFogRow/VolumetricFogCheckSlot" unique_id=119310957]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 6
 mouse_default_cursor_shape = 2
-theme_override_colors/font_disabled_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
+theme_override_colors/font_disabled_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_constants/outline_size = 1
 theme_override_fonts/font = ExtResource("2_ii5nb")
 theme_override_font_sizes/font_size = 30
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
-layout_mode = 0
-offset_top = 20.0
-offset_right = 220.0
-offset_bottom = 85.0
-
-[node name="Label" type="Label" parent="VBoxContainer"]
+[node name="HintLabel" type="Label" parent="Center/HBoxContainer" unique_id=576375691]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 600)
 layout_mode = 2
-size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 40
-text = "OPTIONS"
-horizontal_alignment = 1
+theme_override_font_sizes/font_size = 30
 vertical_alignment = 1
+autowrap_mode = 3
 
-[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
-layout_mode = 2
-theme_override_constants/separation = 5
-theme_override_styles/separator = SubResource("StyleBoxFlat_ivqh8")
-
-[node name="TextureRect" type="TextureRect" parent="."]
-show_behind_parent = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-texture = SubResource("GradientTexture2D_57m3l")
-
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_top = -100.0
-offset_right = 400.0
-grow_vertical = 0
-
-[node name="BackBtn" type="Button" parent="HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 40
-theme_override_styles/hover = SubResource("StyleBoxFlat_5h68y")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_7yb8s")
-theme_override_styles/normal = SubResource("StyleBoxEmpty_qdpag")
-text = "BACK"
-
-[node name="ResetBtn" type="Button" parent="HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 40
-theme_override_styles/hover = SubResource("StyleBoxFlat_5h68y")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_7yb8s")
-theme_override_styles/normal = SubResource("StyleBoxEmpty_qdpag")
-text = "RESET"
-
-[node name="HintLabel" type="Label" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=478907772]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -500.0
-offset_top = -440.0
-offset_right = 500.0
-offset_bottom = -340.0
+offset_left = -776.0
+offset_top = -430.0
+offset_right = -556.0
+offset_bottom = -365.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="Label" type="Label" parent="VBoxContainer" unique_id=441800781]
+layout_mode = 2
+size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("2_ii5nb")
-theme_override_font_sizes/font_size = 30
-horizontal_alignment = 1
-vertical_alignment = 2
-autowrap_mode = 3
+theme_override_font_sizes/font_size = 44
+text = "OPTIONS"
 
-[node name="OptionsTabs" parent="." instance=ExtResource("99_tabs")]
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer" unique_id=418292470]
+layout_mode = 2
+theme_override_constants/separation = 5
+theme_override_styles/separator = SubResource("StyleBoxFlat_ivqh8")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=803791217]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -776.0
+offset_top = 400.0
+offset_right = -376.0
+offset_bottom = 430.0
+grow_horizontal = 2
+grow_vertical = 0
+theme = ExtResource("97_menu_theme")
+theme_override_constants/separation = 24
+
+[node name="BackBtn" type="Button" parent="HBoxContainer" unique_id=222504407]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 30
+text = "BACK"
+
+[node name="ResetBtn" type="Button" parent="HBoxContainer" unique_id=38208870]
+layout_mode = 2
+size_flags_horizontal = 0
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 30
+text = "RESET"
+
+[node name="OptionsTabs" parent="." unique_id=414081216 instance=ExtResource("99_tabs")]
 layout_mode = 1
 
-[connection signal="item_selected" from="Center/Rows/PresetRow/PresetDropdown" to="." method="_on_preset_dropdown_item_selected"]
-[connection signal="toggled" from="Center/Rows/SSAORow/SSAOCheckSlot/SSAOCheck" to="." method="_on_ssao_check_toggled"]
-[connection signal="toggled" from="Center/Rows/VolumetricFogRow/VolumetricFogCheckSlot/VolumetricFogCheck" to="." method="_on_volumetric_fog_check_toggled"]
-[connection signal="item_selected" from="Center/Rows/FPSLimitRow/FPSDropdown" to="." method="_on_fps_dropdown_item_selected"]
-[connection signal="item_selected" from="Center/Rows/ModeRow/ModeDropdown" to="." method="_on_mode_dropdown_item_selected"]
-[connection signal="item_selected" from="Center/Rows/VsyncRow/VsyncDropdown" to="." method="_on_vsync_dropdown_item_selected"]
-[connection signal="toggled" from="Center/Rows/FXAARow/FXAACheckSlot/FXAACheck" to="." method="_on_fxaa_check_toggled"]
-[connection signal="toggled" from="Center/Rows/TAARow/TAACheckSlot/TAACheck" to="." method="_on_taa_check_toggled"]
-[connection signal="item_selected" from="Center/Rows/MSAARow/MSAADropdown" to="." method="_on_msaa_dropdown_item_selected"]
-[connection signal="item_selected" from="Center/Rows/ResolutionRow/ResolutionDropdown" to="." method="_on_resolution_dropdown_item_selected"]
-[connection signal="item_selected" from="Center/Rows/RenderScaleRow/RenderScaleDropdown" to="." method="_on_render_scale_dropdown_item_selected"]
-[connection signal="item_selected" from="Center/Rows/UpscalerRow/UpscalerDropdown" to="." method="_on_upscaler_dropdown_item_selected"]
-[connection signal="toggled" from="Center/Rows/FPSMeterRow/FPSMeterCheckSlot/FPSMeterCheck" to="." method="_on_fps_meter_check_toggled"]
-[connection signal="toggled" from="Center/Rows/ShipModelRow/ShipModelCheckSlot/ShipModelCheck" to="." method="_on_ship_model_check_toggled"]
-[connection signal="value_changed" from="Center/Rows/CockpitFovRow/CockpitFovControl/CockpitFovSlider" to="." method="_on_cockpit_fov_slider_value_changed"]
+[connection signal="item_selected" from="Center/HBoxContainer/Rows/ModeRow/ModeDropdown" to="." method="_on_mode_dropdown_item_selected"]
+[connection signal="item_selected" from="Center/HBoxContainer/Rows/ResolutionRow/ResolutionDropdown" to="." method="_on_resolution_dropdown_item_selected"]
+[connection signal="item_selected" from="Center/HBoxContainer/Rows/VsyncRow/VsyncDropdown" to="." method="_on_vsync_dropdown_item_selected"]
+[connection signal="item_selected" from="Center/HBoxContainer/Rows/FPSLimitRow/FPSDropdown" to="." method="_on_fps_dropdown_item_selected"]
+[connection signal="toggled" from="Center/HBoxContainer/Rows/FPSMeterRow/FPSMeterCheckSlot/FPSMeterCheck" to="." method="_on_fps_meter_check_toggled"]
+[connection signal="toggled" from="Center/HBoxContainer/Rows/ShipModelRow/ShipModelCheckSlot/ShipModelCheck" to="." method="_on_ship_model_check_toggled"]
+[connection signal="value_changed" from="Center/HBoxContainer/Rows/CockpitFovRow/CockpitFovControl/CockpitFovSlider" to="." method="_on_cockpit_fov_slider_value_changed"]
+[connection signal="item_selected" from="Center/HBoxContainer/Rows/PresetRow/PresetDropdown" to="." method="_on_preset_dropdown_item_selected"]
+[connection signal="item_selected" from="Center/HBoxContainer/Rows/RenderScaleRow/RenderScaleDropdown" to="." method="_on_render_scale_dropdown_item_selected"]
+[connection signal="item_selected" from="Center/HBoxContainer/Rows/UpscalerRow/UpscalerDropdown" to="." method="_on_upscaler_dropdown_item_selected"]
+[connection signal="item_selected" from="Center/HBoxContainer/Rows/MSAARow/MSAADropdown" to="." method="_on_msaa_dropdown_item_selected"]
+[connection signal="toggled" from="Center/HBoxContainer/Rows/FXAARow/FXAACheckSlot/FXAACheck" to="." method="_on_fxaa_check_toggled"]
+[connection signal="toggled" from="Center/HBoxContainer/Rows/TAARow/TAACheckSlot/TAACheck" to="." method="_on_taa_check_toggled"]
+[connection signal="toggled" from="Center/HBoxContainer/Rows/SSAORow/SSAOCheckSlot/SSAOCheck" to="." method="_on_ssao_check_toggled"]
+[connection signal="toggled" from="Center/HBoxContainer/Rows/VolumetricFogRow/VolumetricFogCheckSlot/VolumetricFogCheck" to="." method="_on_volumetric_fog_check_toggled"]
 [connection signal="pressed" from="HBoxContainer/BackBtn" to="." method="_on_back_btn_pressed"]
 [connection signal="pressed" from="HBoxContainer/ResetBtn" to="." method="_on_reset_btn_pressed"]

@@ -10,8 +10,8 @@ public partial class Controls : Control
 	private VBoxContainer ActionList;
 	private ScrollContainer keybindScroll;
 	private int _keybindRowPitch;
-	// Whole rows only, so the bottom one is never cut off.
-	private const int KeybindRowsShown = 11;
+	// Whole rows only so they are not cut off
+	private const int KeybindRowsShown = 8;
 	private bool IsRemapping = false;
 	private string ActionToRemap = null;
 	private Button RemappingButton = null;
@@ -76,11 +76,11 @@ public partial class Controls : Control
 		aimWidgetCheck = GetNode<CheckBox>(Sections + "MouseSettings/AimWidgetRow/AimWidgetCheck");
 		vectorIndicatorCheck = GetNode<CheckBox>(Sections + "MouseSettings/VectorIndicatorRow/VectorIndicatorCheck");
 		flightAssistToggleDropdown = GetNode<OptionButton>(Sections + "FlightSettings/FlightAssistToggleRow/FlightAssistToggleDropdown");
-		flightAssistToggleDropdown.AddItem("Full / Off", FlightAssistToggleOff);
-		flightAssistToggleDropdown.AddItem("Full / Partial", FlightAssistTogglePartial);
+		flightAssistToggleDropdown.AddItem("FULL / OFF", FlightAssistToggleOff);
+		flightAssistToggleDropdown.AddItem("FULL / PARTIAL", FlightAssistTogglePartial);
 		flightAssistModeDropdown = GetNode<OptionButton>(Sections + "FlightSettings/FlightAssistModeRow/FlightAssistModeDropdown");
-		flightAssistModeDropdown.AddItem("Thrust", FlightAssistModeThrust);
-		flightAssistModeDropdown.AddItem("Throttle", FlightAssistModeThrottle);
+		flightAssistModeDropdown.AddItem("THRUST", FlightAssistModeThrust);
+		flightAssistModeDropdown.AddItem("THROTTLE", FlightAssistModeThrottle);
 
 		LoadMouseSettings();
 		BindMouseSettingsSignals();
@@ -89,8 +89,7 @@ public partial class Controls : Control
 		FitKeybindScroll();
 	}
 
-	// The list is exactly KeybindRowsShown rows tall and scrolls a whole row at a time: the scroll
-	// bar's step snaps dragging to rows, and a wheel notch moves exactly one.
+	// The list is exactly KeybindRowsShown rows tall and scrolls a whole row at a time
 	private void FitKeybindScroll()
 	{
 		int separation = ActionList.GetThemeConstant("separation");

@@ -9,7 +9,7 @@ using Godot;
 // menu's fixed 1920x1080 rect, so the blur still covers the screen after a resize.
 public partial class MenuStack : CanvasLayer
 {
-	[Export] public float FadeTime = 0.3f;
+	[Export] public float FadeTime = 0.2f;
 	[Export] public float BlurAmount = 2.5f;
 	[Export] public float Dim = 0.6f;
 

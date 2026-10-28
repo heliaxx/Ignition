@@ -38,7 +38,7 @@ bg_color = Color(0.6, 0.6, 0.6, 0)
 
 [sub_resource type="Animation" id="Animation_s2enn"]
 resource_name = "Pause"
-length = 0.3
+length = 0.2
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -46,7 +46,7 @@ tracks/0/path = NodePath(".:material:shader_parameter/blur")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.3),
+"times": PackedFloat32Array(0, 0.2),
 "transitions": PackedFloat32Array(0.5, 1),
 "update": 0,
 "values": [0.0, 2.5]
@@ -58,7 +58,7 @@ tracks/1/path = NodePath(".:material:shader_parameter/brightness")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.3),
+"times": PackedFloat32Array(0, 0.2),
 "transitions": PackedFloat32Array(0.5, 1),
 "update": 0,
 "values": [1.0, 0.6]
@@ -70,7 +70,7 @@ tracks/2/path = NodePath("CenterContainer:modulate")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 0.3),
+"times": PackedFloat32Array(0, 0.2),
 "transitions": PackedFloat32Array(0.5, 1),
 "update": 0,
 "values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
@@ -200,8 +200,8 @@ theme_override_constants/separation = 10
 [node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_r8ort")
-theme_override_font_sizes/font_size = 40
-text = "Pause"
+theme_override_font_sizes/font_size = 44
+text = "PAUSE"
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
@@ -220,7 +220,7 @@ theme_override_font_sizes/font_size = 30
 theme_override_styles/hover = SubResource("StyleBoxFlat_h6qk2")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_wasvf")
 theme_override_styles/normal = SubResource("StyleBoxFlat_1fo3t")
-text = "Continue"
+text = "CONTINUE"
 
 [node name="OptionsButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -235,7 +235,7 @@ theme_override_font_sizes/font_size = 30
 theme_override_styles/hover = SubResource("StyleBoxFlat_h6qk2")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_wasvf")
 theme_override_styles/normal = SubResource("StyleBoxFlat_1fo3t")
-text = "Options"
+text = "OPTIONS"
 
 [node name="MainMenuButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -250,7 +250,7 @@ theme_override_font_sizes/font_size = 30
 theme_override_styles/hover = SubResource("StyleBoxFlat_kopxn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_x3h70")
 theme_override_styles/normal = SubResource("StyleBoxFlat_egu0c")
-text = "Main Menu"
+text = "MAIN MENU"
 
 [node name="QuitButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -265,7 +265,7 @@ theme_override_font_sizes/font_size = 30
 theme_override_styles/hover = SubResource("StyleBoxFlat_8en07")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_bpg1l")
 theme_override_styles/normal = SubResource("StyleBoxFlat_7kt6w")
-text = "Quit"
+text = "QUIT"
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {

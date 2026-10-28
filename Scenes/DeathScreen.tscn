@@ -1,11 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://086mbplltvr6"]
+[gd_scene format=3 uid="uid://086mbplltvr6"]
 
 [ext_resource type="Theme" uid="uid://brj8jmsa6vurj" path="res://theme.tres" id="1_theme"]
 
-[node name="DeathScreenLayer" type="CanvasLayer"]
+[node name="DeathScreenLayer" type="CanvasLayer" unique_id=488574576]
 layer = 10
 
-[node name="DeathScreen" type="ColorRect" parent="."]
+[node name="DeathScreen" type="ColorRect" parent="." unique_id=1836818867]
 visible = false
 anchors_preset = 15
 anchor_right = 1.0
@@ -14,7 +14,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.75)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="DeathScreen"]
+[node name="VBoxContainer" type="VBoxContainer" parent="DeathScreen" unique_id=1784384327]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -30,14 +30,16 @@ grow_vertical = 2
 theme = ExtResource("1_theme")
 alignment = 1
 
-[node name="DeathLabel" type="Label" parent="DeathScreen/VBoxContainer"]
+[node name="DeathLabel" type="Label" parent="DeathScreen/VBoxContainer" unique_id=1860724406]
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 44
 text = "YOU DIED!"
 horizontal_alignment = 1
 
-[node name="MainMenuButton" type="Button" parent="DeathScreen/VBoxContainer"]
+[node name="MainMenuButton" type="Button" parent="DeathScreen/VBoxContainer" unique_id=1987935924]
 layout_mode = 2
 size_flags_horizontal = 4
 mouse_default_cursor_shape = 2
-text = "Return to Main Menu"
+theme_override_font_sizes/font_size = 30
+text = "RETURN TO MAIN MENU"

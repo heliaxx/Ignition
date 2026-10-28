@@ -10,6 +10,11 @@ public partial class OptionsMenu : CanvasLayer
 	// Above every layer a level draws, the pause menu and death screen included.
 	private const int OptionsLayer = 20;
 
+	// Blurs and darkens the level behind the menu.
+	private const float FogBlur = 2.5f;
+	private const float FogBrightness = 0.6f;
+	private const float FogSeconds = 0.2f;
+
 	private Control _screen;
 
 	// Opens on the controls tab.
@@ -17,8 +22,24 @@ public partial class OptionsMenu : CanvasLayer
 	{
 		var menu = new OptionsMenu { Layer = OptionsLayer, ProcessMode = ProcessModeEnum.Always };
 		parent.AddChild(menu);
+		menu.AddFog();
 		menu.ShowScreen(ControlsScreen);
 		return menu;
+	}
+
+	// Added before any screen, so every screen draws over it.
+	private void AddFog()
+	{
+		var material = new ShaderMaterial { Shader = GD.Load<Shader>("res://Shaders/Blur.gdshader") };
+		material.SetShaderParameter("blur", 0.0f);
+		material.SetShaderParameter("brightness", 1.0f);
+		var fog = new ColorRect { Material = material };
+		AddChild(fog);
+		fog.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+
+		Tween tween = CreateTween().SetParallel();
+		tween.TweenProperty(material, "shader_parameter/blur", FogBlur, FogSeconds);
+		tween.TweenProperty(material, "shader_parameter/brightness", FogBrightness, FogSeconds);
 	}
 
 	public void ShowScreen(string screenPath)

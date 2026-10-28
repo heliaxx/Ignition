@@ -6,12 +6,18 @@ public partial class Audio : Control
     private Slider generalVolumeSlider;
     private Slider musicVolumeSlider;
     private Slider sfxVolumeSlider;
+    private Label generalVolumeValue;
+    private Label musicVolumeValue;
+    private Label sfxVolumeValue;
 
     public override void _Ready()
     {
-        generalVolumeSlider = GetNode<Slider>("Center/Rows/VolGeneralRow/VolGeneralSlider");
-        musicVolumeSlider = GetNode<Slider>("Center/Rows/VolMusicRow/VolMusicSlider");
-        sfxVolumeSlider = GetNode<Slider>("Center/Rows/VolSFXRow/VolSFXSlider");
+        generalVolumeSlider = GetNode<Slider>("%VolGeneralSlider");
+        musicVolumeSlider = GetNode<Slider>("%VolMusicSlider");
+        sfxVolumeSlider = GetNode<Slider>("%VolSFXSlider");
+        generalVolumeValue = GetNode<Label>("%VolGeneralValue");
+        musicVolumeValue = GetNode<Label>("%VolMusicValue");
+        sfxVolumeValue = GetNode<Label>("%VolSFXValue");
 
         LoadSettingsIntoUi();
 
@@ -41,12 +47,21 @@ public partial class Audio : Control
             musicVolumeSlider.Value = Math.Min(musicVol.As<float>(), 1.0f) * 100.0f;
         if (audioSettings.TryGetValue("sfx_volume", out Variant sfxVol))
             sfxVolumeSlider.Value = Math.Min(sfxVol.As<float>(), 1.0f) * 100.0f;
+        ShowVolumes();
+    }
+
+    private void ShowVolumes()
+    {
+        generalVolumeValue.Text = $"{generalVolumeSlider.Value:0}%";
+        musicVolumeValue.Text = $"{musicVolumeSlider.Value:0}%";
+        sfxVolumeValue.Text = $"{sfxVolumeSlider.Value:0}%";
     }
 
     private void OnVolumeChanged(string key, double sliderValue)
     {
         ConfigFileHandler.Instance.SaveAudioSettings(key, (float)(sliderValue / 100.0));
         EventBus.EmitAudioSettingsChanged();
+        ShowVolumes();
     }
 
     private void _on_back_btn_pressed()

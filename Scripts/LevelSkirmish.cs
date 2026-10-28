@@ -15,6 +15,9 @@ public partial class LevelSkirmish : BaseLevel
 
 	private int _killsRemaining;
 	private Label _killLabel;
+	private Label _timeLabel;
+	private Label _bestTimeLabel;
+	private double _bestTime;
 	private ColorRect _endScreen;
 	private Label _resultLabel;
 	private Button _freeRoamButton;
@@ -29,8 +32,13 @@ public partial class LevelSkirmish : BaseLevel
 		base._Ready();
 
 		_killLabel = GetNodeOrNull<Label>("ScoreHUD/KillLabel");
+		_timeLabel = GetNodeOrNull<Label>("ScoreHUD/TimeLabel");
+		_bestTimeLabel = GetNodeOrNull<Label>("ScoreHUD/BestTimeLabel");
 		_killsRemaining = SpawnCount;
+		_bestTime = ConfigFileHandler.Instance.LoadSkirmishBestTime();
 		UpdateKillHUD();
+		UpdateTimeHUD();
+		UpdateBestTimeHUD();
 
 		// Setup click sound
 		_clickSound = new AudioStreamPlayer();
@@ -120,7 +128,11 @@ public partial class LevelSkirmish : BaseLevel
 	{
 		base._Process(delta);
 
-		if (_killsRemaining > 0) _elapsed += delta;
+		if (_killsRemaining > 0)
+		{
+			_elapsed += delta;
+			UpdateTimeHUD();
+		}
 
 		// Out of ammo with targets left is a lost mission, once nothing already fired can still hit.
 		if (!_over && _killsRemaining > 0 && PlayerShip != null && PlayerShip.OutOfAmmo
@@ -150,7 +162,12 @@ public partial class LevelSkirmish : BaseLevel
 	{
 		double best = ConfigFileHandler.Instance.LoadSkirmishBestTime();
 		bool record = best <= 0 || _elapsed < best;
-		if (record) ConfigFileHandler.Instance.SaveSkirmishBestTime(_elapsed);
+		if (record)
+		{
+			ConfigFileHandler.Instance.SaveSkirmishBestTime(_elapsed);
+			_bestTime = _elapsed;
+			UpdateBestTimeHUD();
+		}
 
 		return $"LEVEL COMPLETE!\nTIME {FormatTime(_elapsed)}\n"
 			+ (record ? "NEW TOP SCORE" : $"TOP SCORE {FormatTime(best)}");
@@ -163,6 +180,18 @@ public partial class LevelSkirmish : BaseLevel
 	{
 		if (_killLabel != null)
 			_killLabel.Text = $"Remaining Targets: {_killsRemaining}";
+	}
+
+	private void UpdateTimeHUD()
+	{
+		if (_timeLabel != null)
+			_timeLabel.Text = $"Current time: {FormatTime(_elapsed)}";
+	}
+
+	private void UpdateBestTimeHUD()
+	{
+		if (_bestTimeLabel != null)
+			_bestTimeLabel.Text = $"Best time: {(_bestTime > 0 ? FormatTime(_bestTime) : "--")}";
 	}
 
 	private void ShowEndScreen()

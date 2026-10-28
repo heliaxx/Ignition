@@ -39,8 +39,11 @@ public partial class PauseMenu : ColorRect
 		clickSound.Stream = (AudioStream)GD.Load("res://Imports/Sounds/click_sound_menu2.mp3");
 
 		continueButton.Pressed += () => Unpause();
-		// Over the pause menu, which is still there when the options close.
-		optionsButton.Pressed += () => OptionsMenu.Open(this);
+		optionsButton.Pressed += () =>
+		{
+			FadePanel(false);
+			OptionsMenu.Open(this).TreeExiting += () => FadePanel(true);
+		};
 		quitButton.Pressed += () => GetTree().Quit();
 		mainMenuButton.Pressed += () => OnMainMenuButtonPressed();
 
@@ -81,6 +84,11 @@ public partial class PauseMenu : ColorRect
 		SetProcess(true);
 		Visible = true;
 	}
+
+	private const float PanelFadeSeconds = 0.2f;
+
+	private void FadePanel(bool shown) =>
+		CreateTween().TweenProperty(GetNode<Control>("CenterContainer"), "modulate:a", shown ? 1f : 0f, PanelFadeSeconds);
 
 	private void OnMainMenuButtonPressed()
 	{

@@ -309,7 +309,7 @@ LodBias = 40.1
 [node name="ScoreHUD" type="CanvasLayer" parent="." unique_id=226728588]
 layer = 2
 
-[node name="KillLabel" type="Label" parent="ScoreHUD" unique_id=449826542]
+[node name="BestTimeLabel" type="Label" parent="ScoreHUD"]
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
@@ -317,6 +317,32 @@ offset_left = -300.0
 offset_top = 20.0
 offset_right = -20.0
 offset_bottom = 60.0
+grow_horizontal = 0
+theme = ExtResource("12_theme")
+text = "Best time: --"
+horizontal_alignment = 2
+
+[node name="TimeLabel" type="Label" parent="ScoreHUD"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -300.0
+offset_top = 68.0
+offset_right = -20.0
+offset_bottom = 108.0
+grow_horizontal = 0
+theme = ExtResource("12_theme")
+text = "Current time: 0:00.0"
+horizontal_alignment = 2
+
+[node name="KillLabel" type="Label" parent="ScoreHUD" unique_id=449826542]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -300.0
+offset_top = 116.0
+offset_right = -20.0
+offset_bottom = 156.0
 grow_horizontal = 0
 theme = ExtResource("12_theme")
 text = "Targets: 5"
@@ -353,6 +379,7 @@ alignment = 1
 
 [node name="CompletionLabel" type="Label" parent="EndScreenLayer/EndScreen/VBoxContainer" unique_id=1909351506]
 layout_mode = 2
+theme_override_font_sizes/font_size = 44
 size_flags_horizontal = 4
 text = "LEVEL COMPLETE!"
 horizontal_alignment = 1
@@ -360,21 +387,24 @@ horizontal_alignment = 1
 [node name="RestartButton" type="Button" parent="EndScreenLayer/EndScreen/VBoxContainer"]
 visible = false
 layout_mode = 2
+theme_override_font_sizes/font_size = 30
 size_flags_horizontal = 4
 mouse_default_cursor_shape = 2
-text = "Restart Level"
+text = "RESTART LEVEL"
 
 [node name="MainMenuButton" type="Button" parent="EndScreenLayer/EndScreen/VBoxContainer" unique_id=1937709562]
 layout_mode = 2
+theme_override_font_sizes/font_size = 30
 size_flags_horizontal = 4
 mouse_default_cursor_shape = 2
-text = "Return to Main Menu"
+text = "RETURN TO MAIN MENU"
 
 [node name="FreeRoamButton" type="Button" parent="EndScreenLayer/EndScreen/VBoxContainer" unique_id=1671387763]
 layout_mode = 2
+theme_override_font_sizes/font_size = 30
 size_flags_horizontal = 4
 mouse_default_cursor_shape = 2
-text = "Continue Free Roam"
+text = "CONTINUE FREE ROAM"
 
 [node name="FogStreaks" type="FogVolume" parent="."]
 shape = 4

@@ -77,9 +77,11 @@ public partial class Menu : Control
 		GetTree().Quit();
 	}
 
+	// The menu steps aside behind the options, as it does behind its other panels.
 	private void OnOptionsPressed()
 	{
-		OptionsMenu.Open(this);
+		FadeMenu(true);
+		OptionsMenu.Open(this).TreeExiting += () => FadeMenu(false);
 	}
 
 	private void OnButtonHovered()

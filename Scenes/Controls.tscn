@@ -2,8 +2,11 @@
 
 [ext_resource type="Script" uid="uid://dkj738m0u6bij" path="res://Scripts/Controls.cs" id="1_fdf8q"]
 [ext_resource type="FontFile" uid="uid://dp75um7jdyrun" path="res://Imports/Fonts/Eurostile.ttf" id="3_oyrkr"]
-[ext_resource type="Theme" path="res://theme_settings.tres" id="4_settings"]
-[ext_resource type="PackedScene" path="res://Scenes/OptionsTabs.tscn" id="99_tabs"]
+[ext_resource type="Theme" uid="uid://c473vthobtrx6" path="res://theme_settings.tres" id="4_settings"]
+[ext_resource type="Theme" uid="uid://brj8jmsa6vurj" path="res://theme.tres" id="97_menu_theme"]
+[ext_resource type="PackedScene" uid="uid://x0hje8rfkvvj" path="res://Scenes/OptionsTabs.tscn" id="99_tabs"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4e4ky"]
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_kb_slider_bg"]
 color = Color(0.314316, 0.314316, 0.314316, 1)
@@ -12,14 +15,6 @@ thickness = 4
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_kb_slider_fill"]
 color = Color(0.894118, 0.717647, 0.337255, 1)
 thickness = 4
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4e4ky"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5vkms"]
-bg_color = Color(0.894118, 0.717647, 0.337255, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qh4r2"]
-bg_color = Color(0.894118, 0.717647, 0.337255, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rr2ug"]
 bg_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -34,7 +29,22 @@ grow_vertical = 2
 theme = ExtResource("4_settings")
 script = ExtResource("1_fdf8q")
 
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Panel" type="PanelContainer" parent="." unique_id=585431894]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -800.0
+offset_top = -450.0
+offset_right = 802.54004
+offset_bottom = 450.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Center" type="CenterContainer" parent="." unique_id=2016565841]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -56,9 +66,9 @@ theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
 [node name="Sections" type="VBoxContainer" parent="Center/SettingsPanel/Margin" unique_id=1078603715]
-custom_minimum_size = Vector2(850, 0)
+custom_minimum_size = Vector2(1000, 0)
 layout_mode = 2
-theme_override_constants/separation = 32
+theme_override_constants/separation = 20
 
 [node name="KeyboardSettings" type="VBoxContainer" parent="Center/SettingsPanel/Margin/Sections" unique_id=1459023817]
 layout_mode = 2
@@ -154,11 +164,11 @@ theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "0.05"
 
-[node name="AimPowerCurveRow" type="HBoxContainer" parent="Center/SettingsPanel/Margin/Sections/MouseSettings"]
+[node name="AimPowerCurveRow" type="HBoxContainer" parent="Center/SettingsPanel/Margin/Sections/MouseSettings" unique_id=1731851344]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="AimPowerCurveLabel" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimPowerCurveRow"]
+[node name="AimPowerCurveLabel" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimPowerCurveRow" unique_id=1648597376]
 custom_minimum_size = Vector2(310, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -166,7 +176,7 @@ theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "Mouse Power Curve"
 
-[node name="AimPowerCurveSlider" type="HSlider" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimPowerCurveRow"]
+[node name="AimPowerCurveSlider" type="HSlider" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimPowerCurveRow" unique_id=1529543638]
 custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -178,7 +188,7 @@ max_value = 4.0
 step = 0.1
 value = 2.0
 
-[node name="AimPowerCurveValue" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimPowerCurveRow"]
+[node name="AimPowerCurveValue" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimPowerCurveRow" unique_id=1627967881]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -217,11 +227,11 @@ theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "8.0"
 
-[node name="AimWidgetRow" type="HBoxContainer" parent="Center/SettingsPanel/Margin/Sections/MouseSettings"]
+[node name="AimWidgetRow" type="HBoxContainer" parent="Center/SettingsPanel/Margin/Sections/MouseSettings" unique_id=763296588]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="AimWidgetLabel" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimWidgetRow"]
+[node name="AimWidgetLabel" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimWidgetRow" unique_id=717151425]
 custom_minimum_size = Vector2(310, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -229,7 +239,7 @@ theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "Aim Widget Visibility"
 
-[node name="AimWidgetCheck" type="CheckBox" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimWidgetRow"]
+[node name="AimWidgetCheck" type="CheckBox" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimWidgetRow" unique_id=1779144591]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
@@ -237,15 +247,15 @@ mouse_default_cursor_shape = 2
 theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_constants/outline_size = 1
 
-[node name="AimWidgetCheckValueGap" type="Control" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimWidgetRow"]
+[node name="AimWidgetCheckValueGap" type="Control" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/AimWidgetRow" unique_id=360280775]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 
-[node name="VectorIndicatorRow" type="HBoxContainer" parent="Center/SettingsPanel/Margin/Sections/MouseSettings"]
+[node name="VectorIndicatorRow" type="HBoxContainer" parent="Center/SettingsPanel/Margin/Sections/MouseSettings" unique_id=1895083642]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="VectorIndicatorLabel" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/VectorIndicatorRow"]
+[node name="VectorIndicatorLabel" type="Label" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/VectorIndicatorRow" unique_id=342288139]
 custom_minimum_size = Vector2(310, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
@@ -253,7 +263,7 @@ theme_override_fonts/font = ExtResource("3_oyrkr")
 theme_override_font_sizes/font_size = 30
 text = "Vector Indicator Visibility"
 
-[node name="VectorIndicatorCheck" type="CheckBox" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/VectorIndicatorRow"]
+[node name="VectorIndicatorCheck" type="CheckBox" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/VectorIndicatorRow" unique_id=1285738012]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 4
@@ -261,7 +271,7 @@ mouse_default_cursor_shape = 2
 theme_override_colors/font_outline_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_constants/outline_size = 1
 
-[node name="VectorIndicatorCheckValueGap" type="Control" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/VectorIndicatorRow"]
+[node name="VectorIndicatorCheckValueGap" type="Control" parent="Center/SettingsPanel/Margin/Sections/MouseSettings/VectorIndicatorRow" unique_id=601825822]
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 
@@ -322,78 +332,62 @@ theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 
 [node name="BottomButtons" type="HBoxContainer" parent="." unique_id=881451608]
 layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_top = -100.0
-offset_right = 400.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -776.0
+offset_top = 400.0
+offset_right = -376.0
+offset_bottom = 430.0
+grow_horizontal = 2
 grow_vertical = 0
+theme = ExtResource("97_menu_theme")
+theme_override_constants/separation = 24
 
 [node name="BackBtn" type="Button" parent="BottomButtons" unique_id=950170675]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
+size_flags_horizontal = 0
 mouse_default_cursor_shape = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_fonts/font = ExtResource("3_oyrkr")
-theme_override_font_sizes/font_size = 40
-theme_override_styles/normal = SubResource("StyleBoxEmpty_4e4ky")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_5vkms")
-theme_override_styles/hover = SubResource("StyleBoxFlat_qh4r2")
+theme_override_font_sizes/font_size = 30
 text = "BACK"
 
 [node name="ResetBtn" type="Button" parent="BottomButtons" unique_id=1392982309]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
+size_flags_horizontal = 0
 mouse_default_cursor_shape = 2
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_fonts/font = ExtResource("3_oyrkr")
-theme_override_font_sizes/font_size = 40
-theme_override_styles/normal = SubResource("StyleBoxEmpty_4e4ky")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_5vkms")
-theme_override_styles/hover = SubResource("StyleBoxFlat_qh4r2")
+theme_override_font_sizes/font_size = 30
 text = "RESET"
 
 [node name="Header" type="VBoxContainer" parent="." unique_id=1841744805]
-layout_mode = 0
-offset_top = 20.0
-offset_right = 220.0
-offset_bottom = 85.0
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -776.0
+offset_top = -430.0
+offset_right = -556.0
+offset_bottom = -365.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="OptionsTitle" type="Label" parent="Header" unique_id=370101632]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("3_oyrkr")
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 44
 text = "OPTIONS"
-horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="Header" unique_id=1642395469]
 layout_mode = 2
 theme_override_constants/separation = 5
 theme_override_styles/separator = SubResource("StyleBoxFlat_rr2ug")
 
-[node name="Background" type="ColorRect" parent="." unique_id=797455991]
-show_behind_parent = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 1)
-
-[node name="OptionsTabs" parent="." instance=ExtResource("99_tabs")]
+[node name="OptionsTabs" parent="." unique_id=1174897517 instance=ExtResource("99_tabs")]
 layout_mode = 1
 
 [connection signal="pressed" from="BottomButtons/BackBtn" to="." method="_on_back_btn_pressed"]

@@ -33,33 +33,33 @@ public partial class Graphics : Control
 
 	private static readonly Preset[] Presets =
 	{
-		new("Ultra Low",  "2x",       false, true,  50,  "fsr1",     false, false),
-		new("Low",        "disabled", false, false, 67,  "fsr2",     false, false),
-		new("Medium",     "disabled", true,  false, 100, "fsr2",     false, true),
-		new("High",       "disabled", true,  false, 100, "fsr2",     true,  true),
-		new("Ultra High", "8x",       false, true,  100, "bilinear", true,  true),
+		new("ULTRA LOW",  "2x",       false, true,  50,  "fsr1",     false, false),
+		new("LOW",        "disabled", false, false, 67,  "fsr2",     false, false),
+		new("MEDIUM",     "disabled", true,  false, 100, "fsr2",     false, true),
+		new("HIGH",       "disabled", true,  false, 100, "fsr2",     true,  true),
+		new("ULTRA HIGH", "8x",       false, true,  100, "bilinear", true,  true),
 	};
 
 	public override void _Ready()
 	{
-		fpsDropdown ??= GetNode<OptionButton>("Center/Rows/FPSLimitRow/FPSDropdown");
-		modeDropdown ??= GetNode<OptionButton>("Center/Rows/ModeRow/ModeDropdown");
-		vsyncDropdown ??= GetNode<OptionButton>("Center/Rows/VsyncRow/VsyncDropdown");
-		fxaaCheck ??= GetNode<CheckBox>("Center/Rows/FXAARow/FXAACheckSlot/FXAACheck");
-		taaCheck ??= GetNode<CheckBox>("Center/Rows/TAARow/TAACheckSlot/TAACheck");
-		msaaDropdown ??= GetNode<OptionButton>("Center/Rows/MSAARow/MSAADropdown");
-		resolutionDropdown ??= GetNode<OptionButton>("Center/Rows/ResolutionRow/ResolutionDropdown");
-		renderScaleDropdown ??= GetNode<OptionButton>("Center/Rows/RenderScaleRow/RenderScaleDropdown");
-		upscalerDropdown ??= GetNode<OptionButton>("Center/Rows/UpscalerRow/UpscalerDropdown");
-		presetDropdown ??= GetNode<OptionButton>("Center/Rows/PresetRow/PresetDropdown");
-		ssaoCheck ??= GetNode<CheckBox>("Center/Rows/SSAORow/SSAOCheckSlot/SSAOCheck");
-		volumetricFogCheck ??= GetNode<CheckBox>("Center/Rows/VolumetricFogRow/VolumetricFogCheckSlot/VolumetricFogCheck");
-		fpsMeterCheck ??= GetNode<CheckBox>("Center/Rows/FPSMeterRow/FPSMeterCheckSlot/FPSMeterCheck");
-		shipModelCheck ??= GetNode<CheckBox>("Center/Rows/ShipModelRow/ShipModelCheckSlot/ShipModelCheck");
-		cockpitFovSlider ??= GetNode<HSlider>("Center/Rows/CockpitFovRow/CockpitFovControl/CockpitFovSlider");
-		cockpitFovValue ??= GetNode<Label>("Center/Rows/CockpitFovRow/CockpitFovControl/CockpitFovValue");
-		backBtn ??= GetNode<Button>("HBoxContainer/BackBtn");
-		hintLabel ??= GetNode<Label>("HintLabel");
+		fpsDropdown ??= GetNode<OptionButton>("%FPSDropdown");
+		modeDropdown ??= GetNode<OptionButton>("%ModeDropdown");
+		vsyncDropdown ??= GetNode<OptionButton>("%VsyncDropdown");
+		fxaaCheck ??= GetNode<CheckBox>("%FXAACheck");
+		taaCheck ??= GetNode<CheckBox>("%TAACheck");
+		msaaDropdown ??= GetNode<OptionButton>("%MSAADropdown");
+		resolutionDropdown ??= GetNode<OptionButton>("%ResolutionDropdown");
+		renderScaleDropdown ??= GetNode<OptionButton>("%RenderScaleDropdown");
+		upscalerDropdown ??= GetNode<OptionButton>("%UpscalerDropdown");
+		presetDropdown ??= GetNode<OptionButton>("%PresetDropdown");
+		ssaoCheck ??= GetNode<CheckBox>("%SSAOCheck");
+		volumetricFogCheck ??= GetNode<CheckBox>("%VolumetricFogCheck");
+		fpsMeterCheck ??= GetNode<CheckBox>("%FPSMeterCheck");
+		shipModelCheck ??= GetNode<CheckBox>("%ShipModelCheck");
+		cockpitFovSlider ??= GetNode<HSlider>("%CockpitFovSlider");
+		cockpitFovValue ??= GetNode<Label>("%CockpitFovValue");
+		backBtn ??= GetNode<Button>("%BackBtn");
+		hintLabel ??= GetNode<Label>("%HintLabel");
 
 		configHandler = GetTree().Root.GetNode<ConfigFileHandler>("/root/ConfigFileHandler");
 
@@ -93,20 +93,20 @@ public partial class Graphics : Control
 	{
 		RegisterHint(presetDropdown, "Sets anti-aliasing, render scale and effects together. Changing any of them yourself makes it Custom.");
 		RegisterHint(fpsDropdown, "Caps rendered FPS. Lower values reduce GPU load.");
-		RegisterHint(modeDropdown, "Windowed: resizable window. Borderless: fullscreen window, fast alt-tabbing. Fullscreen: marginally lower latency and better performance.");
-		RegisterHint(vsyncDropdown, "Syncs rendered frames to the monitor refresh rate to prevent tearing. Enabled adds a little input latency; Adaptive only syncs while the frame rate keeps up.");
+		RegisterHint(modeDropdown, "Windowed: resizable window.\n \nBorderless: fullscreen window, fast alt-tabbing.\n \nFullscreen: marginally lower latency and better performance.");
+		RegisterHint(vsyncDropdown, "Syncs rendered frames to the monitor refresh rate to prevent tearing.\n \nEnabled: adds a little input latency.\n \nAdaptive: only syncs if the frame rate keeps up.");
 		RegisterHint(fxaaCheck, () => configHandler.FxaaBlocked
 			? "FXAA is unavailable with the Bilinear upscaler below native render scale. Switch to FSR or render at 100% to use it."
 			: "Fast approximate anti-aliasing. Cheaply smooths jagged edges at the cost of slight blur.");
 		RegisterHint(taaCheck, () => upscalerDropdown.Selected == 2
 			? "FSR 2.2 does its own temporal anti-aliasing, so TAA is ignored while it is the upscaler."
 			: "Temporal anti-aliasing. Very smooth image, but can introduce ghosting trails.");
-		RegisterHint(msaaDropdown, "Multisample anti-aliasing. High-quality geometry edges; increasingly expensive at 4 and 8 samples per pixel.");
+		RegisterHint(msaaDropdown, "Multisample anti-aliasing. High-quality geometry edges. Increasingly expensive at 4 and 8 samples per pixel.");
 		RegisterHint(resolutionDropdown, "Window size in pixels. Only relevant in Windowed mode.");
 		RegisterHint(renderScaleDropdown, "Percentage of the native resolution to render at. Lower values provide performance gain at the cost of image quality.");
-		RegisterHint(upscalerDropdown, "How the image is scaled up from a lower render scale. Bilinear: fast but blurry. FSR 1.0: sharper, does nothing at 100%. FSR 2.2: sharpest and anti-aliases even at 100%, but costs the most and can leave trails behind fast motion.");
+		RegisterHint(upscalerDropdown, "How the image is scaled up from a lower render scale.\n \nBilinear: fast but blurry.\n \nFSR 1.0: sharper, balanced.\n \nFSR 2.2: sharpest, but costs the most and can leave trails behind fast motion. Includes its own TAA.");
 		RegisterHint(ssaoCheck, "Screen-space ambient occlusion. Shades creases and contact points for depth; costs GPU time.");
-		RegisterHint(volumetricFogCheck, "Volumetric fog lit by the sun and lights. One of the most expensive effects; turning it off gives the biggest gain.");
+		RegisterHint(volumetricFogCheck, "Volumetric fog lit by the sun and lights. Relatively expensive effect adding depth and atmosphere.");
 		RegisterHint(fpsMeterCheck, "Shows the frame rate during gameplay.");
 		RegisterHint(shipModelCheck, "Photo mode when off: hides the player ship for a completely clean screen.");
 		RegisterHint(cockpitFovSlider, "Field of view from the cockpit, in degrees. Wider shows more around the ship; narrower makes what is ahead larger.");
@@ -124,7 +124,7 @@ public partial class Graphics : Control
 	private void InitializeFPSDropdown()
 	{
 		fpsDropdown.Clear();
-		fpsDropdown.AddItem("Unlimited");
+		fpsDropdown.AddItem("UNLIMITED");
 		for (int i = 1; i < fpsOptions.Length; i++)
 			fpsDropdown.AddItem($"{fpsOptions[i]} FPS");
 	}
@@ -132,23 +132,23 @@ public partial class Graphics : Control
 	private void InitializeModeDropdown()
 	{
 		modeDropdown.Clear();
-		modeDropdown.AddItem("Windowed");
-		modeDropdown.AddItem("Borderless");
-		modeDropdown.AddItem("Fullscreen");
+		modeDropdown.AddItem("WINDOWED");
+		modeDropdown.AddItem("BORDERLESS");
+		modeDropdown.AddItem("FULLSCREEN");
 	}
 
 	private void InitializeVsyncDropdown()
 	{
 		vsyncDropdown.Clear();
-		vsyncDropdown.AddItem("Disabled");
-		vsyncDropdown.AddItem("Enabled");
-		vsyncDropdown.AddItem("Adaptive");
+		vsyncDropdown.AddItem("DISABLED");
+		vsyncDropdown.AddItem("ENABLED");
+		vsyncDropdown.AddItem("ADAPTIVE");
 	}
 
 	private void InitializeMSAADropdown()
 	{
 		msaaDropdown.Clear();
-		msaaDropdown.AddItem("Disabled");
+		msaaDropdown.AddItem("DISABLED");
 		msaaDropdown.AddItem("2x");
 		msaaDropdown.AddItem("4x");
 		msaaDropdown.AddItem("8x");
@@ -174,7 +174,7 @@ public partial class Graphics : Control
 	private void InitializeUpscalerDropdown()
 	{
 		upscalerDropdown.Clear();
-		upscalerDropdown.AddItem("Bilinear");
+		upscalerDropdown.AddItem("BILINEAR");
 		upscalerDropdown.AddItem("FSR 1.0");
 		upscalerDropdown.AddItem("FSR 2.2");
 	}
@@ -185,7 +185,7 @@ public partial class Graphics : Control
 		foreach (Preset preset in Presets)
 			presetDropdown.AddItem(preset.Name);
 		// Shown, never picked: it names settings that match no preset.
-		presetDropdown.AddItem("Custom");
+		presetDropdown.AddItem("CUSTOM");
 		presetDropdown.SetItemDisabled(Presets.Length, true);
 	}
 
@@ -200,7 +200,7 @@ public partial class Graphics : Control
 	{
 		var videoSettings = configHandler.LoadVideoSettings();
 
-		int fps = videoSettings.ContainsKey("fps") ? (int)videoSettings["fps"] : 90;
+		int fps = videoSettings.ContainsKey("fps") ? (int)videoSettings["fps"] : 144;
 		for (int i = 0; i < fpsOptions.Length; i++)
 		{
 			if ((fpsOptions[i] ?? 0) == fps)

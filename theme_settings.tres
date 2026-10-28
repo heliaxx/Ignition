@@ -1,4 +1,4 @@
-[gd_resource type="Theme" format=3]
+[gd_resource type="Theme" format=3 uid="uid://c473vthobtrx6"]
 
 [sub_resource type="Gradient" id="Gradient_grabber"]
 offsets = PackedFloat32Array(0, 0.75, 1)
@@ -24,11 +24,6 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(0.5, 0)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_scroll"]
-content_margin_left = 3.0
-content_margin_right = 3.0
-bg_color = Color(0.314316, 0.314316, 0.314316, 1)
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_scroll_grabber"]
 content_margin_left = 3.0
 content_margin_right = 3.0
@@ -38,6 +33,11 @@ bg_color = Color(0.894118, 0.717647, 0.337255, 1)
 content_margin_left = 3.0
 content_margin_right = 3.0
 bg_color = Color(1, 0.866667, 0.556863, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_scroll"]
+content_margin_left = 3.0
+content_margin_right = 3.0
+bg_color = Color(0.314316, 0.314316, 0.314316, 1)
 
 [resource]
 HSlider/icons/grabber = SubResource("GradientTexture2D_grabber")

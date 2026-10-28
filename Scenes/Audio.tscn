@@ -1,9 +1,10 @@
-[gd_scene load_steps=14 format=3 uid="uid://cwxcex4hgvofy"]
+[gd_scene format=3 uid="uid://cwxcex4hgvofy"]
 
 [ext_resource type="Script" uid="uid://ce4s7q24svb08" path="res://Scripts/Audio.cs" id="1_m0bs5"]
 [ext_resource type="FontFile" uid="uid://dp75um7jdyrun" path="res://Imports/Fonts/Eurostile.ttf" id="2_fwt72"]
-[ext_resource type="PackedScene" path="res://Scenes/OptionsTabs.tscn" id="99_tabs"]
-[ext_resource type="Theme" path="res://theme_settings.tres" id="98_settings"]
+[ext_resource type="Theme" uid="uid://brj8jmsa6vurj" path="res://theme.tres" id="97_menu_theme"]
+[ext_resource type="Theme" uid="uid://c473vthobtrx6" path="res://theme_settings.tres" id="98_settings"]
+[ext_resource type="PackedScene" uid="uid://x0hje8rfkvvj" path="res://Scenes/OptionsTabs.tscn" id="99_tabs"]
 
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_17e28"]
 color = Color(0.313726, 0.313726, 0.313726, 1)
@@ -28,22 +29,7 @@ thickness = 4
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nm8ox"]
 bg_color = Color(0.894118, 0.717647, 0.337255, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3l8o0"]
-bg_color = Color(0.894118, 0.717647, 0.337255, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ubbwp"]
-bg_color = Color(0.894118, 0.717647, 0.337255, 1)
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_2mrpe"]
-
-[sub_resource type="Gradient" id="Gradient_evk0y"]
-offsets = PackedFloat32Array(0.987097, 1)
-colors = PackedColorArray(0, 0, 0, 1, 0, 0, 0, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_ub052"]
-gradient = SubResource("Gradient_evk0y")
-
-[node name="Control" type="Control"]
+[node name="Control" type="Control" unique_id=370299391]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -53,7 +39,22 @@ grow_vertical = 2
 theme = ExtResource("98_settings")
 script = ExtResource("1_m0bs5")
 
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Panel" type="PanelContainer" parent="." unique_id=2099069996]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -800.0
+offset_top = -450.0
+offset_right = 800.0
+offset_bottom = 450.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Center" type="CenterContainer" parent="." unique_id=902444023]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -62,148 +63,162 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Rows" type="VBoxContainer" parent="Center"]
-custom_minimum_size = Vector2(850, 0)
+[node name="Rows" type="VBoxContainer" parent="Center" unique_id=1129426804]
+custom_minimum_size = Vector2(1000, 0)
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="VolGeneralRow" type="HBoxContainer" parent="Center/Rows"]
+[node name="VolGeneralRow" type="HBoxContainer" parent="Center/Rows" unique_id=1357308210]
 layout_mode = 2
+theme_override_constants/separation = 12
 
-[node name="VolGeneral" type="Label" parent="Center/Rows/VolGeneralRow"]
+[node name="VolGeneral" type="Label" parent="Center/Rows/VolGeneralRow" unique_id=980953457]
+custom_minimum_size = Vector2(310, 0)
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 6
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("2_fwt72")
 theme_override_font_sizes/font_size = 30
 text = "General Volume"
 
-[node name="VolGeneralSlider" type="HSlider" parent="Center/Rows/VolGeneralRow"]
-custom_minimum_size = Vector2(312, 0)
+[node name="VolGeneralSlider" type="HSlider" parent="Center/Rows/VolGeneralRow" unique_id=1638139303]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
-size_flags_vertical = 3
+size_flags_horizontal = 3
 theme_override_styles/slider = SubResource("StyleBoxLine_17e28")
 theme_override_styles/grabber_area = SubResource("StyleBoxLine_y7hs6")
 theme_override_styles/grabber_area_highlight = SubResource("StyleBoxLine_p7rhv")
 value = 40.0
 
-[node name="VolMusicRow" type="HBoxContainer" parent="Center/Rows"]
+[node name="VolGeneralValue" type="Label" parent="Center/Rows/VolGeneralRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("2_fwt72")
+theme_override_font_sizes/font_size = 30
+text = "0%"
 
-[node name="VolMusic" type="Label" parent="Center/Rows/VolMusicRow"]
+[node name="VolMusicRow" type="HBoxContainer" parent="Center/Rows" unique_id=1236616053]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 6
+theme_override_constants/separation = 12
+
+[node name="VolMusic" type="Label" parent="Center/Rows/VolMusicRow" unique_id=275434190]
+custom_minimum_size = Vector2(310, 0)
+layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("2_fwt72")
 theme_override_font_sizes/font_size = 30
 text = "Music Volume"
 
-[node name="VolMusicSlider" type="HSlider" parent="Center/Rows/VolMusicRow"]
-custom_minimum_size = Vector2(312, 0)
+[node name="VolMusicSlider" type="HSlider" parent="Center/Rows/VolMusicRow" unique_id=297264914]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
-size_flags_vertical = 3
+size_flags_horizontal = 3
 theme_override_styles/slider = SubResource("StyleBoxLine_qmla4")
 theme_override_styles/grabber_area = SubResource("StyleBoxLine_1mweh")
 theme_override_styles/grabber_area_highlight = SubResource("StyleBoxLine_1mweh")
 value = 20.0
 
-[node name="VolSFXRow" type="HBoxContainer" parent="Center/Rows"]
+[node name="VolMusicValue" type="Label" parent="Center/Rows/VolMusicRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("2_fwt72")
+theme_override_font_sizes/font_size = 30
+text = "0%"
 
-[node name="VolSFX" type="Label" parent="Center/Rows/VolSFXRow"]
+[node name="VolSFXRow" type="HBoxContainer" parent="Center/Rows" unique_id=356402698]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 6
+theme_override_constants/separation = 12
+
+[node name="VolSFX" type="Label" parent="Center/Rows/VolSFXRow" unique_id=183788386]
+custom_minimum_size = Vector2(310, 0)
+layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("2_fwt72")
 theme_override_font_sizes/font_size = 30
 text = "Sound Effects Volume"
 
-[node name="VolSFXSlider" type="HSlider" parent="Center/Rows/VolSFXRow"]
-custom_minimum_size = Vector2(312, 0)
+[node name="VolSFXSlider" type="HSlider" parent="Center/Rows/VolSFXRow" unique_id=1819186025]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 0)
 layout_mode = 2
-size_flags_vertical = 3
+size_flags_horizontal = 3
 theme_override_styles/slider = SubResource("StyleBoxLine_qmla4")
 theme_override_styles/grabber_area = SubResource("StyleBoxLine_1mweh")
 theme_override_styles/grabber_area_highlight = SubResource("StyleBoxLine_1mweh")
 value = 40.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
-layout_mode = 0
-offset_top = 20.0
-offset_right = 220.0
-offset_bottom = 85.0
+[node name="VolSFXValue" type="Label" parent="Center/Rows/VolSFXRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
+theme_override_fonts/font = ExtResource("2_fwt72")
+theme_override_font_sizes/font_size = 30
+text = "0%"
 
-[node name="Label" type="Label" parent="VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1175017018]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -776.0
+offset_top = -430.0
+offset_right = -556.0
+offset_bottom = -365.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="VBoxContainer" unique_id=258248459]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
 theme_override_fonts/font = ExtResource("2_fwt72")
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 44
 text = "OPTIONS"
-horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer" unique_id=1705396681]
 layout_mode = 2
 theme_override_constants/separation = 5
 theme_override_styles/separator = SubResource("StyleBoxFlat_nm8ox")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="."]
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=157795014]
 layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_top = -100.0
-offset_right = 400.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -776.0
+offset_top = 400.0
+offset_right = -376.0
+offset_bottom = 430.0
+grow_horizontal = 2
 grow_vertical = 0
+theme = ExtResource("97_menu_theme")
+theme_override_constants/separation = 24
 
-[node name="BackBtn" type="Button" parent="HBoxContainer"]
+[node name="BackBtn" type="Button" parent="HBoxContainer" unique_id=1291211979]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
+size_flags_horizontal = 0
 mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("2_fwt72")
-theme_override_font_sizes/font_size = 40
-theme_override_styles/hover = SubResource("StyleBoxFlat_3l8o0")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ubbwp")
-theme_override_styles/normal = SubResource("StyleBoxEmpty_2mrpe")
+theme_override_font_sizes/font_size = 30
 text = "BACK"
 
-[node name="ResetBtn" type="Button" parent="HBoxContainer"]
+[node name="ResetBtn" type="Button" parent="HBoxContainer" unique_id=160296387]
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
+size_flags_horizontal = 0
 mouse_default_cursor_shape = 2
-theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
-theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_colors/font_focus_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_colors/font_color = Color(0.894118, 0.717647, 0.337255, 1)
-theme_override_fonts/font = ExtResource("2_fwt72")
-theme_override_font_sizes/font_size = 40
-theme_override_styles/hover = SubResource("StyleBoxFlat_3l8o0")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_ubbwp")
-theme_override_styles/normal = SubResource("StyleBoxEmpty_2mrpe")
+theme_override_font_sizes/font_size = 30
 text = "RESET"
 
-[node name="TextureRect" type="TextureRect" parent="."]
-show_behind_parent = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-texture = SubResource("GradientTexture2D_ub052")
-
-[node name="OptionsTabs" parent="." instance=ExtResource("99_tabs")]
+[node name="OptionsTabs" parent="." unique_id=1241868663 instance=ExtResource("99_tabs")]
 layout_mode = 1
 
 [connection signal="pressed" from="HBoxContainer/BackBtn" to="." method="_on_back_btn_pressed"]

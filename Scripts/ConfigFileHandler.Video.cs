@@ -3,19 +3,20 @@ using System.Collections.Generic;
 
 public partial class ConfigFileHandler
 {
-	private const int    DefaultFps           = 90;
+	// The quality settings match the Medium preset.
+	private const int    DefaultFps           = 144;
 	private const string DefaultMode          = "fullscreen";
 	private const string DefaultVsync         = "disabled";
 	private const bool   DefaultFxaa          = true;
 	private const bool   DefaultTaa           = false;
-	private const string DefaultMsaa          = "4x";
+	private const string DefaultMsaa          = "disabled";
 	private const string DefaultResolution    = "1920x1080";
 	private const int    DefaultRenderScale   = 100;
-	private const string DefaultUpscaler      = "bilinear";
+	private const string DefaultUpscaler      = "fsr2";
 	private const bool   DefaultShowFpsMeter  = true;
 	private const bool   DefaultShowShipModel = true;
 	private const int    DefaultCockpitFov    = 70;
-	private const bool   DefaultSsao          = true;
+	private const bool   DefaultSsao          = false;
 	private const bool   DefaultVolumetricFog = true;
 	public const int     MinCockpitFov        = 60;
 	public const int     MaxCockpitFov        = 80;

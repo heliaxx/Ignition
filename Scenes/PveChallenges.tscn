@@ -4,7 +4,7 @@
 [ext_resource type="Theme" uid="uid://brj8jmsa6vurj" path="res://theme.tres" id="2_theme"]
 
 [sub_resource type="Theme" id="Theme_scenarios"]
-Button/font_sizes/font_size = 32
+Button/font_sizes/font_size = 30
 Label/font_sizes/font_size = 30
 
 [node name="PveChallenges" type="Control" unique_id=1034776849]

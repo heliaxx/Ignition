@@ -8,6 +8,12 @@ public partial class GimbalTarget : Node3D
 {
 	[Export] public GimbalTargetType TargetType = GimbalTargetType.Enemy;
 
+	// How allies and enemies show on the radar and HUD.
+	public static readonly Color AllyColor = new(0.45f, 0.94f, 1f);
+	public static readonly Color EnemyColor = new(0.95f, 0.3f, 0.25f);
+
+	public bool IsAlly => TargetType == GimbalTargetType.Ally;
+
 	// Overrides the HUD name; falls back to parent name, then node name.
 	[Export] public string DisplayNameOverride = "";
 

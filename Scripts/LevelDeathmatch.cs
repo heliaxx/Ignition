@@ -37,6 +37,7 @@ public partial class LevelDeathmatch : BaseLevel
 		SpawnRemoteShips();
 
 		MatchManager.Instance.MatchEnded += OnMatchEnded;
+		MatchManager.Instance.SessionLost += OnSessionLost;
 		MatchManager.Instance.PlayStarted += OnPlayStarted;
 		// The server may have stopped waiting while this machine was still loading.
 		if (!MatchManager.Instance.InPlay) PlayerShip?.Park();
@@ -49,6 +50,7 @@ public partial class LevelDeathmatch : BaseLevel
 		if (MatchManager.Instance != null)
 		{
 			MatchManager.Instance.MatchEnded -= OnMatchEnded;
+			MatchManager.Instance.SessionLost -= OnSessionLost;
 			MatchManager.Instance.PlayStarted -= OnPlayStarted;
 		}
 	}
@@ -63,6 +65,8 @@ public partial class LevelDeathmatch : BaseLevel
 
 	// Every machine parks the ship it flies; the others stop with it through the usual sync.
 	private void OnMatchEnded(int winnerId) => PlayerShip?.Park();
+
+	private void OnSessionLost(string reason) => PlayerShip?.Park();
 
 	private void OnPlayStarted() => PlayerShip?.Unpark();
 
@@ -90,6 +94,10 @@ public partial class LevelDeathmatch : BaseLevel
 			Participants.Register(ship, peerId, NetworkManager.Instance.NameOf(peerId));
 			MatchStats.Register(ship);
 			ShipSync.Instance.AddRemoteShip(peerId, ship);
+
+			// Teammates show as allies: green on the radar and when targeted.
+			if (MatchManager.Instance.AreTeammates(localId, peerId))
+				ship.GetNode<GimbalTarget>("GimbalTarget").TargetType = GimbalTargetType.Ally;
 		}
 	}
 
@@ -105,8 +113,10 @@ public partial class LevelDeathmatch : BaseLevel
 
 	public void Respawn(int participantId, int spawnRoll)
 	{
-		if (Participants.NodeOf(participantId) is PlayerShip ship)
-			ship.Respawn(SpawnTransform(spawnRoll));
+		if (Participants.NodeOf(participantId) is not PlayerShip ship) return;
+
+		int team = MatchManager.Instance.TeamOf(participantId);
+		ship.Respawn(SpawnTransform(team == Teams.None ? spawnRoll : TeamSpawnIndex(team, spawnRoll)));
 	}
 
 	// Every machine shuffles with the same seed, so all agree, and no two ships share a start
@@ -120,7 +130,23 @@ public partial class LevelDeathmatch : BaseLevel
 			index = 0;
 		}
 
+		int team = MatchManager.Instance.TeamOf(peerId);
+		if (team != Teams.None)
+		{
+			// Teammates take their side's points in roster order.
+			int slot = MatchManager.Instance.Roster.Take(index).Count(id => MatchManager.Instance.TeamOf(id) == team);
+			return SpawnTransform(TeamSpawnIndex(team, slot));
+		}
+
 		return _startOrder.Length > 0 ? SpawnTransform(_startOrder[index % _startOrder.Length]) : GlobalTransform;
+	}
+
+	// The spawn points ring the arena in order, so each side gets one half of the ring: team 1
+	// the first, team 2 the second, opposite each other.
+	private int TeamSpawnIndex(int team, int slot)
+	{
+		int half = Mathf.Max(1, (_spawnPoints?.GetChildCount() ?? 0) / 2);
+		return (team == Teams.Two ? half : 0) + Mathf.PosMod(slot, half);
 	}
 
 	private int[] ShuffledSpawnPoints(long seed)

@@ -45,6 +45,7 @@ public partial class MultiplayerPanel : Control
 	private Label _hostName;
 	private Label _type;
 	private Label _state;
+	private OptionButton _mode;
 	private OptionButton _killLimit;
 	private OptionButton _timeLimit;
 	private VBoxContainer _players;
@@ -84,6 +85,7 @@ public partial class MultiplayerPanel : Control
 		_hostName = (Label)FindChild("HostName");
 		_type = (Label)FindChild("TypeLabel");
 		_state = (Label)FindChild("StateLabel");
+		_mode = (OptionButton)FindChild("ModeOption");
 		_killLimit = (OptionButton)FindChild("KillLimitOption");
 		_timeLimit = (OptionButton)FindChild("TimeLimitOption");
 		_players = (VBoxContainer)FindChild("PlayersBox");
@@ -105,6 +107,9 @@ public partial class MultiplayerPanel : Control
 		_leave = (Button)FindChild("LeaveButton");
 		_status = (Label)FindChild("StatusLabel");
 
+		// In MatchMode order.
+		_mode.AddItem("DEATHMATCH");
+		_mode.AddItem("TEAM DEATHMATCH");
 		FillLimits(_killLimit, KillLimits, "{0} KILLS");
 		FillLimits(_timeLimit, TimeLimits, "{0} MIN");
 
@@ -125,6 +130,7 @@ public partial class MultiplayerPanel : Control
 			Refresh();
 		};
 		_leave.Pressed += OnLeave;
+		_mode.ItemSelected += index => MatchManager.Instance.SetMode((MatchMode)(int)index);
 		_killLimit.ItemSelected += _ => OnLimitsChanged();
 		_timeLimit.ItemSelected += _ => OnLimitsChanged();
 
@@ -372,6 +378,8 @@ public partial class MultiplayerPanel : Control
 		if (info.InviteOnly) _type.Text += $"  CODE {info.Code}";
 		_copyCode.Visible = connected && info.InviteOnly;
 		_state.Text = info.InMatch ? "IN MATCH" : "IN LOBBY";
+		_mode.Selected = (int)info.Mode;
+		_mode.Disabled = !hosting;
 		_killLimit.Selected = Array.IndexOf(KillLimits, info.KillLimit);
 		_timeLimit.Selected = Array.IndexOf(TimeLimits, info.TimeLimitMinutes);
 		_killLimit.Disabled = !hosting;
@@ -403,6 +411,7 @@ public partial class MultiplayerPanel : Control
 	{
 		if (!net.IsServer) return "in lobby";
 		if (net.Peers.Count < 2) return "waiting for another player";
+		if (match.Mode == MatchMode.TeamDeathmatch && !match.BothSidesManned) return "each team needs a player";
 		return match.CanStart ? "ready to start" : "waiting for everyone to ready up";
 	}
 
@@ -432,36 +441,137 @@ public partial class MultiplayerPanel : Control
 		}
 	}
 
+	// The host picks players by clicking them and acts on the picks from a bar above the list,
+	// in both modes. A team match shows the two sides next to each other.
 	private void BuildPlayers(LobbyInfo info, bool hosting)
 	{
 		foreach (Node row in _players.GetChildren())
 			row.QueueFree();
 
-		bool canMove = hosting && !info.InMatch && SessionTransportName() != "ENET";
+		bool teams = info.Mode == MatchMode.TeamDeathmatch;
+		_picked.IntersectWith(info.Members.Select(m => m.PeerId));
+		// Only switching teams works on several players at once.
+		if (!teams && _picked.Count > 1) _picked.Clear();
 
-		foreach (LobbyInfo.Member member in info.Members)
+		if (hosting)
 		{
-			var row = new HBoxContainer();
-			row.AddThemeConstantOverride("separation", 12);
-			row.AddChild(MenuUtils.Cell(member.Name, Colors.White, expand: true));
-			row.AddChild(MenuUtils.Cell(member.State switch
-			{
-				LobbyInfo.MemberState.Host => "HOST",
-				LobbyInfo.MemberState.Ready => "READY",
-				_ => "NOT READY",
-			}, member.State == LobbyInfo.MemberState.Waiting ? Dim : Gold));
-
-			if (hosting && member.State != LobbyInfo.MemberState.Host)
-			{
-				int peerId = member.PeerId;
-				string name = member.Name;
-				if (canMove) row.AddChild(MemberAction("HOST", () => OnTransferHost(peerId, name)));
-				row.AddChild(MemberAction("KICK", () => OnRemove(peerId, name, ban: false)));
-				row.AddChild(MemberAction("BAN", () => OnRemove(peerId, name, ban: true)));
-			}
-			MenuUtils.WireControls(row, _click);
-			_players.AddChild(row);
+			bool canMove = !info.InMatch && SessionTransportName() != "ENET";
+			_players.AddChild(ActionBar(info, teams, canMove));
 		}
+
+		if (teams)
+		{
+			var split = new HBoxContainer();
+			split.AddThemeConstantOverride("separation", 24);
+			foreach (int team in Teams.Both)
+			{
+				var column = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+				column.AddThemeConstantOverride("separation", 4);
+				column.AddChild(MenuUtils.Cell(Teams.NameOf(team), Gold, expand: true));
+				foreach (LobbyInfo.Member member in info.Members.Where(m => m.Team == team))
+					column.AddChild(hosting ? PickRow(member, info, null) : PlainRow(member));
+				split.AddChild(column);
+			}
+			MenuUtils.WireControls(split, _click);
+			_players.AddChild(split);
+		}
+		else
+		{
+			// One pick at a time: picking another player lets go of the last.
+			var single = new ButtonGroup { AllowUnpress = true };
+			foreach (LobbyInfo.Member member in info.Members)
+			{
+				Control row = hosting ? PickRow(member, info, single) : PlainRow(member);
+				MenuUtils.WireControls(row, _click);
+				_players.AddChild(row);
+			}
+		}
+
+		if (hosting) UpdatePickActions(info);
+	}
+
+	private static Label StateCell(LobbyInfo.Member member) => MenuUtils.Cell(member.State switch
+	{
+		LobbyInfo.MemberState.Host => "HOST",
+		LobbyInfo.MemberState.Ready => "READY",
+		_ => "NOT READY",
+	}, member.State == LobbyInfo.MemberState.Waiting ? Dim : Gold);
+
+	// The host's picks. Kept across rebuilds, dropped for anyone who left.
+	private readonly HashSet<int> _picked = new();
+	private Button _switchTeams;
+	private Button _makeHost;
+	private Button _kick;
+	private Button _ban;
+
+	private HBoxContainer ActionBar(LobbyInfo info, bool teams, bool canMove)
+	{
+		var bar = new HBoxContainer();
+		bar.AddThemeConstantOverride("separation", 12);
+		_switchTeams = teams
+			? MemberAction("SWITCH TEAM", () =>
+			{
+				// Cleared first: on the host the switch rebuilds this list before it returns.
+				int[] picked = _picked.ToArray();
+				_picked.Clear();
+				MatchManager.Instance.SwitchTeams(picked);
+			})
+			: null;
+		if (_switchTeams != null) bar.AddChild(_switchTeams);
+		bar.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });
+		_makeHost = canMove ? MemberAction("HOST", () => ActOnSinglePick(info, m => OnTransferHost(m.PeerId, m.Name))) : null;
+		_kick = MemberAction("KICK", () => ActOnSinglePick(info, m => OnRemove(m.PeerId, m.Name, ban: false)));
+		_ban = MemberAction("BAN", () => ActOnSinglePick(info, m => OnRemove(m.PeerId, m.Name, ban: true)));
+		if (_makeHost != null) bar.AddChild(_makeHost);
+		bar.AddChild(_kick);
+		bar.AddChild(_ban);
+		MenuUtils.WireControls(bar, _click);
+		return bar;
+	}
+
+	private Button PickRow(LobbyInfo.Member member, LobbyInfo info, ButtonGroup group)
+	{
+		Button row = MenuUtils.ListRow(group, _picked.Contains(member.PeerId),
+			MenuUtils.Cell(member.Name, Colors.White, expand: true), StateCell(member));
+		int peerId = member.PeerId;
+		row.Toggled += picked =>
+		{
+			if (picked) _picked.Add(peerId);
+			else _picked.Remove(peerId);
+			UpdatePickActions(info);
+		};
+		return row;
+	}
+
+	private static HBoxContainer PlainRow(LobbyInfo.Member member)
+	{
+		var row = new HBoxContainer();
+		row.AddThemeConstantOverride("separation", 12);
+		row.AddChild(MenuUtils.Cell(member.Name, Colors.White, expand: true));
+		row.AddChild(StateCell(member));
+		return row;
+	}
+
+	// Switching works on any picks
+	// Other actions only on a single player other than the host.
+	private void UpdatePickActions(LobbyInfo info)
+	{
+		if (_switchTeams != null) _switchTeams.Disabled = _picked.Count == 0;
+		bool single = SinglePick(info) != null;
+		if (_makeHost != null) _makeHost.Disabled = !single;
+		_kick.Disabled = !single;
+		_ban.Disabled = !single;
+	}
+
+	private LobbyInfo.Member SinglePick(LobbyInfo info) => _picked.Count == 1
+		? info.Members.FirstOrDefault(m => m.PeerId == _picked.First() && m.State != LobbyInfo.MemberState.Host)
+		: null;
+
+	private void ActOnSinglePick(LobbyInfo info, Action<LobbyInfo.Member> act)
+	{
+		if (SinglePick(info) is not LobbyInfo.Member member) return;
+		_picked.Clear();
+		act(member);
 	}
 
 	private static Button MemberAction(string text, Action pressed)

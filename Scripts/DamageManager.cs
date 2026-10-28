@@ -43,9 +43,10 @@ public partial class DamageManager : Node
 	// Server only. Both players' machines usually see the same ram; the first report wins.
 	private void ServerRam(int aId, int bId, float amount)
 	{
+		if (MatchManager.Instance.AreTeammates(aId, bId)) return;
 		if (RamOnCooldown((ulong)aId, (ulong)bId)) return;
-		Rpc(MethodName.ApplyDamage, aId, amount, bId);
-		Rpc(MethodName.ApplyDamage, bId, amount, aId);
+		Rpc(MethodName.ApplyDamage, aId, amount, bId, Now);
+		Rpc(MethodName.ApplyDamage, bId, amount, aId, Now);
 	}
 
 	private bool RamOnCooldown(ulong x, ulong y)
@@ -61,7 +62,7 @@ public partial class DamageManager : Node
 	{
 		if (!NetworkManager.Instance.IsActive)
 		{
-			ApplyLocal(target, amount, hitShape, source);
+			ApplyLocal(target, amount, hitShape, source, Now);
 			return;
 		}
 
@@ -84,12 +85,12 @@ public partial class DamageManager : Node
 		// Level hazards and anything else off the roster stay local; nothing replicates them.
 		if (targetId == Participants.None)
 		{
-			ApplyLocal(target, amount, hitShape, source);
+			ApplyLocal(target, amount, hitShape, source, Now);
 			return;
 		}
 
 		if (NetworkManager.Instance.IsServer)
-			Rpc(MethodName.ApplyDamage, targetId, amount, Participants.IdOf(source));
+			ServerDamage(targetId, amount, Participants.IdOf(source));
 		else
 			RpcId(1, MethodName.RequestDamage, targetId, amount);
 	}
@@ -97,16 +98,22 @@ public partial class DamageManager : Node
 	// Client -> server. The server stamps the attacker from the sender id, so a client can
 	// only ever claim its own hits, never frame somebody else.
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	private void RequestDamage(int targetId, float amount)
+	private void RequestDamage(int targetId, float amount) =>
+		ServerDamage(targetId, amount, Multiplayer.GetRemoteSenderId());
+
+	// Server only. Teammates cannot hurt each other: friendly fire is off in a team match.
+	private void ServerDamage(int targetId, float amount, int sourceId)
 	{
-		Rpc(MethodName.ApplyDamage, targetId, amount, Multiplayer.GetRemoteSenderId());
+		if (MatchManager.Instance.AreTeammates(sourceId, targetId)) return;
+		Rpc(MethodName.ApplyDamage, targetId, amount, sourceId, Now);
 	}
 
 	// Server -> everyone, so health and death agree on every machine.
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	private void ApplyDamage(int targetId, float amount, int sourceId)
+	// Server time, so every peer measures assist windows on the same clock.
+	private void ApplyDamage(int targetId, float amount, int sourceId, double time)
 	{
-		ApplyLocal(Participants.NodeOf(targetId), amount, null, Participants.NodeOf(sourceId));
+		ApplyLocal(Participants.NodeOf(targetId), amount, null, Participants.NodeOf(sourceId), time);
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -131,8 +138,11 @@ public partial class DamageManager : Node
 			field.DestroyAsteroid(asteroidId);
 	}
 
-	private static void ApplyLocal(Node3D target, float amount, CollisionShape3D hitShape, Node3D source)
+	private static double Now => Time.GetTicksMsec() / 1000.0;
+
+	private static void ApplyLocal(Node3D target, float amount, CollisionShape3D hitShape, Node3D source, double time)
 	{
+		MatchStats.RecordHit(Participants.IdOf(target), Participants.IdOf(source), time);
 		if (target is IDamageable damageable)
 			damageable.TakeDamage(amount, hitShape, source);
 	}

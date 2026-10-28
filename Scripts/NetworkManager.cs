@@ -4,7 +4,7 @@ using Godot;
 
 public partial class NetworkManager : Node
 {
-	private const string ProtocolVersion = "8";
+	private const string ProtocolVersion = "9";
 
 	// Sent by the host, so the client can tell he's been banned.
 	private const string BannedReply = "banned";

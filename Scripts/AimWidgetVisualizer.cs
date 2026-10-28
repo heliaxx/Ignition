@@ -137,16 +137,20 @@ public partial class AimWidgetVisualizer : Control
 			if (!playerShip.IsMissileLocked)
 				alpha *= 0.5f + 0.5f * Mathf.Abs(Mathf.Sin(_flickerTimer * 12f));
 
-			DrawTextureAtCenter(_targetReticle, targetScreenPos.Value, TargetReticleSize, TargetIndicatorColor with { A = alpha });
+			DrawTextureAtCenter(_targetReticle, targetScreenPos.Value, TargetReticleSize, TargetColor(TargetIndicatorColor) with { A = alpha });
 		}
 
 		// Draw target lead reticle
 		Vector2? leadScreenPos = playerShip.GetLeadTargetScreenPos();
 		if (leadScreenPos.HasValue && _leadReticle != null)
 		{
-			DrawTextureAtCenter(_leadReticle, leadScreenPos.Value, LeadReticleSize, LeadIndicatorColor);
+			DrawTextureAtCenter(_leadReticle, leadScreenPos.Value, LeadReticleSize, TargetColor(LeadIndicatorColor));
 		}
 	}
+
+	// A targeted teammate is marked in the ally colour.
+	private Color TargetColor(Color usual) =>
+		playerShip.LockedTarget is { IsAlly: true } ? GimbalTarget.AllyColor with { A = usual.A } : usual;
 
 private void DrawTextureAtCenter(Texture2D texture, Vector2 pos, float size, Color color)
 	{

@@ -36,6 +36,16 @@ public partial class MatchHud : CanvasLayer
 			: $"WAITING FOR PLAYERS\nStarting anyway in: {Mathf.CeilToInt(MatchManager.Instance.LoadWaitRemaining)} s";
 
 		int localId = NetworkManager.Instance.LocalPeerId;
+		if (MatchManager.Instance.IsTeamMatch)
+		{
+			// Scores only: own side on the left, the enemy side on the right.
+			int mine = MatchManager.Instance.TeamOf(localId);
+			_self.Text = MatchManager.Instance.TeamKills(mine).ToString();
+			_rival.Text = MatchManager.Instance.TeamKills(Teams.Other(mine)).ToString();
+			_rival.AddThemeColorOverride("font_color", GimbalTarget.EnemyColor);
+			return;
+		}
+
 		_self.Text = Row(localId);
 
 		// The board leader, or the runner-up when that is us: the point is always to show

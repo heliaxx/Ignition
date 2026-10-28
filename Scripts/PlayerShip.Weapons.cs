@@ -36,6 +36,8 @@ public partial class PlayerShip
     public void ConfirmHit(Node3D target)
     {
         if (!IsLocallyControlled || target is not (Fighter or PlayerShip)) return;
+        // Friendly fire does no damage, so a hit of teammate isn't a confirmation.
+        if (target.GetNodeOrNull<GimbalTarget>("GimbalTarget") is { IsAlly: true }) return;
         if (_hitSound == null || _sinceHitSound < HitSoundGap) return;
 
         _sinceHitSound = 0f;

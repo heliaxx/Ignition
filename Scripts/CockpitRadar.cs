@@ -14,11 +14,11 @@ public partial class CockpitRadar : Node3D
 
 	private static readonly Color Grid = new(0.9f, 0.7f, 0.3f, 0.6f);
 	private static readonly Color Center = new(0.9f, 0.7f, 0.3f, 0.80f);
-	private static readonly Color Enemy = new(0.95f, 0.3f, 0.25f);
-	private static readonly Color Ally = new(0.35f, 0.9f, 0.45f);
+	private static readonly Color Enemy = GimbalTarget.EnemyColor;
+	private static readonly Color Ally = GimbalTarget.AllyColor;
 	private static readonly Color Missile = new(1f, 0.95f, 0.85f);
 	private static readonly Color Locked = new(0.9f, 0.7f, 0.3f, 0.85f);
-	private static readonly Color MapCenterMarker = new(0.45f, 0.85f, 1f);
+	private static readonly Color MapCenterMarker = GimbalTarget.AllyColor;
 
 	private PlayerShip _ship;
 	private BaseLevel _level;

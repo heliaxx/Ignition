@@ -2,11 +2,50 @@
 
 [ext_resource type="Script" uid="uid://dcehnitcwemfn" path="res://Scripts/Scoreboard.cs" id="1_script"]
 [ext_resource type="Shader" uid="uid://bpw1j1bra6qns" path="res://Shaders/Blur.gdshader" id="2_blur"]
+[ext_resource type="Gradient" uid="uid://bk0r0mok2c7gr" path="res://leaderboard_gradient.tres" id="3_m4m53"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_fog"]
 shader = ExtResource("2_blur")
 shader_parameter/blur = 0.0
 shader_parameter/brightness = 1.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_frame"]
+bg_color = Color(0.06, 0.06, 0.06, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.894118, 0.717647, 0.337255, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header"]
+content_margin_left = 16.0
+content_margin_top = 6.0
+content_margin_right = 16.0
+content_margin_bottom = 6.0
+bg_color = Color(0.894118, 0.717647, 0.337255, 0.28)
+border_width_bottom = 2
+border_color = Color(0.894118, 0.717647, 0.337255, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_glow"]
+gradient = ExtResource("3_m4m53")
+width = 256
+fill_from = Vector2(0, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Gradient" id="Gradient_line"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(1, 1, 1, 0, 1, 1, 1, 0.9, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_line"]
+gradient = SubResource("Gradient_line")
+width = 256
+height = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
+bg_color = Color(0.894118, 0.717647, 0.337255, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
+bg_color = Color(1, 0.84, 0.48, 1)
 
 [node name="Scoreboard" type="CanvasLayer" unique_id=1419453218]
 layer = 2
@@ -21,42 +60,122 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Panel" type="PanelContainer" parent="." unique_id=1650900068]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -500.0
-offset_top = -200.0
-offset_right = 500.0
-offset_bottom = 200.0
+[node name="Center" type="CenterContainer" parent="." unique_id=473957413]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
-[node name="Margin" type="MarginContainer" parent="Panel" unique_id=922228529]
+[node name="Column" type="VBoxContainer" parent="Center" unique_id=1764787411]
 layout_mode = 2
-theme_override_constants/margin_left = 36
-theme_override_constants/margin_top = 36
-theme_override_constants/margin_right = 36
-theme_override_constants/margin_bottom = 36
+theme_override_constants/separation = 10
 
-[node name="Layout" type="VBoxContainer" parent="Panel/Margin" unique_id=834760813]
+[node name="Frame" type="PanelContainer" parent="Center/Column" unique_id=1662691972]
+custom_minimum_size = Vector2(1400, 800)
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_styles/panel = SubResource("StyleBoxFlat_frame")
 
-[node name="Title" type="Label" parent="Panel/Margin/Layout" unique_id=1897760280]
+[node name="Layout" type="VBoxContainer" parent="Center/Column/Frame" unique_id=749086893]
 layout_mode = 2
-theme_override_font_sizes/font_size = 40
-text = "SCOREBOARD"
+theme_override_constants/separation = 0
+
+[node name="Header" type="PanelContainer" parent="Center/Column/Frame/Layout" unique_id=3247023]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_header")
+
+[node name="ModeLabel" type="Label" parent="Center/Column/Frame/Layout/Header" unique_id=1980430445]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 44
+text = "DEATHMATCH"
+
+[node name="Body" type="MarginContainer" parent="Center/Column/Frame/Layout" unique_id=322015400]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="Content" type="VBoxContainer" parent="Center/Column/Frame/Layout/Body" unique_id=72733773]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Banner" type="Control" parent="Center/Column/Frame/Layout/Body/Content" unique_id=57290517]
+custom_minimum_size = Vector2(0, 110)
+layout_mode = 2
+
+[node name="Glow" type="TextureRect" parent="Center/Column/Frame/Layout/Body/Content/Banner" unique_id=867424199]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.2
+anchor_right = 0.8
+anchor_bottom = 1.0
+offset_top = 3.0
+offset_bottom = -3.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_glow")
+expand_mode = 1
+
+[node name="LineTop" type="TextureRect" parent="Center/Column/Frame/Layout/Body/Content/Banner" unique_id=1439550553]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.2
+anchor_right = 0.8
+offset_bottom = 3.0
+grow_horizontal = 2
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_line")
+expand_mode = 1
+
+[node name="LineBottom" type="TextureRect" parent="Center/Column/Frame/Layout/Body/Content/Banner" unique_id=1804237163]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.2
+anchor_top = 1.0
+anchor_right = 0.8
+anchor_bottom = 1.0
+offset_top = -3.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_line")
+expand_mode = 1
+
+[node name="Title" type="Label" parent="Center/Column/Frame/Layout/Body/Content/Banner" unique_id=219622147]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 45
+text = "VICTORY"
 horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Rows" type="VBoxContainer" parent="Panel/Margin/Layout" unique_id=2114699839]
-custom_minimum_size = Vector2(360, 0)
+[node name="Tables" type="HBoxContainer" parent="Center/Column/Frame/Layout/Body/Content" unique_id=1432459484]
 layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
 
-[node name="LeaveButton" type="Button" parent="Panel/Margin/Layout" unique_id=1319703017]
+[node name="LeaveButton" type="Button" parent="Center/Column" unique_id=664950333]
+custom_minimum_size = Vector2(320, 52)
 layout_mode = 2
+size_flags_horizontal = 0
 mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 30
-text = "LEAVE MATCH"
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button")
+text = "BACK TO LOBBY"

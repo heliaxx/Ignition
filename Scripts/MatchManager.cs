@@ -35,6 +35,13 @@ public partial class MatchManager : Node
 
 	public int KillLimit { get; private set; } = DefaultKillLimit;
 	public int TimeLimitMinutes { get; private set; } = DefaultTimeLimitMinutes;
+	public MatchMode Mode { get; private set; } = MatchMode.Deathmatch;
+
+	// Lobby sides, mirrored like readiness. The server puts each arrival on the smaller side and
+	// the host can move anyone to the other side.
+	private readonly Dictionary<int, int> _lobbyTeams = new();
+
+	public int LobbyTeamOf(int peerId) => _lobbyTeams.TryGetValue(peerId, out int team) ? team : Teams.None;
 
 	[Signal] public delegate void LobbyChangedEventHandler();
 
@@ -43,10 +50,14 @@ public partial class MatchManager : Node
 	// Advertised to the lobby browser, which cannot join a match already running.
 	public bool InMatch => GetTree().CurrentScene is LevelDeathmatch;
 
-	// Two ships make a match, and the host waits until the others say they are ready.
+	// Two ships make a match, and the host waits until the others say they are ready. 
+	// TDM needs somebody on each side.
 	public bool CanStart => !NetworkManager.Instance.IsActive
 		|| (NetworkManager.Instance.Peers.Count >= 2
-			&& NetworkManager.Instance.Peers.All(id => id == ServerPeerId || _ready.Contains(id)));
+			&& NetworkManager.Instance.Peers.All(id => id == ServerPeerId || _ready.Contains(id))
+			&& (Mode != MatchMode.TeamDeathmatch || BothSidesManned));
+
+	public bool BothSidesManned => Teams.Both.All(team => NetworkManager.Instance.Peers.Any(id => LobbyTeamOf(id) == team));
 
 	public override void _Ready()
 	{
@@ -54,10 +65,12 @@ public partial class MatchManager : Node
 		NetworkManager.Instance.PeerJoined += OnPeerJoined;
 		NetworkManager.Instance.PeerLeft += OnPeerLeft;
 		NetworkManager.Instance.LeftServer += OnLeftServer;
-		// Everyone comes back under a new peer id and readies up again for the new host.
+		// Everyone comes back under a new peer id, readies up again for the new host and is put
+		// back on a side by it.
 		NetworkManager.Instance.SessionMoving += () =>
 		{
 			_ready.Clear();
+			_lobbyTeams.Clear();
 			EmitSignal(SignalName.LobbyChanged);
 		};
 	}
@@ -83,6 +96,26 @@ public partial class MatchManager : Node
 		BroadcastLobby();
 	}
 
+	// Host only, like the limits.
+	public void SetMode(MatchMode mode)
+	{
+		if (!NetworkManager.Instance.IsServer) return;
+
+		Mode = mode;
+		BroadcastLobby();
+	}
+
+	// Host only: each player goes to the side they are not on, so picks from both sides swap.
+	public void SwitchTeams(IEnumerable<int> peerIds)
+	{
+		if (!NetworkManager.Instance.IsServer) return;
+
+		foreach (int peerId in peerIds)
+			if (_lobbyTeams.TryGetValue(peerId, out int team))
+				_lobbyTeams[peerId] = Teams.Other(team);
+		BroadcastLobby();
+	}
+
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	private void RequestReady(bool ready) => ApplyReady(Multiplayer.GetRemoteSenderId(), ready);
 
@@ -101,16 +134,36 @@ public partial class MatchManager : Node
 			return;
 		}
 
-		Rpc(MethodName.SyncLobby, _ready.ToArray(), KillLimit, TimeLimitMinutes);
+		AssignTeams();
+		int[] teamPeers = _lobbyTeams.Keys.ToArray();
+		Rpc(MethodName.SyncLobby, _ready.ToArray(), KillLimit, TimeLimitMinutes, (int)Mode,
+			teamPeers, teamPeers.Select(id => _lobbyTeams[id]).ToArray());
+	}
+
+	// Server: whoever left gives up their side, and whoever has none joins the smaller one.
+	private void AssignTeams()
+	{
+		foreach (int gone in _lobbyTeams.Keys.Where(id => !NetworkManager.Instance.Peers.Contains(id)).ToList())
+			_lobbyTeams.Remove(gone);
+
+		foreach (int peerId in NetworkManager.Instance.Peers.OrderBy(id => id))
+		{
+			if (_lobbyTeams.ContainsKey(peerId)) continue;
+			int ones = _lobbyTeams.Values.Count(team => team == Teams.One);
+			_lobbyTeams[peerId] = ones <= _lobbyTeams.Count - ones ? Teams.One : Teams.Two;
+		}
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	private void SyncLobby(int[] ready, int killLimit, int timeLimitMinutes)
+	private void SyncLobby(int[] ready, int killLimit, int timeLimitMinutes, int mode, int[] teamPeers, int[] teamSides)
 	{
 		_ready.Clear();
 		foreach (int peerId in ready) _ready.Add(peerId);
 		KillLimit = killLimit;
 		TimeLimitMinutes = timeLimitMinutes;
+		Mode = (MatchMode)mode;
+		_lobbyTeams.Clear();
+		for (int i = 0; i < teamPeers.Length; i++) _lobbyTeams[teamPeers[i]] = teamSides[i];
 		EmitSignal(SignalName.LobbyChanged);
 	}
 
@@ -130,19 +183,24 @@ public partial class MatchManager : Node
 		// Offline the same path runs without a peer to send to.
 		if (!NetworkManager.Instance.IsActive)
 		{
-			BeginMatch(levelPath, new[] { NetworkManager.Instance.LocalPeerId }, seed, spawnSeed, KillLimit, TimeLimitMinutes);
+			BeginMatch(levelPath, new[] { NetworkManager.Instance.LocalPeerId }, seed, spawnSeed, KillLimit, TimeLimitMinutes,
+				(int)MatchMode.Deathmatch, new[] { Teams.None });
 			return;
 		}
 
 		int[] order = NetworkManager.Instance.Peers.OrderBy(id => id).ToArray();
-		Rpc(MethodName.BeginMatch, levelPath, order, seed, spawnSeed, KillLimit, TimeLimitMinutes);
+		Rpc(MethodName.BeginMatch, levelPath, order, seed, spawnSeed, KillLimit, TimeLimitMinutes, (int)Mode,
+			order.Select(LobbyTeamOf).ToArray());
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	private void BeginMatch(string levelPath, int[] spawnOrder, long worldSeed, long spawnSeed,
-		int killLimit, int timeLimitMinutes)
+		int killLimit, int timeLimitMinutes, int mode, int[] teams)
 	{
 		_spawnOrder = spawnOrder;
+		Mode = (MatchMode)mode;
+		_matchTeams.Clear();
+		for (int i = 0; i < spawnOrder.Length; i++) _matchTeams[spawnOrder[i]] = teams[i];
 		WorldSeed = worldSeed;
 		SpawnSeed = spawnSeed;
 		KillLimit = killLimit;
@@ -209,6 +267,24 @@ public partial class MatchManager : Node
 		EmitSignal(SignalName.PlayStarted);
 	}
 
+	// Each participant's side in the running match, fixed when it began.
+	private readonly Dictionary<int, int> _matchTeams = new();
+
+	public bool IsTeamMatch => Mode == MatchMode.TeamDeathmatch;
+
+	// None outside a team match, and for anything off the roster.
+	public int TeamOf(int participantId) =>
+		IsTeamMatch && _matchTeams.TryGetValue(participantId, out int team) ? team : Teams.None;
+
+	public bool AreTeammates(int a, int b) => a != b && TeamOf(a) != Teams.None && TeamOf(a) == TeamOf(b);
+
+	// Kills by everyone who played on the side, including anyone who has since left.
+	public int TeamKills(int team) =>
+		MatchStats.Entries.Where(e => TeamOf(e.Key) == team).Sum(e => e.Value.Kills);
+
+	public int TeamScore(int team) =>
+		MatchStats.Entries.Where(e => TeamOf(e.Key) == team).Sum(e => e.Value.Score);
+
 	// Long enough to see the explosion, short enough not to sit out the match.
 	private const double RespawnDelay = 3.0;
 
@@ -227,6 +303,7 @@ public partial class MatchManager : Node
 	// Set on every peer when the server calls the match, so nothing respawns afterwards.
 	private bool _matchOver;
 
+	// The winner is a participant id, or in a team match a team; None when nobody won.
 	[Signal] public delegate void MatchEndedEventHandler(int winnerId);
 
 	// A participant was destroyed. The outcome tells the caller whether to show an end-of-run
@@ -239,7 +316,9 @@ public partial class MatchManager : Node
 
 		// EventBus.Killed has already run, so the scoreboard behind this is up to date.
 		int leader = Leader();
-		if (leader != Participants.None && MatchStats.Entries[leader].Kills >= KillLimit)
+		int leaderKills = leader == Participants.None ? 0
+			: IsTeamMatch ? TeamKills(leader) : MatchStats.Entries[leader].Kills;
+		if (leader != Participants.None && leaderKills >= KillLimit)
 		{
 			Rpc(MethodName.EndMatch, leader);
 			return DeathOutcome.MatchOver;
@@ -254,9 +333,16 @@ public partial class MatchManager : Node
 		return DeathOutcome.Respawning;
 	}
 
-	// Highest kill count among those still playing, or None on an empty board.
-	private static int Leader()
+	// The side ahead in a team match, None on a draw. Otherwise the highest kill count among
+	// those still playing, or None on an empty board.
+	private int Leader()
 	{
+		if (IsTeamMatch)
+		{
+			int one = TeamKills(Teams.One), two = TeamKills(Teams.Two);
+			return one > two ? Teams.One : two > one ? Teams.Two : Teams.None;
+		}
+
 		int best = Participants.None;
 		foreach (KeyValuePair<int, MatchStats.Entry> pair in MatchStats.Entries)
 			if (!pair.Value.Left && (best == Participants.None || pair.Value.Kills > MatchStats.Entries[best].Kills))
@@ -299,18 +385,36 @@ public partial class MatchManager : Node
 		if (GetTree().CurrentScene is LevelDeathmatch level)
 			level.RemoveParticipant(participantId);
 
-		// A match needs someone to play against.
-		if (NetworkManager.Instance.IsServer && !_matchOver
-			&& NetworkManager.Instance.Peers.Count(id => _spawnOrder.Contains(id)) < 2)
+		// A match needs someone to play against: in a team match a side with nobody left forfeits.
+		if (!NetworkManager.Instance.IsServer || _matchOver) return;
+
+		var playing = NetworkManager.Instance.Peers.Where(id => _spawnOrder.Contains(id)).ToList();
+		if (IsTeamMatch)
+		{
+			int[] manned = Teams.Both.Where(team => playing.Any(id => TeamOf(id) == team)).ToArray();
+			if (manned.Length < 2)
+				Rpc(MethodName.EndMatch, manned.Length == 1 ? manned[0] : Teams.None);
+		}
+		else if (playing.Count < 2)
+		{
 			Rpc(MethodName.EndMatch, Leader());
+		}
 	}
 
-	// Client: the host is gone and the match with it.
+	// The session ended under a client mid-match: the host left, or removed this player.
+	[Signal] public delegate void SessionLostEventHandler(string reason);
+
+	// Client: the host is gone and the match with it. The standings stay on screen until the
+	// player leaves them; the menu then shows why, as it would have straight away.
 	private void OnLeftServer(string reason)
 	{
 		if (GetTree().CurrentScene is not LevelDeathmatch) return;
 		_leaveReason = reason;
-		LeaveMatch();
+		_matchOver = true;
+		// Nothing replicates the other ships any more; left alone they would drift on.
+		ShipSync.Instance.Clear();
+		MissileSync.Instance.Clear();
+		EmitSignal(SignalName.SessionLost, reason);
 	}
 
 	// Why the last match ended when this player did not choose to leave; the menu shows it once.

@@ -8,17 +8,18 @@ using System.Linq;
 // An invite-only EOS lobby is still searchable, so it carries its join code instead and the
 // browser leaves out every lobby that has one.
 public record LobbyInfo(string Host, IReadOnlyList<LobbyInfo.Member> Members, int KillLimit,
-	int TimeLimitMinutes, bool InMatch, string Code)
+	int TimeLimitMinutes, bool InMatch, string Code, MatchMode Mode)
 {
 	public enum MemberState { Host, Ready, Waiting }
 
 	// PeerId is only known inside the session; read from lobby data it is 0.
-	public record Member(string Name, MemberState State, int PeerId = 0);
+	public record Member(string Name, MemberState State, int PeerId = 0, int Team = Teams.None);
 	private const string HostKey = "HOST";
 	private const string PlayersKey = "PLAYERS";
 	private const string KillsKey = "KILLS";
 	private const string MinutesKey = "MINUTES";
 	private const string StateKey = "STATE";
+	private const string ModeKey = "MODE";
 	private const string MatchState = "match";
 	public const string CodeKey = "CODE";
 
@@ -36,20 +37,21 @@ public record LobbyInfo(string Host, IReadOnlyList<LobbyInfo.Member> Members, in
 			.Select(id => new Member(net.NameOf(id),
 				id == ServerPeerId ? MemberState.Host
 				: match.IsReady(id) ? MemberState.Ready
-				: MemberState.Waiting, id))
+				: MemberState.Waiting, id, match.LobbyTeamOf(id)))
 			.ToList();
 		string code = EosManager.Instance.InLobby ? EosManager.Instance.LobbyCode : "";
 		return new LobbyInfo(net.NameOf(ServerPeerId), members, match.KillLimit, match.TimeLimitMinutes,
-			match.InMatch, code);
+			match.InMatch, code, match.Mode);
 	}
 
 	public Dictionary<string, string> ToData() => new()
 	{
 		[HostKey] = Clean(Host),
-		[PlayersKey] = string.Join("\n", Members.Select(m => $"{Clean(m.Name)}\t{(int)m.State}")),
+		[PlayersKey] = string.Join("\n", Members.Select(m => $"{Clean(m.Name)}\t{(int)m.State}\t{m.Team}")),
 		[KillsKey] = KillLimit.ToString(),
 		[MinutesKey] = TimeLimitMinutes.ToString(),
 		[StateKey] = InMatch ? MatchState : "lobby",
+		[ModeKey] = ((int)Mode).ToString(),
 		[CodeKey] = Code,
 	};
 
@@ -68,14 +70,18 @@ public record LobbyInfo(string Host, IReadOnlyList<LobbyInfo.Member> Members, in
 			MemberState state = parts.Length > 1 && int.TryParse(parts[1], out int s) && Enum.IsDefined(typeof(MemberState), s)
 				? (MemberState)s
 				: MemberState.Waiting;
-			members.Add(new Member(parts[0], state));
+			int team = parts.Length > 2 && int.TryParse(parts[2], out int t) ? t : Teams.None;
+			members.Add(new Member(parts[0], state, Team: team));
 		}
 
 		return new LobbyInfo(host, members,
 			int.TryParse(read(KillsKey), out int kills) ? kills : 0,
 			int.TryParse(read(MinutesKey), out int minutes) ? minutes : 0,
 			read(StateKey) == MatchState,
-			read(CodeKey) ?? "");
+			read(CodeKey) ?? "",
+			int.TryParse(read(ModeKey), out int mode) && Enum.IsDefined(typeof(MatchMode), mode)
+				? (MatchMode)mode
+				: MatchMode.Deathmatch);
 	}
 
 	// Tabs and line breaks separate the members and their states.

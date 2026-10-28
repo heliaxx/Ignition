@@ -9,12 +9,28 @@ public static class MatchStats
 	{
 		public string Name;
 		public int Kills;
+		// Damaged a participant that somebody else then killed.
+		public int Assists;
 		public int Deaths;
 		// Deaths nobody gets credit for: rammed an asteroid, own missile, level hazard.
 		public int Suicides;
 		// Dropped out mid-match: the row stays on the board, but cannot win.
 		public bool Left;
+
+		public int Score => Kills * KillPoints + Assists * AssistPoints;
 	}
+
+	private const int KillPoints = 100;
+	private const int AssistPoints = 50;
+	private const double AssistWindow = 15.0;
+
+	// Who hit whom, and when. The time is used to determine whether a hit counts as an assist.
+	private static readonly Dictionary<int, Dictionary<int, double>> _hitBy = new();
+
+	// The time of the last hit, for assist attribution. A hit that is not followed by a kill
+	// does not count as an assist, so the time of the last hit is enough
+	// to know if a hit was recent enough to count.
+	private static double _hitTime;
 
 	private static readonly Dictionary<int, Entry> _entries = new();
 
@@ -23,6 +39,7 @@ public static class MatchStats
 	public static void Reset()
 	{
 		_entries.Clear();
+		_hitBy.Clear();
 
 		// EventBus.ClearAll() dropped our handler, so resubscribe; the -= guards a double Reset().
 		EventBus.Killed -= OnKilled;
@@ -39,9 +56,24 @@ public static class MatchStats
 
 	public static void MarkLeft(int id) => Get(id).Left = true;
 
+	public static void RecordHit(int targetId, int sourceId, double time)
+	{
+		_hitTime = time;
+		if (targetId == Participants.None || sourceId == Participants.None || targetId == sourceId) return;
+
+		if (!_hitBy.TryGetValue(targetId, out Dictionary<int, double> hitters))
+			_hitBy[targetId] = hitters = new Dictionary<int, double>();
+		hitters[sourceId] = time;
+	}
+
 	private static void OnKilled(int victim, int killer)
 	{
 		if (victim == Participants.None) return;
+
+		// Everyone else who dealt damage recently shares the kill.
+		if (_hitBy.Remove(victim, out Dictionary<int, double> hitters))
+			foreach ((int hitter, double at) in hitters)
+				if (hitter != killer && _hitTime - at <= AssistWindow) Get(hitter).Assists++;
 
 		Get(victim).Deaths++;
 
